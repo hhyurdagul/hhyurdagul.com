@@ -32,14 +32,46 @@
     content="The personal portfolio of Hasan Hüseyin Yurdagül, a machine learning engineer passionate about life, philosophy, maths, and engineering.">
   <meta property="twitter:image" content="assets/profile.jpeg">
 
-  <!-- Google Fonts: Inter and Playfair Display -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:wght@700&display=swap"
-    rel="stylesheet">
 
   <style>
+    /* === Inter === */
+    /* inter-300 - latin */
+    @font-face {
+      font-display: swap;
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 300;
+      src: url('fonts/inter-v19-latin-300.woff2') format('woff2');
+    }
+
+    /* inter-regular - latin */
+    @font-face {
+      font-display: swap;
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 400;
+      src: url('fonts/inter-v19-latin-regular.woff2') format('woff2');
+    }
+
+    /* inter-500 - latin */
+    @font-face {
+      font-display: swap;
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 500;
+      src: url('fonts/inter-v19-latin-500.woff2') format('woff2');
+    }
+
+    /* === Playfair Display === */
+    /* playfair-display-700 - latin */
+    @font-face {
+      font-display: swap;
+      font-family: 'Playfair Display';
+      font-style: normal;
+      font-weight: 700;
+      src: url('fonts/playfair-display-v39-latin-700.woff2') format('woff2');
+    }
+
     /* --- CSS Custom Properties (Variables) for Elegant Theming --- */
     :root {
       --bg-main: #121212;
@@ -365,7 +397,7 @@
 
       <!-- Left Side: Navigation & Profile -->
       <aside class="navigation">
-        <img src="assets/profile.jpeg" alt="A portrait of Hasan Hüseyin Yurdagül" class="profile-image">
+        <img src="assets/profile.webp" alt="A portrait of Hasan Hüseyin Yurdagül" loading="lazy" class="profile-image">
         <h1>Hasan H. Yurdagül</h1>
         <h3>Machine Learning Engineer</h3>
 
