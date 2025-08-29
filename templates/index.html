@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <!-- About Section -->
+  <section id="about" aria-labelledby="about-heading">
+    <h2 id="about-heading">About</h2>
+    <p>
+      Hello! I'm Hasan, a machine learning engineer based in the crossroads of logic and creativity. My work is
+      driven by a deep passion for life's complex puzzles, the elegance of mathematics, the foundational truths of
+      philosophy, and the tangible impact of engineering.
+    </p>
+    <p>
+      I believe in building solutions that are not only technically robust but also simple and intuitive. This
+      portfolio is a small window into my world and my work.
+    </p>
+  </section>
+
+  <!-- Blog Section -->
+  <section id="blog" aria-labelledby="blog-heading">
+    <h2 id="blog-heading">From the Blog</h2>
+    <article class="card">
+      <h3><a href="#">The Art of Simplicity in Code</a></h3>
+      <time datetime="2025-07-05" class="date">July 05, 2025</time>
+      <p>Exploring how writing less code can lead to more robust and maintainable software. It's not about being
+        lazy; it's about being smart, disciplined, and focused on clarity.</p>
+    </article>
+    <article class="card">
+      <h3><a href="#">Connecting Philosophy and Algorithms</a></h3>
+      <time datetime="2025-06-21" class="date">June 21, 2025</time>
+      <p>A dive into how ancient philosophical concepts can inform modern-day algorithm design, from ethics in AI
+        to the logic structures that underpin our code.</p>
+    </article>
+  </section>
+
+  <!-- Projects Section -->
+  <section id="projects" aria-labelledby="projects-heading">
+    <h2 id="projects-heading">Selected Work</h2>
+    <article class="card">
+      <h3><a href="#">Project One: Markdown Parser in Bash</a></h3>
+      <p>A lightweight, dependency-free Markdown to HTML converter written entirely in Bash scripting. An exercise
+        in minimalism and shell capabilities.</p>
+    </article>
+    <article class="card">
+      <h3><a href="#">Project Two: Neural Network from Scratch</a></h3>
+      <p>Implementing a simple neural network in pure Python to understand the core mechanics of forward and
+        backward propagation without relying on major libraries.</p>
+    </article>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Hasan Hüseyin Yurdagül. Crafted with care.</p>
+  </footer>
+
+{% endblock content %}
