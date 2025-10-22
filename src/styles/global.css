@@ -1,44 +1,6 @@
-/* === Inter === */
-/* inter-300 - latin */
-@font-face {
-  font-display: swap;
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 300;
-  src: url('fonts/inter-v19-latin-300.woff2') format('woff2');
-}
-
-/* inter-regular - latin */
-@font-face {
-  font-display: swap;
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 400;
-  src: url('fonts/inter-v19-latin-regular.woff2') format('woff2');
-}
-
-/* inter-500 - latin */
-@font-face {
-  font-display: swap;
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 500;
-  src: url('fonts/inter-v19-latin-500.woff2') format('woff2');
-}
-
-/* === Playfair Display === */
-/* playfair-display-700 - latin */
-@font-face {
-  font-display: swap;
-  font-family: 'Playfair Display';
-  font-style: normal;
-  font-weight: 700;
-  src: url('fonts/playfair-display-v39-latin-700.woff2') format('woff2');
-}
-
 /* --- CSS Custom Properties (Variables) for Elegant Theming --- */
 :root {
-  --bg-main: #121212;
+  --bg-main: #0a0a0a;
   --bg-content: #1a1a1a;
   --text-primary: #d1d1d1;
   --text-secondary: #888888;
@@ -68,9 +30,6 @@ body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-image:
-    radial-gradient(circle at 10% 20%, rgba(180, 162, 138, 0.05), transparent 30%),
-    radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.04), transparent 40%);
 }
 
 /* --- Typography --- */
@@ -155,7 +114,7 @@ a:focus-visible {
 
 .navigation {
   width: 30%;
-  position: sticky;
+  position: static;
   top: 6rem;
   align-self: flex-start;
 }
