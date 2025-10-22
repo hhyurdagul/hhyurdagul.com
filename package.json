@@ -11,6 +11,7 @@
   "dependencies": {
     "astro": "^5.14.7",
     "prettier": "^3.6.2",
-    "prettier-plugin-astro": "^0.14.1"
+    "prettier-plugin-astro": "^0.14.1",
+    "sharp": "^0.34.4"
   }
 }
