@@ -1,0 +1,38 @@
+---
+const { href } = Astro.props;
+const currentPage = Astro.url.pathname;
+---
+
+<a
+  href={href}
+  style={currentPage === href
+    ? "color: var(--text-primary); font-weight: bold"
+    : ""}><slot /></a
+>
+
+<style>
+  a {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    padding: 0.25rem 0;
+  }
+
+  a::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 1px;
+    display: block;
+    margin-top: 2px;
+    right: 0;
+    background: var(--accent-hover);
+    transition: width var(--transition-speed) ease;
+  }
+
+  a:hover::after {
+    width: 100%;
+    left: 0;
+    background: var(--accent-primary);
+  }
+</style>
