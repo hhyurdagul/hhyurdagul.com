@@ -1,0 +1,50 @@
+---
+const { title, href, category, pubDate, language } = Astro.props;
+
+function get_locale(lang: string): string {
+  return lang === "tr" ? "tr-TR" : "en-US";
+}
+
+const year = pubDate.getFullYear();
+const month = pubDate.toLocaleString(get_locale(language), { month: "long" });
+---
+
+<article>
+  <a class="link" href={href}>
+    <div class="title">{title}</div>
+    <div class="meta">{category} ~ {year} - {month}</div>
+  </a>
+</article>
+
+<style>
+  article {
+    border-bottom: 1px solid var(--accent-primary);
+    flex: 1 1 100%;
+    margin: 0 0 10px;
+    padding-bottom: 9px;
+    transition: all 0.1s ease-in-out;
+  }
+
+  article:last-child {
+    border-bottom: none;
+  }
+
+  .link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    line-height: 1.25;
+  }
+  .title {
+    color: var(--text-primary);
+    font-weight: bold;
+    text-wrap: wrap;
+  }
+
+  .meta {
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    text-wrap: nowrap;
+    font-size: 0.9rem;
+  }
+</style>

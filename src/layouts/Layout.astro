@@ -1,0 +1,9 @@
+---
+import Navigation from "../components/Navigation.astro";
+import BaseLayout from "./BaseLayout.astro";
+---
+
+<BaseLayout>
+  <Navigation slot="sidebar" />
+  <slot />
+</BaseLayout>

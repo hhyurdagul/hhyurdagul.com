@@ -1,0 +1,63 @@
+---
+import "../styles/global.css";
+import Footer from "../components/Footer.astro";
+import Head from "../components/Head.astro";
+---
+
+<!doctype html>
+<html lang="en">
+  <Head />
+  <body>
+    <div class="container">
+      <div class="main-layout">
+        <slot name="sidebar" />
+        <main class="content">
+          <slot />
+        </main>
+      </div>
+      <Footer />
+    </div>
+  </body>
+</html>
+
+<style>
+  .container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 6rem 2rem;
+  }
+
+  .main-layout {
+    display: flex;
+    gap: 4rem;
+  }
+
+  .content {
+    width: 70%;
+    min-width: 0;
+    animation: fadeInContent 1s ease-in-out forwards;
+  }
+
+  @keyframes fadeInContent {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 820px) {
+    .main-layout {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .content {
+      width: 100%;
+    }
+  }
+</style>

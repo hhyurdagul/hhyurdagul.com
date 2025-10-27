@@ -1,0 +1,18 @@
+---
+import BlogLink from "./links/BlogLink.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+const pathname = Astro.url.pathname;
+
+const allPosts = (await getCollection("blog"))
+  .sort(
+    (a: CollectionEntry<"blog">, b: CollectionEntry<"blog">) =>
+      b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+  )
+  .filter((post: CollectionEntry<"blog">) => (pathname === "/" ? post.data.highlight : true));
+---
+
+<section id="blog" aria-labelledby="blog-heading">
+  <h2 id="blog-heading">Blog</h2>
+  {allPosts.map((post: CollectionEntry<"blog">) => <BlogLink href=`/blog/${post.id}` category={post.data.tags[0]} {...post.data} />)}
+</section>

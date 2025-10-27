@@ -1,0 +1,109 @@
+---
+import type { MarkdownHeading } from "astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+const filteredHeadings = headings.filter((h) => h.depth <= 3);
+---
+
+{
+  filteredHeadings.length > 0 && (
+    <nav class="toc" aria-label="Table of Contents">
+      <h2 class="toc-title">On this page</h2>
+      <ul class="toc-list">
+        {filteredHeadings.map((heading) => (
+          <li class={`toc-item depth-${heading.depth}`}>
+            <a href={`#${heading.slug}`} class="toc-link">
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+<style>
+  .toc {
+    padding: 1.5rem;
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+  }
+
+  .toc-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-headings);
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .toc-title::after {
+    display: none;
+  }
+
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .toc-item {
+    margin-bottom: 0.5rem;
+  }
+
+  .toc-item.depth-1 {
+    margin-left: 0;
+  }
+
+  .toc-item.depth-2 {
+    margin-left: 1rem;
+  }
+
+  .toc-item.depth-3 {
+    margin-left: 2rem;
+  }
+
+  .toc-link {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 0.25rem 0;
+    transition:
+      color var(--transition-speed) ease,
+      transform var(--transition-speed) ease;
+    position: relative;
+    letter-spacing: 0;
+  }
+
+  .toc-link::before {
+    content: "";
+    position: absolute;
+    left: -0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background-color: var(--accent-primary);
+    transition: height var(--transition-speed) ease;
+  }
+
+  .toc-link:hover {
+    color: var(--accent-primary);
+    transform: translateX(4px);
+  }
+
+  .toc-link:hover::before {
+    height: 100%;
+  }
+</style>
+
