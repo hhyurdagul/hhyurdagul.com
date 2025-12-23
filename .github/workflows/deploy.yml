@@ -1,0 +1,55 @@
+name: Build and Deploy
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Soupault binary
+        id: cache-soupault
+        uses: actions/cache@v4
+        with:
+          path: ./soupault-bin
+          key: soupault-5.2.0
+
+      - name: Install Soupault
+        if: steps.cache-soupault.outputs.cache-hit != 'true'
+        env:
+          SOUPAULT_VERSION: 5.2.0
+        run: |
+          mkdir -p soupault-bin
+          echo "Downloading Soupault $SOUPAULT_VERSION..."
+          wget -q https://github.com/PataphysicalSociety/soupault/releases/download/$SOUPAULT_VERSION/soupault-$SOUPAULT_VERSION-linux-x86_64.tar.gz
+          tar xf soupault-$SOUPAULT_VERSION-linux-x86_64.tar.gz
+          mv ./soupault-$SOUPAULT_VERSION-linux-x86_64/soupault ./soupault-bin/
+
+      - name: Add Soupault to PATH
+        run: echo "$(pwd)/soupault-bin" >> $GITHUB_PATH
+
+      - name: Install KaTeX & Highlight
+        run: |
+          npm install -g katex
+          sudo apt-get update && sudo apt-get install -y highlight
+
+      - name: Build the site
+        run: soupault
+
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
