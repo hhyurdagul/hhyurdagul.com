@@ -333,7 +333,7 @@
   site_name = "Hasan Hüseyin Yurdagül"
   title_suffix = " | Hasan Hüseyin Yurdagül"
   # Used for OpenGraph/Twitter previews
-  og_image = "/web-app-manifest-512x512.png"
+  og_image = "/assets/og.png"
 
 
 # Add prose typography styling to article-like pages
