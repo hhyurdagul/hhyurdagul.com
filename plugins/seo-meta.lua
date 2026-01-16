@@ -158,19 +158,24 @@ end
 
 set_title(head, full_title)
 
-local raw_desc = first_non_empty_text({"main#content .intro-text", "main#content p", "main#content li"})
-local description = make_description_text(raw_desc)
-if not description then
-  description = "Machine Learning Engineer and Consultant."
+local description = nil
+local desc_el = HTML.select_one(page, "data.seo-description")
+if desc_el then
+  local raw_desc = HTML.get_attribute(desc_el, "value")
+  description = make_description_text(raw_desc)
 end
 
-upsert_meta_by_name(head, "description", description)
+if description then
+  upsert_meta_by_name(head, "description", description)
+end
 upsert_meta_by_name(head, "robots", "index,follow")
 upsert_link(head, "canonical", canonical_url)
 
 -- OpenGraph
 upsert_meta_by_property(head, "og:title", full_title)
-upsert_meta_by_property(head, "og:description", description)
+if description then
+  upsert_meta_by_property(head, "og:description", description)
+end
 upsert_meta_by_property(head, "og:url", canonical_url)
 upsert_meta_by_property(head, "og:site_name", site_name)
 
@@ -202,4 +207,6 @@ if image_url then
 end
 upsert_meta_by_name(head, "twitter:card", twitter_card)
 upsert_meta_by_name(head, "twitter:title", full_title)
-upsert_meta_by_name(head, "twitter:description", description)
+if description then
+  upsert_meta_by_name(head, "twitter:description", description)
+end

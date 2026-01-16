@@ -2,7 +2,8 @@
     <a href="/writing" class="view-all mono">← Back to writing</a>
 </section>
 
-<span class="showcase" data-showcase="1"></span>
+<data class="showcase" value="1"></data>
+<data class="seo-description" value="A short checklist you can use for future posts."></data>
 
 <time class="post-date mono" datetime="2025-01-01">2025</time>
 

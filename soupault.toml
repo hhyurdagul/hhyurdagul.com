@@ -127,8 +127,8 @@
   strip_tags = true
 
 [index.fields.showcase]
-  selector = ".showcase"
-  extract_attribute = "data-showcase"
+  selector = "data.showcase"
+  extract_attribute = "value"
   fallback_to_content = false
   strip_tags = true
 
