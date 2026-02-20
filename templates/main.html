@@ -53,6 +53,10 @@
       box-sizing: border-box;
     }
 
+    #descripton {
+      display: none;
+    }
+
     body {
       background-color: var(--bg-base);
       color: var(--text-muted);
@@ -271,6 +275,29 @@
       color: var(--text-dark);
     }
 
+    .link-see-more {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      transition: color 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 2rem;
+    }
+
+    .link-see-more:hover {
+      color: var(--text-main);
+    }
+
+    .link-see-more svg {
+      width: 16px;
+      height: 16px;
+      color: var(--accent);
+    }
+
     /* --- PROJECTS VIEW --- */
     .section-header {
       display: flex;
@@ -333,6 +360,11 @@
 
     .project-header a:hover {
       color: var(--text-main);
+    }
+
+    .project-header svg {
+      width: 24px;
+      height: 24px;
     }
 
     .project-card p {
@@ -502,8 +534,8 @@
         d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
     </symbol>
 
-    <symbol id="icon-cpu" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <symbol id="icon-cpu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round">
       <path d="M12 20v2" />
       <path d="M12 2v2" />
       <path d="M17 20v2" />
@@ -577,8 +609,8 @@
 
       <nav>
         <a class="nav-link" href="/">/home</a>
-        <a class="nav-link" href="/projects">/projects</a>
         <a class="nav-link" href="/writing">/writing</a>
+        <a class="nav-link" href="/projects">/projects</a>
       </nav>
     </header>
 

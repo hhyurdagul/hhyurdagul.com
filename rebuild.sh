@@ -1,0 +1,1 @@
+fd . | entr -rc soupault 

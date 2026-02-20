@@ -106,6 +106,10 @@
 # If you ever want external preprocessors, you can add a [preprocessors] table here.
 
 # Metadata extraction fields for auto-generated indexes (/writing, /projects)
+
+[index]
+  extract_after_widgets = ["insert-reading-time"]
+
 [index.fields]
 
 [index.fields.title]
@@ -123,11 +127,24 @@
   strip_tags = true
 
 [index.fields.excerpt]
-  selector = ["main#content p.intro-text", "main#content p"]
+  # selector = ["main#content p.intro-text", "main#content p"]
+  selector = "data#excerpt"
   strip_tags = true
 
 [index.fields.showcase]
-  selector = "data.showcase"
+  selector = "data#showcase"
+  extract_attribute = "value"
+  fallback_to_content = false
+  strip_tags = true
+
+[index.fields.reading_time]
+  selector = "data#reading-time"
+  extract_attribute = "value"
+  fallback_to_content = false
+  strip_tags = true
+
+[index.fields.project_tags]
+  selector = "data#project-tags"
   extract_attribute = "value"
   fallback_to_content = false
   strip_tags = true
@@ -143,12 +160,20 @@
   sort_descending = true
   index_template = """
     {% for e in entries %}
-    <article>
-      <a href=\"{{e.url}}\" class=\"post-item\">
-        {% if e.date_display %}<span class="post-date mono">{{e.date_display}}</span>{% endif %}
-        <h3 class="post-title">{{e.title}}</h3>
-      </a>
-    </article>
+    <a href=\"{{e.url}}\">
+      <article class="blog-post">
+        <div class="blog-meta">
+          <span>{{e.date_display}}</span>
+          <div class="dot"></div>
+          <span class="reading-time">{{e.reading_time}}</span>
+        </div>
+        <h3>{{e.title}}</h3>
+        {% if e.excerpt %}<p>{{e.excerpt}}</p>{% endif %}
+        <div class="read-more">Read Log
+          <svg><use href="#icon-arrow-right"></use></svg>
+        </div>
+      </article>
+    </a>
     {% endfor %}
   """
 
@@ -162,22 +187,19 @@
   sort_descending = false
   index_template = """
     {% for e in entries %}
-    
-
-    <div class=\"project-header\">
-    <h3>{{e.title}}</h3>
     <a href=\"{{e.url}}\" class=\"project-card\">
+      <div class=\"project-header\">
+        <strong>{{e.title}}</strong>
+      </div>
       {% if e.excerpt %}<p class=\"project-desc\">{{e.excerpt}}</p>{% endif %}
     </a>
-
-      </div>
     {% endfor %}
   """
 
 # Homepage: show up to 3 items
 [index.views.home-writing]
   page = "index.html"
-  index_selector = "#home-writing-index"
+  index_selector = ".home-writing-list"
   section = "writing/"
   include_subsections = true
   exclude_page = "writing/index.html"
@@ -187,12 +209,20 @@
   index_template = """
     {% for e in entries %}
     {% if e.showcase %}
-    <article>
-      <a href=\"{{e.url}}\" class=\"post-item\">
-        {% if e.date_display %}<span class=\"post-date mono\">{{e.date_display}}</span>{% endif %}
-        <h3 class=\"post-title\">{{e.title}}</h3>
-      </a>
-    </article>
+    <a href=\"{{e.url}}\">
+      <article class="blog-post">
+        <div class="blog-meta">
+          <span>{{e.date_display}}</span>
+          <div class="dot"></div>
+          <span class="reading-time">{{e.reading_time}}</span>
+        </div>
+        <h3 style=\"font-size: 1.125rem; margin-bottom: 0.5rem;\">{{e.title}}</h3>
+        {% if e.excerpt %}<p style=\"font-size: 0.9rem;\">{{e.excerpt}}</p>{% endif %}
+        <div class="read-more" style=\"margin-top: 0.5rem;\">Read Log
+          <svg><use href="#icon-arrow-right"></use></svg>
+        </div>
+      </article>
+    </a>
     {% endif %}
     {% endfor %}
   """
@@ -342,7 +372,7 @@
 
 # Add prose typography styling to article-like pages
 [widgets.prose-writing]
-  widget = "add_class"
+  widget = "add-class"
   selector = "body"
   class = "prose"
   section = "writing/"
@@ -350,12 +380,22 @@
   exclude_page = "writing/index.html"
 
 [widgets.prose-projects]
-  widget = "add_class"
+  widget = "add-class"
   selector = "body"
   class = "prose"
   section = "projects/"
   include_subsections = true
   exclude_page = "projects/index.html"
+
+# Insert reading time for each post
+# Implemented as a Lua plugin in plugins/reading-time.lua
+[widgets.insert-reading-time]
+  widget = "reading-time"
+  content_selector = "main#content"
+  reading_speed = 180
+  section = "writing/"
+  include_subsections = true
+  exclude_page = "writing/index.html"
 
 # Highlights the current section in the top navigation
 # Implemented as a Lua plugin in plugins/nav-active.lua

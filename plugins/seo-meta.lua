@@ -159,9 +159,9 @@ end
 set_title(head, full_title)
 
 local description = nil
-local desc_el = HTML.select_one(page, "data.seo-description")
+local desc_el = HTML.select_one(page, "data#description")
 if desc_el then
-  local raw_desc = HTML.get_attribute(desc_el, "value")
+  local raw_desc = HTML.inner_text(desc_el)
   description = make_description_text(raw_desc)
 end
 
