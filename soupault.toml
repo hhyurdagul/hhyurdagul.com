@@ -134,7 +134,7 @@
 
 # Index views render lists into index pages (pages named index.*)
 [index.views.writing]
-  index_selector = "#writing-index"
+  index_selector = ".writing-list"
   section = "writing/"
   include_subsections = true
   exclude_page = "writing/index.html"
@@ -153,7 +153,7 @@
   """
 
 [index.views.projects]
-  index_selector = "#projects-index"
+  index_selector = ".projects-grid"
   section = "projects/"
   include_subsections = true
   exclude_page = "projects/index.html"
@@ -162,12 +162,15 @@
   sort_descending = false
   index_template = """
     {% for e in entries %}
+    
+
+    <div class=\"project-header\">
+    <h3>{{e.title}}</h3>
     <a href=\"{{e.url}}\" class=\"project-card\">
-      <div class=\"project-header\">
-        <strong>{{e.title}}</strong>
-      </div>
       {% if e.excerpt %}<p class=\"project-desc\">{{e.excerpt}}</p>{% endif %}
     </a>
+
+      </div>
     {% endfor %}
   """
 
@@ -284,6 +287,7 @@
     local out_file = Sys.join_path(build_dir, "sitemap.xml")
     Sys.write_file(out_file, String.join("\n", lines) .. "\n")
   '''
+
 
 # Render TeX math server-side with KaTeX CLI
 # Usage in Markdown/HTML:
