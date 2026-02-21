@@ -108,6 +108,7 @@
 # Metadata extraction fields for auto-generated indexes (/writing, /projects)
 
 [index]
+  leaf_file = ".leaf"
   extract_after_widgets = ["insert-reading-time"]
 
 [index.fields]
@@ -143,11 +144,22 @@
   fallback_to_content = false
   strip_tags = true
 
-[index.fields.project_tags]
-  selector = "data#project-tags"
+[index.fields.tags]
+  selector = "data#tags"
   extract_attribute = "value"
   fallback_to_content = false
   strip_tags = true
+
+[hooks.post-index]
+  lua_source = '''
+     -- Split tags strings like "foo, bar" into lists
+     -- to make life easier for the Atom plugin and the indexer
+    if Value.is_string(index_fields["tags"]) then
+      tags = Regex.split(index_fields["tags"], ",")
+      Table.apply_to_values(String.trim, tags)
+      index_fields["tags"] = tags
+    end
+'''
 
 # Index views render lists into index pages (pages named index.*)
 [index.views.writing]
@@ -160,7 +172,7 @@
   sort_descending = true
   index_template = """
     {% for e in entries %}
-    <a href=\"{{e.url}}\">
+    <a href="{{e.url}}">
       <article class="blog-post">
         <div class="blog-meta">
           <span>{{e.date_display}}</span>
@@ -187,12 +199,21 @@
   sort_descending = false
   index_template = """
     {% for e in entries %}
-    <a href=\"{{e.url}}\" class=\"project-card\">
-      <div class=\"project-header\">
-        <strong>{{e.title}}</strong>
+    <div class="project-card">
+      <div class="project-header">
+        <h3>{{e.title}}</h3>
+        <a href="{{e.url}}">
+          <svg><use href="#icon-arrow-right"></use></svg>
+        </a>
       </div>
-      {% if e.excerpt %}<p class=\"project-desc\">{{e.excerpt}}</p>{% endif %}
-    </a>
+      {% if e.excerpt %}<p>{{e.excerpt}}</p>{% endif %}
+
+      <div class="tech-tags">
+        {% for tag in e.tags %}
+        <span>{{tag}}</span>
+        {% endfor %}
+      </div>
+    </div>
     {% endfor %}
   """
 
@@ -209,16 +230,16 @@
   index_template = """
     {% for e in entries %}
     {% if e.showcase %}
-    <a href=\"{{e.url}}\">
+    <a href="{{e.url}}">
       <article class="blog-post">
         <div class="blog-meta">
           <span>{{e.date_display}}</span>
           <div class="dot"></div>
           <span class="reading-time">{{e.reading_time}}</span>
         </div>
-        <h3 style=\"font-size: 1.125rem; margin-bottom: 0.5rem;\">{{e.title}}</h3>
-        {% if e.excerpt %}<p style=\"font-size: 0.9rem;\">{{e.excerpt}}</p>{% endif %}
-        <div class="read-more" style=\"margin-top: 0.5rem;\">Read Log
+        <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">{{e.title}}</h3>
+        {% if e.excerpt %}<p style="font-size: 0.9rem;">{{e.excerpt}}</p>{% endif %}
+        <div class="read-more" style="margin-top: 0.5rem;">Read Log
           <svg><use href="#icon-arrow-right"></use></svg>
         </div>
       </article>
@@ -229,7 +250,7 @@
 
 [index.views.home-projects]
   page = "index.html"
-  index_selector = "#home-projects-index"
+  index_selector = ".home-projects-grid"
   section = "projects/"
   include_subsections = true
   exclude_page = "projects/index.html"
@@ -239,12 +260,21 @@
   index_template = """
     {% for e in entries %}
     {% if e.showcase %}
-    <a href=\"{{e.url}}\" class=\"project-card\">
-      <div class=\"project-header\">
-        <strong>{{e.title}}</strong>
+    <div class="project-card" style="padding: 1.25rem;">
+      <div class="project-header" style="margin-bottom: 0.5rem;">
+        <h3 style="font-size: 1.125rem;">{{e.title}}</h3>
+        <a href="{{e.url}}">
+          <svg><use href="#icon-arrow-right"></use></svg>
+        </a>
       </div>
-      {% if e.excerpt %}<p class=\"project-desc\">{{e.excerpt}}</p>{% endif %}
-    </a>
+      {% if e.excerpt %}<p style="font-size: 0.875rem; margin-bottom: 1rem;">{{e.excerpt}}</p>{% endif %}
+
+      <div class="tech-tags">
+        {% for tag in e.tags %}
+        <span>{{tag}}</span>
+        {% endfor %}
+      </div>
+    </div>
     {% endif %}
     {% endfor %}
   """
@@ -391,6 +421,7 @@
 # Implemented as a Lua plugin in plugins/reading-time.lua
 [widgets.insert-reading-time]
   widget = "reading-time"
+  selector = "body"
   content_selector = "main#content"
   reading_speed = 180
   section = "writing/"
