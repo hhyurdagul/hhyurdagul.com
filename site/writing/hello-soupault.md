@@ -3,7 +3,7 @@
 </section>
 
 <time class="post-date mono" datetime="2025-01-01">Oct 24, 2025</time>
-<data id="description">Hello Soupault</data>
+<data id="excerpt">Hello Soupault</data>
 
 # Hello Soupault (Markdown)
 
