@@ -1,0 +1,21 @@
+/* TokyoNight-Night syntax highlighting */
+/* Background: #1a1b26 | Foreground: #a9b1d6 */
+body.hl { background-color: #1a1b26; }
+pre.hl { color: #a9b1d6; background-color: #1a1b26; font-size: 10pt; font-family: 'CaskaydiaMono Nerd Font', 'JetBrains Mono', 'Fira Code', 'Courier New', monospace; padding: 20px; border-radius: 8px; line-height: 1.6; white-space: pre-wrap; border: 1px solid #24283b; }
+.hl.num { color: #ff9e64; }
+.hl.esc { color: #bb9af7; font-weight: bold; }
+.hl.sng { color: #9ece6a; }
+.hl.pps { color: #7dcfff; }
+.hl.ppc { color: #7dcfff; font-weight: bold; }
+.hl.slc, .hl.com { color: #565f89; font-style: italic; }
+.hl.opt { color: #89ddff; }
+.hl.lin { color: #3b4261; user-select: none; border-right: 1px solid #292e42; padding-right: 15px; margin-right: 15px; }
+.hl.erm { color: #f7768e; border: solid 1px #f7768e; background: #2d202a; }
+.hl.err { color: #f7768e; font-weight: bold; }
+.hl.kwa { color: #bb9af7; font-weight: bold; }
+.hl.kwb { color: #2ac3de; }
+.hl.kwc { color: #e0af68; }
+.hl.kwd { color: #7aa2f7; }
+.hl.kwe { color: #bb9af7; }
+.hl.kwf { color: #7dcfff; }
+.hl.hvr { background-color: #24283b; outline: 1px solid #7aa2f7; }

@@ -1,0 +1,122 @@
+/* --- WRITING HEADER --- */
+.writing-header {
+  display: block;
+  margin-bottom: 3rem;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.writing-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.875rem;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  margin-bottom: 1.5rem;
+}
+
+.writing-meta .dot {
+  width: 4px;
+  height: 4px;
+  background-color: #404040;
+  border-radius: 50%;
+}
+
+.writing-header h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .writing-header h1 {
+    font-size: 3rem;
+  }
+}
+
+/* --- WRITING CONTENT (TYPOGRAPHY) --- */
+.writing-content {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+@media (min-width: 768px) {
+  .writing-content {
+    font-size: 1.25rem;
+  }
+}
+
+.writing-content p {
+  margin-bottom: 2rem;
+}
+
+.writing-content h2 {
+  font-family: var(--font-sans);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-top: 3.5rem;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.025em;
+}
+
+.writing-content strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.writing-content blockquote {
+  margin: 2.5rem 0;
+  padding: 1rem 1.5rem;
+  border-left: 3px solid var(--accent);
+  background-color: rgba(16, 185, 129, 0.05);
+  font-style: italic;
+  color: var(--text-main);
+}
+
+.writing-content blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* Code snippets */
+.writing-content pre {
+  background-color: #000;
+  border: 1px solid var(--border-light);
+  padding: 1.5rem;
+  overflow-x: auto;
+  margin: 2.5rem 0;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.writing-content code {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--text-main);
+}
+
+/* Inline code */
+.writing-content p code {
+  background-color: var(--bg-card);
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--border-light);
+  border-radius: 3px;
+  font-size: 0.9em;
+  color: #d4d4d4;
+}
+
+.writing-content ul,
+.writing-content ol {
+  margin-bottom: 2rem;
+  padding-left: 1.5rem;
+}
+
+.writing-content li {
+  margin-bottom: 0.5rem;
+}

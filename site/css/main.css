@@ -1,0 +1,263 @@
+/* --- HOME VIEW --- */
+.hero {
+  margin-bottom: 4rem;
+}
+
+.hero h2 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.05em;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .hero h2 {
+    font-size: 3.75rem;
+  }
+}
+
+.hero h2 span {
+  color: var(--text-dark);
+}
+
+.hero p {
+  font-size: 1.125rem;
+  max-width: 42rem;
+  font-weight: 300;
+}
+
+@media (min-width: 768px) {
+  .hero p {
+    font-size: 1.25rem;
+  }
+}
+
+.grid-2 {
+  display: grid;
+  gap: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-dark);
+}
+
+@media (min-width: 768px) {
+  .grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.info-block h3 {
+  font-size: 1.125rem;
+  font-family: var(--font-mono);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.info-block h3 svg {
+  color: var(--accent);
+}
+
+.directives-list {
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.directives-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.directives-list span {
+  color: var(--text-dark);
+}
+
+.load-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--text-dim);
+  transition: color 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2rem;
+}
+
+.load-more:hover {
+  color: var(--text-main);
+}
+
+.load-more svg {
+  width: 16px;
+  height: 16px;
+  color: var(--accent);
+}
+
+/* --- INDEX PAGE VIEW --- */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 3rem;
+}
+
+.section-header h2 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.025em;
+}
+
+.section-header svg {
+  color: var(--accent);
+  width: 24px;
+  height: 24px;
+}
+
+/* --- PROJECTS VIEW --- */
+.project-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.project-card {
+  border: 1px solid var(--border-light);
+  background-color: var(--bg-card);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.project-card:hover {
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.project-header h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  transition: color 0.3s;
+}
+
+.project-card:hover .project-header h3 {
+  color: var(--accent-hover);
+}
+
+.project-header a {
+  color: var(--text-dim);
+  transform: rotate(-45deg);
+}
+
+.project-header a:hover {
+  color: var(--text-main);
+}
+
+.project-header svg {
+  width: 24px;
+  height: 24px;
+}
+
+.project-card p {
+  margin-bottom: 1.5rem;
+}
+
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.project-tags span {
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  padding: 0.25rem 0.5rem;
+  background-color: #171717;
+  color: var(--text-dim);
+  border: 1px solid var(--border-light);
+}
+
+/* --- WRITINGS VIEW --- */
+.writing-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.writing-post {
+  cursor: pointer;
+  group: hover;
+}
+
+.writing-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  margin-bottom: 0.75rem;
+}
+
+.writing-meta .dot {
+  width: 4px;
+  height: 4px;
+  background-color: #404040;
+  border-radius: 50%;
+}
+
+.writing-post h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.75rem;
+  transition: color 0.3s;
+}
+
+.writing-post:hover h3 {
+  color: var(--accent-hover);
+}
+
+.writing-post p {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  color: var(--text-muted);
+}
+
+.writing-read-more {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  font-family: var(--font-mono);
+  color: var(--accent);
+  opacity: 0;
+  transform: translateX(-1rem);
+  transition: all 0.3s ease;
+}
+
+.writing-post:hover .read-more {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.writing-read-more svg {
+  margin-left: 0.5rem;
+  width: 16px;
+  height: 16px;
+}

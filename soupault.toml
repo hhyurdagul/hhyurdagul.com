@@ -1,4 +1,3 @@
-
 # To learn about configuring soupault, visit https://www.soupault.app/reference-manual
 
 [settings]
@@ -105,14 +104,14 @@
 # Markdown is processed with soupault's built-in parser (see settings.markdown_extensions)
 # If you ever want external preprocessors, you can add a [preprocessors] table here.
 
-# Metadata extraction fields for auto-generated indexes (/writing, /projects)
+# Metadata extraction fields for auto-generated indexes (/writings, /projects)
 [templates.writing-post]
   file = "templates/writing-post.html"
-  section = "writing/"
-  exclude_page = "writing/index.html"
+  section = "writings/"
+  exclude_page = "writings/index.html"
 
-[templates.projects-post]
-  file = "templates/projects-post.html"
+[templates.project-post]
+  file = "templates/project-post.html"
   section = "projects/"
   exclude_page = "projects/index.html"
 
@@ -168,26 +167,26 @@
 '''
 
 # Index views render lists into index pages (pages named index.*)
-[index.views.writing]
+[index.views.writings]
   index_selector = "#writing-index"
-  section = "writing/"
+  section = "writings/"
   include_subsections = true
-  exclude_page = "writing/index.html"
+  exclude_page = "writings/index.html"
   sort_by = "date"
   sort_type = "calendar"
   sort_descending = true
   index_template = """
     {% for e in entries %}
     <a href="{{e.url}}">
-      <article class="blog-post">
-        <div class="blog-meta">
+      <article class="writing-post">
+        <div class="writing-meta">
           <span>{{e.date_display}}</span>
           <div class="dot"></div>
           <span class="reading-time">{{e.reading_time}}</span>
         </div>
         <h3>{{e.title}}</h3>
         {% if e.excerpt %}<p>{{e.excerpt}}</p>{% endif %}
-        <div class="read-more">Read Log
+        <div class="writing-read-more">Read Log
           <svg><use href="#icon-arrow-right"></use></svg>
         </div>
       </article>
@@ -197,7 +196,7 @@
 
 [index.views.projects]
   page = "projects/index.html"
-  index_selector = "#projects-index"
+  index_selector = "#project-index"
   section = "projects/"
   include_subsections = true
   exclude_page = "projects/index.html"
@@ -215,7 +214,7 @@
       </div>
       {% if e.excerpt %}<p>{{e.excerpt}}</p>{% endif %}
 
-      <div class="tech-tags">
+      <div class="project-tags">
         {% for tag in e.tags %}
         <span>{{tag}}</span>
         {% endfor %}
@@ -225,12 +224,12 @@
   """
 
 # Homepage: show up to 3 items
-[index.views.home-writing]
+[index.views.home-writings]
   page = "index.html"
   index_selector = "#home-writing-index"
-  section = "writing/"
+  section = "writings/"
   include_subsections = true
-  exclude_page = "writing/index.html"
+  exclude_page = "writings/index.html"
   sort_by = "date"
   sort_type = "calendar"
   sort_descending = true
@@ -238,15 +237,15 @@
     {% for e in entries %}
     {% if e.showcase %}
     <a href="{{e.url}}">
-      <article class="blog-post">
-        <div class="blog-meta">
+      <article class="writing-post">
+        <div class="writing-meta">
           <span>{{e.date_display}}</span>
           <div class="dot"></div>
           <span class="reading-time">{{e.reading_time}}</span>
         </div>
         <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">{{e.title}}</h3>
         {% if e.excerpt %}<p style="font-size: 0.9rem;">{{e.excerpt}}</p>{% endif %}
-        <div class="read-more" style="margin-top: 0.5rem;">Read Log
+        <div class="writing-read-more" style="margin-top: 0.5rem;">Read Log
           <svg><use href="#icon-arrow-right"></use></svg>
         </div>
       </article>
@@ -257,7 +256,7 @@
 
 [index.views.home-projects]
   page = "index.html"
-  index_selector = "#home-projects-index"
+  index_selector = "#home-project-index"
   section = "projects/"
   include_subsections = true
   exclude_page = "projects/index.html"
@@ -275,7 +274,7 @@
         </a>
       </div>
       {% if e.excerpt %}<p style="font-size: 0.875rem; margin-bottom: 1rem;">{{e.excerpt}}</p>{% endif %}
-      <div class="tech-tags">
+      <div class="project-tags">
         {% for tag in e.tags %}
         <span>{{tag}}</span>
         {% endfor %}
@@ -285,11 +284,18 @@
     {% endfor %}
   """
 
-# Pages can be further processed with "widgets"
-
 [hooks.post-build]
   site_url = "https://hhyurdagul.com"
   file = "plugins/hook-post-build.lua"
+
+# Pages can be further processed with "widgets"
+
+[widgets.insert-head]
+  widget = "include"
+
+  selector = "head"
+  action = "prepend_child"
+  file = "templates/head.html"
 
 [widgets.insert-header]
   widget = "include"
@@ -346,19 +352,19 @@
 [widgets.highlight-assets]
   after = ["highlight"]
   widget = "highlight-assets"
-  css_href = "/assets/highlight/highlight.css"
+  css_href = "/css/highlight.css"
 
 # Inject KaTeX CSS only on pages that need it
 # Implemented as a Lua plugin in plugins/katex-assets.lua
 [widgets.katex-assets]
   after = ["inline-math", "display-math"]
   widget = "katex-assets"
-  css_href = "/assets/katex/katex.min.css"
+  css_href = "/css/katex.min.css"
 
 # SEO metadata (title/description/canonical/OpenGraph/Twitter)
 # Implemented as a Lua plugin in plugins/seo-meta.lua
 [widgets.seo-meta]
-  after = ["highlight-assets", "katex-assets"]
+  after = ["insert-head", "highlight-assets", "katex-assets"]
   widget = "seo-meta"
   site_url = "https://hhyurdagul.com"
   site_name = "Hasan Hüseyin Yurdagül"
@@ -370,10 +376,10 @@
 [widgets.prose-writing]
   widget = "add-class"
   selector = "body"
-  class = "article-content"
-  section = "writing/"
+  class = "writing-content"
+  section = "writings/"
   include_subsections = true
-  exclude_page = "writing/index.html"
+  exclude_page = "writings/index.html"
 
 [widgets.prose-projects]
   widget = "add-class"
@@ -390,9 +396,9 @@
   selector = "body"
   content_selector = "main#content"
   reading_speed = 180
-  section = "writing/"
+  section = "writings/"
   include_subsections = true
-  exclude_page = "writing/index.html"
+  exclude_page = "writings/index.html"
 
 # Highlights the current section in the top navigation
 # Implemented as a Lua plugin in plugins/nav-active.lua
