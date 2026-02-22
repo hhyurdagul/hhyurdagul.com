@@ -111,6 +111,11 @@
   section = "writing/"
   exclude_page = "writing/index.html"
 
+[templates.projects-post]
+  file = "templates/projects-post.html"
+  section = "projects/"
+  exclude_page = "projects/index.html"
+
 [index]
   leaf_file = ".leaf"
   extract_after_widgets = ["insert-reading-time"]
@@ -373,7 +378,7 @@
 [widgets.prose-projects]
   widget = "add-class"
   selector = "body"
-  class = "prose"
+  class = "project-content"
   section = "projects/"
   include_subsections = true
   exclude_page = "projects/index.html"
