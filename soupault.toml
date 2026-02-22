@@ -106,16 +106,17 @@
 # If you ever want external preprocessors, you can add a [preprocessors] table here.
 
 # Metadata extraction fields for auto-generated indexes (/writing, /projects)
+[templates.writing-post]
+  file = "templates/writing-post.html"
+  section = "writing/"
+  exclude_page = "writing/index.html"
 
 [index]
   leaf_file = ".leaf"
   extract_after_widgets = ["insert-reading-time"]
 
 [index.fields]
-
-[index.fields.title]
-  selector = ["main#content h1", "h1"]
-  strip_tags = true
+  title = { selector = ["main#content h1", "h1", "page-title"] }
 
 [index.fields.date]
   selector = ["time.post-date", "time"]
@@ -163,7 +164,7 @@
 
 # Index views render lists into index pages (pages named index.*)
 [index.views.writing]
-  index_selector = ".writing-list"
+  index_selector = "#writing-index"
   section = "writing/"
   include_subsections = true
   exclude_page = "writing/index.html"
@@ -190,7 +191,8 @@
   """
 
 [index.views.projects]
-  index_selector = ".projects-grid"
+  page = "projects/index.html"
+  index_selector = "#projects-index"
   section = "projects/"
   include_subsections = true
   exclude_page = "projects/index.html"
@@ -220,7 +222,7 @@
 # Homepage: show up to 3 items
 [index.views.home-writing]
   page = "index.html"
-  index_selector = ".home-writing-list"
+  index_selector = "#home-writing-index"
   section = "writing/"
   include_subsections = true
   exclude_page = "writing/index.html"
@@ -250,7 +252,7 @@
 
 [index.views.home-projects]
   page = "index.html"
-  index_selector = ".home-projects-grid"
+  index_selector = "#home-projects-index"
   section = "projects/"
   include_subsections = true
   exclude_page = "projects/index.html"
@@ -268,7 +270,6 @@
         </a>
       </div>
       {% if e.excerpt %}<p style="font-size: 0.875rem; margin-bottom: 1rem;">{{e.excerpt}}</p>{% endif %}
-
       <div class="tech-tags">
         {% for tag in e.tags %}
         <span>{{tag}}</span>
@@ -283,71 +284,32 @@
 
 [hooks.post-build]
   site_url = "https://hhyurdagul.com"
-  lua_source = '''
-    local site_url = hook_config["site_url"]
-    if not site_url then
-      Log.warning("post-build sitemap: missing site_url, skipping")
-      return
-    end
+  file = "plugins/hook-post-build.lua"
 
-    -- Remove trailing slash if present
-    site_url = Regex.replace(site_url, "/+$", "")
+[widgets.insert-header]
+  widget = "include"
 
-    function url_compare(a, b)
-      if a < b then
-        return -1
-      elseif a > b then
-        return 1
-      else
-        return 0
-      end
-    end
+  selector = "main"
+  action = "insert_before"
+  file = "templates/header.html"
 
-    local seen = {}
-    local urls = {}
-    local u_i = 1
+[widgets.insert-footer]
+  widget = "include"
 
-    -- Index pages are not always present in site_index, add them explicitly
-    local u = "/"
-    if not seen[u] then seen[u] = true; urls[u_i] = u; u_i = u_i + 1 end
+  selector = "main"
+  action = "insert_after"
+  file = "templates/footer.html"
 
-    u = "/writing/"
-    if not seen[u] then seen[u] = true; urls[u_i] = u; u_i = u_i + 1 end
+[widgets.insert-svg]
+  widget = "include"
 
-    u = "/projects/"
-    if not seen[u] then seen[u] = true; urls[u_i] = u; u_i = u_i + 1 end
+  selector = "body"
+  action = "prepend_child"
+  file = "templates/svg.html"
 
-    local i = 1
-    while site_index[i] do
-      u = site_index[i]["url"]
-      if u and (not seen[u]) then
-        seen[u] = true
-        urls[u_i] = u
-        u_i = u_i + 1
-      end
-      i = i + 1
-    end
-
-    Table.sort(url_compare, urls)
-
-    local lines = {}
-    local l_i = 1
-    lines[l_i] = '<?xml version="1.0" encoding="UTF-8"?>'; l_i = l_i + 1
-    lines[l_i] = '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'; l_i = l_i + 1
-
-    local j = 1
-    while urls[j] do
-      lines[l_i] = '  <url><loc>' .. site_url .. urls[j] .. '</loc></url>'
-      l_i = l_i + 1
-      j = j + 1
-    end
-
-    lines[l_i] = '</urlset>'
-
-    local out_file = Sys.join_path(build_dir, "sitemap.xml")
-    Sys.write_file(out_file, String.join("\n", lines) .. "\n")
-  '''
-
+[widgets.delete-metadata]
+  widget = "delete_element"
+  selector = "post-metadata"
 
 # Render TeX math server-side with KaTeX CLI
 # Usage in Markdown/HTML:
@@ -399,12 +361,11 @@
   # Used for OpenGraph/Twitter previews
   og_image = "/assets/og.png"
 
-
 # Add prose typography styling to article-like pages
 [widgets.prose-writing]
   widget = "add-class"
   selector = "body"
-  class = "prose"
+  class = "article-content"
   section = "writing/"
   include_subsections = true
   exclude_page = "writing/index.html"
@@ -432,6 +393,7 @@
 # Implemented as a Lua plugin in plugins/nav-active.lua
 [widgets.nav-active]
   widget = "nav-active"
+  after = ["insert-header"]
 
 # <blink> elements are evil, delete them all
 [widgets.no-blink]

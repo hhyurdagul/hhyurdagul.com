@@ -1,5 +1,7 @@
 <data id="showcase" value="1"></data>
 
+<time>22 February, 2026</time>
+
 # A Small Example of What Agentic AI Benchmarks Should Actually Be
 
 Everybody I know who actually works with LLMs hates benchmarks. They're biased, gamed, and rarely translate to real-world utility. But there is no escape from them because benchmarks are the only proofs we have of what these models can do.

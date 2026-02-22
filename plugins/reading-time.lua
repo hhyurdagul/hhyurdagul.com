@@ -50,9 +50,9 @@ word_count = size(words)
 reading_time = floor(word_count / reading_speed)
 
 if (reading_time <= 1) then
-  time_msg = "less than a minute"
+  time_msg = "less than a minute read"
 else
-  time_msg = reading_time .. " minutes"
+  time_msg = reading_time .. " minutes read"
 end
 
 
