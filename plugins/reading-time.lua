@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 -- Makes a reading time estimate based on word count.
 --
 -- Sample configuration:
@@ -19,9 +20,9 @@
 -- Author: Daniil Baturin
 -- License: MIT
 
-reading_speed = config["reading_speed"]
-selector = config["selector"]
-content_selector = config["content_selector"]
+local reading_speed = config["reading_speed"]
+local selector = config["selector"]
+local content_selector = config["content_selector"]
 
 if (not reading_speed) then
   Log.warning("Missing option \"reading_speed\", using default (180 WPM)")
@@ -39,16 +40,17 @@ if (not content_selector) then
 end
 
 -- Extract the content
-content_element = HTML.select_one(page, content_selector)
-content = HTML.strip_tags(content_element)
+local content_element = HTML.select_one(page, content_selector)
+local content = HTML.strip_tags(content_element)
 
 -- Calculate the word count
-words = Regex.split(content, "\\s+")
-word_count = size(words)
+local words = Regex.split(content, "\\s+")
+local word_count = size(words)
 
 -- Make a reading time text
-reading_time = floor(word_count / reading_speed)
+local reading_time = floor(word_count / reading_speed)
 
+local time_msg = ""
 if (reading_time <= 1) then
   time_msg = "less than a minute read"
 else
@@ -56,11 +58,9 @@ else
 end
 
 
-local element = HTML.create_element("data")
-HTML.set_attribute(element, "value", time_msg)
-HTML.set_attribute(element, "id", "reading-time")
+local element = HTML.create_element("post-reading-time", time_msg)
 -- Insert the text in the target element
-target = HTML.select_one(page, selector)
+local target = HTML.select_one(page, selector)
 if target then
-  HTML.prepend_child(target, element)
+  HTML.append_child(target, element)
 end

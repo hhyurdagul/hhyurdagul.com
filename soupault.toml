@@ -109,6 +109,7 @@
   file = "templates/writing-post.html"
   section = "writings/"
   exclude_page = "writings/index.html"
+  content_selector = "div.article-content"
 
 [templates.project-post]
   file = "templates/project-post.html"
@@ -138,15 +139,11 @@
   strip_tags = true
 
 [index.fields.showcase]
-  selector = "data#showcase"
-  extract_attribute = "value"
-  fallback_to_content = false
+  selector = "post-metadata post-showcase"
   strip_tags = true
 
 [index.fields.reading_time]
-  selector = "data#reading-time"
-  extract_attribute = "value"
-  fallback_to_content = false
+  selector = "post-metadata post-reading-time"
   strip_tags = true
 
 [index.fields.tags]
@@ -318,9 +315,22 @@
   action = "prepend_child"
   file = "templates/svg.html"
 
-[widgets.delete-metadata]
-  widget = "delete_element"
-  selector = "post-metadata"
+[widgets.process-blog-article]
+  widget = "process-metadata"
+  type = "blog"
+  section = "writings/"
+  include_subsections = true
+  exclude_page = "writings/index.html"
+
+
+[widgets.process-project-article]
+  widget = "process-metadata"
+  type = "project"
+  section = "projects/"
+  include_subsections = true
+  exclude_page = "projects/index.html"
+
+
 
 # Render TeX math server-side with KaTeX CLI
 # Usage in Markdown/HTML:
@@ -393,8 +403,8 @@
 # Implemented as a Lua plugin in plugins/reading-time.lua
 [widgets.insert-reading-time]
   widget = "reading-time"
-  selector = "body"
-  content_selector = "main#content"
+  selector = "post-metadata"
+  content_selector = ".article-content"
   reading_speed = 180
   section = "writings/"
   include_subsections = true
@@ -414,3 +424,4 @@
   # By default this widget deletes all elements matching the selector,
   # but you can set this option to false to delete just the first one
   delete_all = true
+
