@@ -146,7 +146,7 @@ local path = Regex.replace(u, "^/+", "")
 local canonical_url = site_url .. path
 
 -- Title source: prefer hidden H1s you can add to pages
-local base_title = first_non_empty_text({"main#content h1", "main#content h2", "main#content h3"})
+local base_title = first_non_empty_text({"content-metadata title", "main#content h1", "main#content h2", "main#content h3"})
 if not base_title then
   base_title = site_name
 end
@@ -159,7 +159,7 @@ end
 set_title(head, full_title)
 
 local description = nil
-local desc_el = HTML.select_one(page, "data#excerpt")
+local desc_el = HTML.select_one(page, "content-metadata excerpt")
 if desc_el then
   local raw_desc = HTML.inner_text(desc_el)
   description = make_description_text(raw_desc)

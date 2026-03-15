@@ -1,4 +1,3 @@
 #!/bin/bash
 
-rm -rf build
-fd . | entr -rc soupault 
+fd . plugins/ site/ templates/ soupault.conf | entr -rc sh -c "rm -rf build && soupault"

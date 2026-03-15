@@ -251,7 +251,7 @@
   transition: all 0.3s ease;
 }
 
-.writing-post:hover .read-more {
+.writing-post:hover .writing-read-more {
   opacity: 1;
   transform: translateX(0);
 }

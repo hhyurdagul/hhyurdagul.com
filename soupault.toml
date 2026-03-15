@@ -121,74 +121,53 @@
   extract_after_widgets = ["insert-reading-time"]
 
 [index.fields]
-  title = { selector = ["main#content h1", "h1", "page-title"] }
-
-[index.fields.date]
-  selector = ["time.post-date", "time"]
-  extract_attribute = "datetime"
-  fallback_to_content = true
-  strip_tags = true
-
-[index.fields.date_display]
-  selector = ["time.post-date", "time"]
-  strip_tags = true
-
-[index.fields.excerpt]
-  # selector = ["main#content p.intro-text", "main#content p"]
-  selector = "data#excerpt"
-  strip_tags = true
-
-[index.fields.showcase]
-  selector = "post-metadata post-showcase"
-  strip_tags = true
-
-[index.fields.reading_time]
-  selector = "post-metadata post-reading-time"
-  strip_tags = true
-
-[index.fields.tags]
-  selector = "data#tags"
-  extract_attribute = "value"
-  fallback_to_content = false
-  strip_tags = true
-
-[hooks.post-index]
-  lua_source = '''
-     -- Split tags strings like "foo, bar" into lists
-     -- to make life easier for the Atom plugin and the indexer
-    if Value.is_string(index_fields["tags"]) then
-      tags = Regex.split(index_fields["tags"], ",")
-      Table.apply_to_values(String.trim, tags)
-      index_fields["tags"] = tags
-    end
-'''
+  title = { selector = ["content-metadata title", "main#content h1", "h1", "page-title"] }
+  date = { selector = "content-metadata date" }
+  category = { selector = "content-metadata category" }
+  tags = { selector = "content-metadata tag" }
+  
+  excerpt = { selector = "content-metadata excerpt" }
+  reading_time = { selector = "content-metadata reading-time" }
+  showcase = { selector = "content-metadata showcase" }
 
 # Index views render lists into index pages (pages named index.*)
 [index.views.writings]
   index_selector = "#writing-index"
   section = "writings/"
   include_subsections = true
+  sort_by = "date"
+  sort_type = "calendar"
+  sort_descending = true
+  file = "plugins/render-index.lua"
+
+[index.views.home-writings]
+  page = "index.html"
+  index_selector = "#home-writing-index"
+  section = "writings/"
+  include_subsections = true
   exclude_page = "writings/index.html"
   sort_by = "date"
   sort_type = "calendar"
   sort_descending = true
-  index_template = """
-    {% for e in entries %}
-    <a href="{{e.url}}">
+  index_item_template = """
+    {% if showcase %}
+    <a href="{{url}}">
       <article class="writing-post">
         <div class="writing-meta">
-          <span>{{e.date_display}}</span>
+          <span>{{date}}</span>
           <div class="dot"></div>
-          <span class="reading-time">{{e.reading_time}}</span>
+          <span>{{reading_time}}</span>
+          <div class="dot"></div>
+          <span>{{category}}</span>
         </div>
-        <h3>{{e.title}}</h3>
-        {% if e.excerpt %}<p>{{e.excerpt}}</p>{% endif %}
-        <div class="writing-read-more">Read Log
+        <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">{{title}}</h3>
+        {% if excerpt %}<p style="font-size: 0.9rem;">{{excerpt}}</p>{% endif %}
+        <div class="writing-read-more" style="margin-top: 0.5rem;">Read Log
           <svg><use href="#icon-arrow-right"></use></svg>
         </div>
       </article>
     </a>
-    {% endfor %}
+    {% endif %}
   """
 
 [index.views.projects]
@@ -200,56 +179,24 @@
   sort_by = "title"
   sort_type = "lexicographic"
   sort_descending = false
-  index_template = """
-    {% for e in entries %}
+  index_item_template = """
     <div class="project-card">
       <div class="project-header">
-        <h3>{{e.title}}</h3>
-        <a href="{{e.url}}">
+        <h3>{{title}}</h3>
+        <a href="{{url}}">
           <svg><use href="#icon-arrow-right"></use></svg>
         </a>
       </div>
-      {% if e.excerpt %}<p>{{e.excerpt}}</p>{% endif %}
+      {% if excerpt %}<p>{{excerpt}}</p>{% endif %}
 
       <div class="project-tags">
-        {% for tag in e.tags %}
+        {% for tag in tags %}
         <span>{{tag}}</span>
         {% endfor %}
       </div>
     </div>
-    {% endfor %}
   """
 
-# Homepage: show up to 3 items
-[index.views.home-writings]
-  page = "index.html"
-  index_selector = "#home-writing-index"
-  section = "writings/"
-  include_subsections = true
-  exclude_page = "writings/index.html"
-  sort_by = "date"
-  sort_type = "calendar"
-  sort_descending = true
-  index_template = """
-    {% for e in entries %}
-    {% if e.showcase %}
-    <a href="{{e.url}}">
-      <article class="writing-post">
-        <div class="writing-meta">
-          <span>{{e.date_display}}</span>
-          <div class="dot"></div>
-          <span class="reading-time">{{e.reading_time}}</span>
-        </div>
-        <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">{{e.title}}</h3>
-        {% if e.excerpt %}<p style="font-size: 0.9rem;">{{e.excerpt}}</p>{% endif %}
-        <div class="writing-read-more" style="margin-top: 0.5rem;">Read Log
-          <svg><use href="#icon-arrow-right"></use></svg>
-        </div>
-      </article>
-    </a>
-    {% endif %}
-    {% endfor %}
-  """
 
 [index.views.home-projects]
   page = "index.html"
@@ -260,30 +207,28 @@
   sort_by = "title"
   sort_type = "lexicographic"
   sort_descending = false
-  index_template = """
-    {% for e in entries %}
-    {% if e.showcase %}
+  index_item_template = """
+    {% if showcase %}
     <div class="project-card" style="padding: 1.25rem;">
       <div class="project-header" style="margin-bottom: 0.5rem;">
-        <h3 style="font-size: 1.125rem;">{{e.title}}</h3>
-        <a href="{{e.url}}">
+        <h3 style="font-size: 1.125rem;">{{title}}</h3>
+        <a href="{{url}}">
           <svg><use href="#icon-arrow-right"></use></svg>
         </a>
       </div>
-      {% if e.excerpt %}<p style="font-size: 0.875rem; margin-bottom: 1rem;">{{e.excerpt}}</p>{% endif %}
+      {% if excerpt %}<p style="font-size: 0.875rem; margin-bottom: 1rem;">{{excerpt}}</p>{% endif %}
       <div class="project-tags">
-        {% for tag in e.tags %}
+        {% for tag in tags %}
         <span>{{tag}}</span>
         {% endfor %}
       </div>
     </div>
     {% endif %}
-    {% endfor %}
   """
 
 [hooks.post-build]
   site_url = "https://hhyurdagul.com"
-  file = "plugins/hook-post-build.lua"
+  file = "plugins/hooks/post-build.lua"
 
 # Pages can be further processed with "widgets"
 
@@ -301,6 +246,10 @@
   action = "insert_before"
   file = "templates/header.html"
 
+[widgets.nav-active]
+  widget = "nav-active"
+  after = ["insert-header"]
+
 [widgets.insert-footer]
   widget = "include"
 
@@ -308,23 +257,26 @@
   action = "insert_after"
   file = "templates/footer.html"
 
-[widgets.insert-svg]
-  widget = "include"
+[widgets.insert-reading-time]
+  widget = "reading-time"
+  selector = "content-metadata"
+  content_selector = ".article-content"
+  reading_speed = 180
+  section = "writings/"
+  include_subsections = true
+  exclude_page = "writings/index.html"
 
-  selector = "body"
-  action = "prepend_child"
-  file = "templates/svg.html"
-
-[widgets.process-blog-article]
+[widgets.process-blog-metadata]
   widget = "process-metadata"
+  after = "insert-reading-time"
   type = "blog"
   section = "writings/"
   include_subsections = true
   exclude_page = "writings/index.html"
 
-
-[widgets.process-project-article]
+[widgets.process-project-metadata]
   widget = "process-metadata"
+  after = "insert-reading-time"
   type = "project"
   section = "projects/"
   include_subsections = true
@@ -385,7 +337,7 @@
 # Add prose typography styling to article-like pages
 [widgets.prose-writing]
   widget = "add-class"
-  selector = "body"
+  selector = "main"
   class = "writing-content"
   section = "writings/"
   include_subsections = true
@@ -393,7 +345,7 @@
 
 [widgets.prose-projects]
   widget = "add-class"
-  selector = "body"
+  selector = "main"
   class = "project-content"
   section = "projects/"
   include_subsections = true
@@ -401,20 +353,6 @@
 
 # Insert reading time for each post
 # Implemented as a Lua plugin in plugins/reading-time.lua
-[widgets.insert-reading-time]
-  widget = "reading-time"
-  selector = "post-metadata"
-  content_selector = ".article-content"
-  reading_speed = 180
-  section = "writings/"
-  include_subsections = true
-  exclude_page = "writings/index.html"
-
-# Highlights the current section in the top navigation
-# Implemented as a Lua plugin in plugins/nav-active.lua
-[widgets.nav-active]
-  widget = "nav-active"
-  after = ["insert-header"]
 
 # <blink> elements are evil, delete them all
 [widgets.no-blink]

@@ -11,9 +11,11 @@ if not type then
 end
 
 
+local prefix = "content-metadata"
+
 local title = HTML.select_one(page, "h1")
 if not title then
-  title = HTML.select_one(page, "post-title")
+  title = HTML.select_one(page, prefix .. " title")
 end
 
 if not title then
@@ -27,9 +29,9 @@ HTML.add_class(dot, "dot")
 if type == "blog" then
 
 
-    local date = HTML.inner_text(HTML.select_one(page, "post-date"))
-    local read_time = HTML.inner_text(HTML.select_one(page, "post-reading-time"))
-    local category = HTML.inner_text(HTML.select_one(page, "post-category"))
+    local date = HTML.inner_text(HTML.select_one(page, prefix .. " date"))
+    local read_time = HTML.inner_text(HTML.select_one(page, prefix .. " reading-time"))
+    local category = HTML.inner_text(HTML.select_one(page, prefix .. " category"))
 
 
     local header = HTML.create_element("header")

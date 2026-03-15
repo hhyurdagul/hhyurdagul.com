@@ -1,13 +1,10 @@
-<post-metadata>
-    <post-date>22 February, 2026</post-date>
-    <post-title>A Small Example of What Agentic AI Benchmarks Should Actually Be</post-title>
-    <post-category>AI</post-category>
-    <post-showcase>1</post-showcase>
-</post-metadata>
+<content-metadata>
+    <date>22 February, 2026</date>
+    <title>A Small Example of What Agentic AI Benchmarks Should Actually Be</title>
+    <category>AI</category>
+    <showcase>1</showcase>
+</content-metadata>
 
-
-
-<time>22 February, 2026</time>
 
 # A Small Example of What Agentic AI Benchmarks Should Actually Be
 

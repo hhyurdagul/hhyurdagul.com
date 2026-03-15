@@ -58,7 +58,7 @@ else
 end
 
 
-local element = HTML.create_element("post-reading-time", time_msg)
+local element = HTML.create_element("reading-time", time_msg)
 -- Insert the text in the target element
 local target = HTML.select_one(page, selector)
 if target then
