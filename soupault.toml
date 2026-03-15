@@ -111,11 +111,6 @@
   exclude_page = "writings/index.html"
   content_selector = "div.article-content"
 
-[templates.project-post]
-  file = "templates/project-post.html"
-  section = "projects/"
-  exclude_page = "projects/index.html"
-
 [index]
   leaf_file = ".leaf"
   extract_after_widgets = ["insert-reading-time"]
@@ -132,99 +127,30 @@
 
 # Index views render lists into index pages (pages named index.*)
 [index.views.writings]
-  index_selector = "#writing-index"
+  page = "writings/index.html"
   section = "writings/"
   include_subsections = true
   sort_by = "date"
   sort_type = "calendar"
   sort_descending = true
+
+  type = "writing"
+  index_selector = "#writing-index"
   file = "plugins/render-index.lua"
 
 [index.views.home-writings]
   page = "index.html"
-  index_selector = "#home-writing-index"
   section = "writings/"
   include_subsections = true
   exclude_page = "writings/index.html"
   sort_by = "date"
   sort_type = "calendar"
   sort_descending = true
-  index_item_template = """
-    {% if showcase %}
-    <a href="{{url}}">
-      <article class="writing-post">
-        <div class="writing-meta">
-          <span>{{date}}</span>
-          <div class="dot"></div>
-          <span>{{reading_time}}</span>
-          <div class="dot"></div>
-          <span>{{category}}</span>
-        </div>
-        <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">{{title}}</h3>
-        {% if excerpt %}<p style="font-size: 0.9rem;">{{excerpt}}</p>{% endif %}
-        <div class="writing-read-more" style="margin-top: 0.5rem;">Read Log
-          <svg><use href="#icon-arrow-right"></use></svg>
-        </div>
-      </article>
-    </a>
-    {% endif %}
-  """
 
-[index.views.projects]
-  page = "projects/index.html"
-  index_selector = "#project-index"
-  section = "projects/"
-  include_subsections = true
-  exclude_page = "projects/index.html"
-  sort_by = "title"
-  sort_type = "lexicographic"
-  sort_descending = false
-  index_item_template = """
-    <div class="project-card">
-      <div class="project-header">
-        <h3>{{title}}</h3>
-        <a href="{{url}}">
-          <svg><use href="#icon-arrow-right"></use></svg>
-        </a>
-      </div>
-      {% if excerpt %}<p>{{excerpt}}</p>{% endif %}
-
-      <div class="project-tags">
-        {% for tag in tags %}
-        <span>{{tag}}</span>
-        {% endfor %}
-      </div>
-    </div>
-  """
-
-
-[index.views.home-projects]
-  page = "index.html"
-  index_selector = "#home-project-index"
-  section = "projects/"
-  include_subsections = true
-  exclude_page = "projects/index.html"
-  sort_by = "title"
-  sort_type = "lexicographic"
-  sort_descending = false
-  index_item_template = """
-    {% if showcase %}
-    <div class="project-card" style="padding: 1.25rem;">
-      <div class="project-header" style="margin-bottom: 0.5rem;">
-        <h3 style="font-size: 1.125rem;">{{title}}</h3>
-        <a href="{{url}}">
-          <svg><use href="#icon-arrow-right"></use></svg>
-        </a>
-      </div>
-      {% if excerpt %}<p style="font-size: 0.875rem; margin-bottom: 1rem;">{{excerpt}}</p>{% endif %}
-      <div class="project-tags">
-        {% for tag in tags %}
-        <span>{{tag}}</span>
-        {% endfor %}
-      </div>
-    </div>
-    {% endif %}
-  """
+  type = "writing"
+  homeview = true
+  index_selector = "#home-writing-index"
+  file = "plugins/render-index.lua"
 
 [hooks.post-build]
   site_url = "https://hhyurdagul.com"
@@ -273,15 +199,6 @@
   section = "writings/"
   include_subsections = true
   exclude_page = "writings/index.html"
-
-[widgets.process-project-metadata]
-  widget = "process-metadata"
-  after = "insert-reading-time"
-  type = "project"
-  section = "projects/"
-  include_subsections = true
-  exclude_page = "projects/index.html"
-
 
 
 # Render TeX math server-side with KaTeX CLI
@@ -343,23 +260,9 @@
   include_subsections = true
   exclude_page = "writings/index.html"
 
-[widgets.prose-projects]
-  widget = "add-class"
-  selector = "main"
-  class = "project-content"
-  section = "projects/"
-  include_subsections = true
-  exclude_page = "projects/index.html"
-
-# Insert reading time for each post
-# Implemented as a Lua plugin in plugins/reading-time.lua
-
 # <blink> elements are evil, delete them all
 [widgets.no-blink]
   widget = "delete_element"
   selector = "blink"
-
-  # By default this widget deletes all elements matching the selector,
-  # but you can set this option to false to delete just the first one
   delete_all = true
 

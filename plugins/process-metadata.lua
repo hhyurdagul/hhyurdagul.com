@@ -54,9 +54,4 @@ if type == "blog" then
 end
 
 
--- local elements = HTML.select(page, selector)
--- local i = 1
--- while elements[i] do
---   HTML.add_class(elements[i], class_name)
---   i = i + 1
--- end
+HTML.delete_element(HTML.select_one(page, "content-metadata"))
