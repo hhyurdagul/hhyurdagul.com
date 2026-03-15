@@ -2,6 +2,9 @@
     <date>22 February, 2026</date>
     <title>A Small Example of What Agentic AI Benchmarks Should Actually Be</title>
     <category>AI</category>
+    <excerpt>
+        Test AI on rare, undocumented tools (like the Soupault static site generator) rather than common ones like React. This forces the AI to infer logic from provided examples rather than relying on its training data.
+    </excerpt>
     <showcase>1</showcase>
 </content-metadata>
 

@@ -34,6 +34,13 @@
   }
 }
 
+.grid-1 {
+  display: grid;
+  gap: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-dark);
+}
+
 .grid-2 {
   display: grid;
   gap: 2rem;
@@ -197,11 +204,6 @@
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
-}
-
-.writing-post {
-  cursor: pointer;
-  group: hover;
 }
 
 .writing-meta {
