@@ -294,6 +294,169 @@ button {
   }
 }
 
+/* ---------- Contact toggle (CSS-only using :hover + :focus-within) ---------- */
+.contact-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.contact-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 100% 0 auto 0;
+  height: 14px;
+}
+
+/* ---------- The drawer (attached to navbar, top-right) ---------- */
+.drawer {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: min(340px, 92vw);
+  background: var(--bg-nav);
+  border: 1px solid var(--border-base);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transform: translateY(-10px) scale(0.98);
+  pointer-events: none;
+  transition: opacity .22s ease, transform .25s cubic-bezier(.2, .9, .3, 1.2);
+  transform-origin: top right;
+  z-index: 60;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.drawer::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  right: 22px;
+  width: 12px;
+  height: 12px;
+  background: var(--bg-nav);
+  border-left: 1px solid var(--border-base);
+  border-top: 1px solid var(--border-base);
+  transform: rotate(45deg);
+  border-radius: 2px 0 0 0;
+}
+
+.drawer h3 {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+  color: var(--text-dim);
+}
+
+.drawer p.sub {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.drawer .row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  color: var(--text-main);
+  transition: background var(--transition);
+  font-size: 0.875rem;
+}
+
+.drawer .row:hover {
+  background: var(--bg-surface);
+  color: var(--text-white);
+}
+
+.drawer .row .ico {
+  width: 32px;
+  height: 32px;
+  border-radius: 0.25rem;
+  display: grid;
+  place-items: center;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  flex: 0 0 auto;
+  border: 1px solid var(--border-base);
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.drawer .row:hover .ico {
+  color: var(--text-white);
+  border-color: var(--border-hover);
+}
+
+.drawer .row small {
+  display: block;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-base);
+  margin: 0.5rem 0;
+}
+
+.live-chat-btn {
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem !important;
+  color: var(--text-white) !important;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-base);
+  margin-top: 0.5rem;
+  padding: 0.75rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.live-chat-btn:hover {
+  background: var(--border-base) !important;
+}
+
+.contact-wrap:hover .drawer,
+.contact-wrap:focus-within .drawer {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.blur-veil {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  background: rgba(10, 10, 10, 0.4);
+  transition: opacity .25s ease;
+  z-index: 40;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, transparent 64px, #000 64px, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, transparent 64px, #000 64px, #000 100%);
+}
+
+body:has(.contact-wrap:hover) .blur-veil,
+body:has(.contact-wrap:focus-within) .blur-veil {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body:has(.contact-wrap:hover),
+body:has(.contact-wrap:focus-within) {
+  overflow: hidden;
+}
+
 
 /* ==========================================================================
    8. Footer
