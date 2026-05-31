@@ -26,7 +26,7 @@
           my Master's in Artificial Intelligence.</p>
       </div>
       <div class="about-image-wrapper">
-        <img alt="Cow — the real animal" class="about-image" src="image.jpeg">
+        <img alt="Cow — the real animal" class="about-image" src="/assets/cow.jpeg">
       </div>
     </div>
   </section>
@@ -177,35 +177,23 @@
   <div class="section-line"></div>
 
   <section id="prose" class="section-padding fade-in">
-    <h2 class="section-title">/prose</h2>
+    <h2 class="section-title">/Articles</h2>
     <p class="text-muted" style="margin-bottom: 2rem;">Long-form thinking on engineering, math, systems, and life.</p>
 
     <div class="prose-list">
+    {{ for article of search.pages("type=article showcase=true", "date=desc") }}
       <button class="prose-item">
         <div>
-          <h3 class="prose-title">On First Principles</h3>
-          <p class="prose-meta">Jan 15, 2025 · 6 min</p>
+          <h3 class="prose-title">{{ article.title }}</h3>
+          <p class="prose-meta">{{ article.date |> formatDate }} · {{ article.content |> extractReadingTime }} </p>
         </div>
         <span class="prose-arrow">→</span>
       </button>
-      <button class="prose-item">
-        <div>
-          <h3 class="prose-title">The Beautiful Pain of NixOS</h3>
-          <p class="prose-meta">Nov 2, 2024 · 5 min</p>
-        </div>
-        <span class="prose-arrow">→</span>
-      </button>
-      <button class="prose-item">
-        <div>
-          <h3 class="prose-title">Why Cows</h3>
-          <p class="prose-meta">Aug 20, 2024 · 4 min</p>
-        </div>
-        <span class="prose-arrow">→</span>
-      </button>
+      {{ /for }}
     </div>
 
     <button class="all-entries-btn">
-      all entries <span>→</span>
+      All entries <span>→</span>
     </button>
   </section>
 
