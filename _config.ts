@@ -2,13 +2,16 @@ import lume from "lume/mod.ts";
 import basePath from "lume/plugins/base_path.ts";
 import robots from "lume/plugins/robots.ts";
 import sitemap from "lume/plugins/sitemap.ts";
-import googleFonts from "lume/plugins/google_fonts.ts";
+import metas from "lume/plugins/metas.ts";
 import katex from "lume/plugins/katex.ts";
-import codeHighlight from "lume/plugins/code_highlight.ts";
-import shiki from "https://deno.land/x/lume_shiki/mod.ts";
+import googleFonts from "lume/plugins/google_fonts.ts";
 import lightningCss from "lume/plugins/lightningcss.ts";
+import checkUrls from "lume/plugins/check_urls.ts";
+import seo from "lume/plugins/seo.ts";
+import feed from "lume/plugins/feed.ts";
+import validateHTML from "lume/plugins/validate_html.ts";
+import shiki from "https://deno.land/x/lume_shiki/mod.ts";
 
-// import lang_python from "npm:highlight.js/lib/languages/python";
 
 const site = lume({
   location: new URL("https://hhyurdagul.com"),
@@ -17,6 +20,16 @@ const site = lume({
 site.use(basePath())
 site.use(robots())
 site.use(sitemap())
+site.use(metas())
+site.use(checkUrls())
+site.use(seo())
+site.use(validateHTML())
+site.use(feed({
+  query: "type=article",
+  info: {
+    title: "HHYurdagul's RSS Feed"
+  }
+}))
 site.use(katex({
   cssFile: "/css/katex.css"
 }))
@@ -25,16 +38,13 @@ site.use(googleFonts({
   fonts: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
 }))
 
-site.use(
-  shiki({
-    cssFile: false,
-    highlighter: {
-      langs: ["javascript", "toml", "html", "python"],
-      themes: ["tokyo-night"]
-    },
-    theme: "tokyo-night",
-  }),
-)
+site.use(shiki({
+  highlighter: {
+    langs: ["javascript", "toml", "html", "python"],
+    themes: ["tokyo-night"]
+  },
+  theme: "tokyo-night",
+}))
 
 site.add("_includes/CNAME")
 site.add("_includes/style.css")

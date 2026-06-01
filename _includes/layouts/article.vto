@@ -21,7 +21,7 @@ layout: layouts/layout.vto
   </div>
 </header>
 
-<article class="main-content page-enter" style="animation-delay: 0.1s;">
+<article class="main-content page-enter">
   <div class="section-line"></div>
 
   <div class="article-content">
@@ -30,9 +30,9 @@ layout: layouts/layout.vto
 
   <!-- End Mark -->
   <div class="end-mark-container">
-    <div class="section-line" style="margin-bottom: 0;"></div>
+    <div class="section-line"></div>
     <span class="end-mark">∎</span>
-    <div class="section-line" style="margin-bottom: 0;"></div>
+    <div class="section-line"></div>
   </div>
 
   {{ set prevPost = search.previousPage(url, "type=article", "date=desc") }}
@@ -40,7 +40,7 @@ layout: layouts/layout.vto
 
   <div class="next-post-nav">
     {{ if prevPost }}
-    <a href={{ prevPost.url }} class="next-post-btn" style="text-align: left;grid-column: 1;">
+    <a href={{ prevPost.url }} class="prev-post-btn">
       <p class="next-post-label">← previous</p>
       <p class="next-post-title">{{ prevPost.title }}</p>
     </a>
@@ -52,7 +52,5 @@ layout: layouts/layout.vto
     </a>
     {{ /if }}
   </div>
-
-  <div class="next-post-nav">
 
 </article>

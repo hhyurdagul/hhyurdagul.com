@@ -306,6 +306,7 @@ button {
 
 /* ---------- Contact toggle (CSS-only using :hover + :focus-within) ---------- */
 .contact-wrap {
+  cursor: default;
   position: relative;
   display: inline-flex;
 }
@@ -352,7 +353,7 @@ button {
   border-radius: 2px 0 0 0;
 }
 
-.drawer h3 {
+.drawer strong {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -531,6 +532,7 @@ body:has(.contact-wrap:focus-within) {
 
 .page-enter {
   animation: 0.5s forwards fadeUp ease-out;
+  animation-delay: 0.1s;
 }
 
 
@@ -1145,6 +1147,10 @@ body:has(.contact-wrap:focus-within) {
   gap: 1rem;
 }
 
+.end-mark-container .section-line {
+  margin-bottom: 0;
+}
+
 .end-mark {
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -1158,6 +1164,8 @@ body:has(.contact-wrap:focus-within) {
   gap: 1rem;
 }
 
+
+.prev-post-btn,
 .next-post-btn {
   display: block;
   text-align: right;
@@ -1168,8 +1176,14 @@ body:has(.contact-wrap:focus-within) {
   text-decoration: none;
 }
 
+.prev-post-btn:hover,
 .next-post-btn:hover {
   border-color: var(--text-dark);
+}
+
+.prev-post-btn {
+  text-align: left;
+  grid-column: 1;
 }
 
 .next-post-label {

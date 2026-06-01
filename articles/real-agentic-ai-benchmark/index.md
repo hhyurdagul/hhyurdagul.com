@@ -1,6 +1,6 @@
 ---
 date: 2026-02-22
-title: A Small Example of What Agentic AI Benchmarks Should Actually Be
+title: Small Example of Real Agentic Benchmarks
 desc: Test AI on rare, undocumented tools (like the Soupault static site generator) rather than common ones like React. This forces the AI to infer logic from provided examples rather than relying on its training data.
 showcase: true
 category: Article
@@ -155,7 +155,8 @@ All the agents are used within [Opencode](https://opencode.ai/).
 
 ### Gemini 3.1 Pro
 
-![Gemini Result](./gemini.png)
+<!-- ![Gemini Result](./gemini.png) -->
+Empty
 
 
 ### Minimax M2.5
@@ -187,7 +188,8 @@ All the agents are used within [Opencode](https://opencode.ai/).
 
 ### GLM5
 
-![GLM Result](./glm.png)
+<!-- ![GLM Result](./glm.png) -->
+Empty
 
 ```
 {% for e in entries %}

@@ -31,7 +31,7 @@ Meanwhile, I had a small but surprisingly persistent problem: The brightness of 
 That meant getting up, reaching for the little control dongle, pushing it in one direction, waiting for the brightness to move, then pushing again, and repeating that process until the screen was finally where I wanted it. Then I would do it all over again later in the day. Sometimes, at night, I would even reset the monitor back to a more neutral state just so I would not have to think about it as much the next morning. Even that brought a small but real amount of mental overhead.
 
 
-<video width="30%" controls>
+<video width="300" controls>
   <source src="dongle.mp4" type="video/mp4">
 </video>
 

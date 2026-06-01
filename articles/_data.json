@@ -2,6 +2,7 @@
   "type": "article",
   "layout": "layouts/article.vto",
   "metas": {
-    "title": "=title"
+    "title": "=title",
+    "description": "=desc"
   }
 }

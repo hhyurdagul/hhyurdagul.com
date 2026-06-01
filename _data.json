@@ -1,0 +1,15 @@
+{
+  "metas": {
+    "site": "Personal website of Hasan Hüseyin Yurdagül - HHYurdagul",
+    "title": "HHYurdagul",
+    "lang": "en",
+    "image": "/assets/og.png",
+    "icon": "/assets/favicon.ico",
+    "twitter": "@hhyurdagul",
+    "color": [
+      "black",
+      "white"
+    ],
+    "robots": true
+  }
+}
