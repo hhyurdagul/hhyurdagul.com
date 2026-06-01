@@ -36,6 +36,14 @@ site.use(
   }),
 )
 
+site.add("_includes/CNAME")
+site.add("_includes/style.css")
+site.add("_includes/pages", "/")
+site.add("_includes/assets")
+site.add([".jpeg", ".jpg", ".png", ".svg", ".mp3", ".mp4"])
+
+site.data("layout", "layouts/layout.vto")
+
 function formatDate(date: Date): string {
 
   // Extract the exact day and year using UTC methods to avoid timezone shifts
@@ -71,11 +79,5 @@ export function getReadingTime(content: string, wordsPerMinute: number = 225): s
 
 site.helper("formatDate", formatDate, {type: "tag"})
 site.helper("extractReadingTime", getReadingTime, {type: "tag"})
-
-site.add("style.css")
-site.add("_includes/assets")
-site.add([".jpeg", ".jpg", ".png", ".svg", ".mp3", ".mp4"])
-
-site.data("layout", "layout.vto")
 
 export default site;

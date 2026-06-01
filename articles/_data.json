@@ -1,6 +1,6 @@
 {
   "type": "article",
-  "layout": "article.vto",
+  "layout": "layouts/article.vto",
   "metas": {
     "title": "=title"
   }

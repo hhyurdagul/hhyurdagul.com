@@ -1087,10 +1087,36 @@ body:has(.contact-wrap:focus-within) {
   gap: 1.5rem;
 }
 
-.article-content p {
+.article-content a {
+  color: darkorange;
+}
+
+.article-content p,
+.article-content ul,
+.article-content ol {
   color: var(--text-main);
   font-size: 0.975rem;
   line-height: 1.85;
+}
+
+.article-content ul,
+.article-content ol {
+  padding-left: 2rem;
+}
+
+.article-content li {
+  margin-bottom: 0.5rem;
+}
+
+.article-content li:last-child {
+  margin-bottom: 0;
+}
+
+.article-content ul ul,
+.article-content ol ul,
+.article-content ul ol,
+.article-content ol ol {
+  margin-top: 0.5rem;
 }
 
 .article-content em {
