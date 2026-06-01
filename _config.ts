@@ -1,5 +1,40 @@
 import lume from "lume/mod.ts";
+import basePath from "lume/plugins/base_path.ts";
 import robots from "lume/plugins/robots.ts";
+import sitemap from "lume/plugins/sitemap.ts";
+import googleFonts from "lume/plugins/google_fonts.ts";
+import katex from "lume/plugins/katex.ts";
+import codeHighlight from "lume/plugins/code_highlight.ts";
+import shiki from "https://deno.land/x/lume_shiki/mod.ts";
+import lightningCss from "lume/plugins/lightningcss.ts";
+
+// import lang_python from "npm:highlight.js/lib/languages/python";
+
+const site = lume({
+  location: new URL("https://hhyurdagul.com"),
+});
+
+site.use(basePath())
+site.use(robots())
+site.use(sitemap())
+site.use(katex({
+  cssFile: "/css/katex.css"
+}))
+site.use(googleFonts({
+  cssFile: "/css/fonts.css",
+  fonts: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+}))
+
+site.use(
+  shiki({
+    cssFile: false,
+    highlighter: {
+      langs: ["javascript", "toml", "html", "python"],
+      themes: ["tokyo-night"]
+    },
+    theme: "tokyo-night",
+  }),
+)
 
 function formatDate(date: Date): string {
 
@@ -33,20 +68,14 @@ export function getReadingTime(content: string, wordsPerMinute: number = 225): s
   return `${readingTime} min read`;
 }
 
-const site = lume({
-  location: new URL("https://hhyurdagul.com"),
-});
 
 site.helper("formatDate", formatDate, {type: "tag"})
 site.helper("extractReadingTime", getReadingTime, {type: "tag"})
 
-site.add("_includes/css")
+site.add("style.css")
 site.add("_includes/assets")
 site.add([".jpeg", ".jpg", ".png", ".svg", ".mp3", ".mp4"])
 
 site.data("layout", "layout.vto")
-
-site.use(robots())
-
 
 export default site;

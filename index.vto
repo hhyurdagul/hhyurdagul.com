@@ -39,13 +39,13 @@
 
     <div class="prose-list">
       {{ for article of search.pages("type=article showcase=true", "date=desc") }}
-      <button class="prose-item">
+      <a href={{ article.url }} class="prose-item">
         <div>
           <h3 class="prose-title">{{ article.title }}</h3>
           <p class="prose-meta">{{ article.date |> formatDate }} · {{ article.content |> extractReadingTime }} </p>
         </div>
         <span class="prose-arrow">→</span>
-      </button>
+      </a>
       {{ /for }}
     </div>
 

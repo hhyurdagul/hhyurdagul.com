@@ -36,23 +36,33 @@
   --bg-nav: rgba(10, 10, 10, 0.8);
 
   --text-white: #ffffff;
-  --text-main: #d4d4d4;       /* neutral-300 */
-  --text-muted: #a3a3a3;      /* neutral-400 */
-  --text-dim: #737373;        /* neutral-500 */
-  --text-dark: #525252;       /* neutral-600 */
-  --text-darker: #404040;     /* neutral-700 */
+  --text-main: #d4d4d4;
+  /* neutral-300 */
+  --text-muted: #a3a3a3;
+  /* neutral-400 */
+  --text-dim: #737373;
+  /* neutral-500 */
+  --text-dark: #525252;
+  /* neutral-600 */
+  --text-darker: #404040;
+  /* neutral-700 */
 
-  --border-subtle: #171717;   /* neutral-900 */
-  --border-base: #262626;     /* neutral-800 */
-  --border-hover: #404040;    /* neutral-700 */
+  --border-subtle: #171717;
+  /* neutral-900 */
+  --border-base: #262626;
+  /* neutral-800 */
+  --border-hover: #404040;
+  /* neutral-700 */
 
   /* Typography */
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
 
   /* Layout */
-  --max-w-content: 42rem;     /* max-w-2xl */
-  --max-w-container: 48rem;   /* max-w-3xl */
+  --max-w-content: 42rem;
+  /* max-w-2xl */
+  --max-w-container: 48rem;
+  /* max-w-3xl */
 
   /* Transitions */
   --transition: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -111,8 +121,8 @@ button {
 }
 
 .section-padding {
-  padding-top: 5rem;
-  padding-bottom: 5rem;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
 }
 
 .font-mono {
@@ -512,6 +522,7 @@ body:has(.contact-wrap:focus-within) {
     opacity: 0;
     transform: translateY(16px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -531,7 +542,7 @@ body:has(.contact-wrap:focus-within) {
 
 .hero {
   padding-top: 8rem;
-  padding-bottom: 5rem;
+  padding-bottom: 4rem;
   position: relative;
 }
 
@@ -542,10 +553,12 @@ body:has(.contact-wrap:focus-within) {
 }
 
 @keyframes blink {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0;
   }
@@ -986,12 +999,29 @@ body:has(.contact-wrap:focus-within) {
 }
 
 /* Staggered animation delays for list items */
-.article-list > article:nth-child(1) { animation-delay: 0.1s; }
-.article-list > article:nth-child(2) { animation-delay: 0.2s; }
-.article-list > article:nth-child(3) { animation-delay: 0.3s; }
-.article-list > article:nth-child(4) { animation-delay: 0.4s; }
-.article-list > article:nth-child(5) { animation-delay: 0.5s; }
-.article-list > article:nth-child(6) { animation-delay: 0.6s; }
+.article-list>article:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.article-list>article:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.article-list>article:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.article-list>article:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.article-list>article:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.article-list>article:nth-child(6) {
+  animation-delay: 0.6s;
+}
 
 
 /* ==========================================================================
@@ -1040,7 +1070,6 @@ body:has(.contact-wrap:focus-within) {
 
 .post-meta {
   margin-top: 1.5rem;
-  margin-bottom: 2.5rem;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
