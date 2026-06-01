@@ -1,0 +1,51 @@
+---
+type: layout
+layout: "layout.vto"
+---
+
+<header class="page-header page-enter">
+  <div class="container">
+    <p class="mono-prompt cursor-blink">hhyurdagul:~$ cat /articles</p>
+    <h1 class="hero-title">Articles</h1>
+    <p class="hero-desc">Thinking. On engineering, mathematics, systems, life, and the things I can't stop
+      turning over in my head.</p>
+  </div>
+</header>
+
+<div class="main-content">
+  <div class="section-line"></div>
+
+  <div class="article-list">
+  {{ set totalReadingTime = 0 }}
+  {{ set articleCount = 0}}
+  {{ for article of search.pages("type=article", "date=desc") }}
+  {{ set temp = article.content |> extractReadingTime |> parseInt }}
+  {{ set totalReadingTime = totalReadingTime + temp }}
+  {{ set articleCount = articleCount + 1 }}
+    <article class="fade-in">
+      <a href={{ article.url }} class="article-card">
+        <div class="article-info">
+          <h2 class="article-title">{{article.title}}</h2>
+          <p class="article-desc">{{article.desc}}</p>
+
+          <div class="article-meta">
+            <time class="meta-text" datetime={{ article.date }}>{{ article.date |> formatDate }}</time>
+            <span class="meta-dot">·</span>
+            <span class="meta-text">{{ article.content |> extractReadingTime }}</span>
+            <span class="meta-dot">·</span>
+            <span class="meta-text">{{ article.category ? article.category : "Note" }}</span>
+          </div>
+        </div>
+        <span class="article-arrow" aria-hidden="true">→</span>
+      </a>
+    </article>
+  {{/for}}
+
+  </div>
+
+  <!-- End indicator -->
+  <div class="eof-indicator">
+    <p class="eof-line-1">— EOF —</p>
+    <p class="eof-line-2">{{articleCount}} entries · {{ totalReadingTime }} min total reading time</p>
+  </div>
+</div>
