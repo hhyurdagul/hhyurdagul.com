@@ -6,39 +6,51 @@ layout: layouts/layout.vto
   <div id="reading-progress" class="reading-progress-bar"></div>
 </div>
 
-<header class="page-header page-enter">
-  <div class="container">
-    <a href="/articles" class="back-link">
-      <span class="arrow">←</span>/Articles
-    </a>
-
-    <h1 class="post-title">{{title}}</h1>
-    <p class="post-subtitle">{{desc}}</p>
-
-    <div class="post-meta">
-      <span>{{ date |> formatDate }}</span>
-      <span>·</span>
-      <span>{{ content |> extractReadingTime }}</span>
-      <span>·</span>
-      <span>{{ category }}</span>
-    </div>
-  </div>
-</header>
-
 <article class="main-content page-enter">
-  <div class="article-top-bar">
-    <div class="reader-controls" aria-label="Reading options">
-      <button id="font-decrease" class="reader-btn" title="Decrease font size">A-</button>
-      <button id="font-reset" class="reader-btn" title="Reset font size">A</button>
-      <button id="font-increase" class="reader-btn" title="Increase font size">A+</button>
-    </div>
-  </div>
-  <div class="section-line"></div>
-
   <div class="article-body-wrapper">
-    <aside id="toc-placeholder" class="article-toc-sidebar"></aside>
+    <aside class="article-toc-sidebar">
+      <h1 class="mobile-article-title">{{ title }}</h1>
+      <div class="sidebar-card">
+        <!-- Sidebar Header (Date & Controls) -->
+        <div class="sidebar-top-row">
+          <!-- Date -->
+          <div class="sidebar-meta-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-meta-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span class="sidebar-meta-text">{{ date |> formatDate }}</span>
+          </div>
+
+          <!-- Reader Controls -->
+          <div class="reader-controls" aria-label="Reading options">
+            <button id="font-decrease" class="reader-btn" title="Decrease font size">A-</button>
+            <button id="font-reset" class="reader-btn" title="Reset font size">A</button>
+            <button id="font-increase" class="reader-btn" title="Increase font size">A+</button>
+          </div>
+        </div>
+
+        <!-- TOC Container -->
+        <div id="toc-container" data-title="{{ title }}"></div>
+
+        <!-- Tags -->
+        {{ if tags }}
+        <div class="sidebar-tags-section">
+          <div class="sidebar-section-title">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+            <span>TAGS</span>
+          </div>
+          <div class="sidebar-tags-list">
+            {{ for tag of tags }}
+              <span class="sidebar-tag-pill">{{ tag }}</span>
+            {{ /for }}
+          </div>
+        </div>
+        {{ /if }}
+      </div>
+    </aside>
 
     <div class="article-content">
+      <a href="/articles" class="back-link">
+        <span class="arrow">←</span>/Articles
+      </a>
       {{ content }}
     </div>
   </div>

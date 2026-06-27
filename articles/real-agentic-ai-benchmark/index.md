@@ -3,7 +3,10 @@ date: 2026-02-22
 title: Small Example of Real Agentic Benchmarks
 desc: Test AI on rare, undocumented tools (like the Soupault static site generator) rather than common ones like React. This forces the AI to infer logic from provided examples rather than relying on its training data.
 showcase: true
-category: Article
+tags:
+  - AI
+  - Benchmarks
+  - LLMs
 ---
 
 Everybody I know who actually works with LLMs hates benchmarks. They're biased, gamed, and rarely translate to real-world utility. But there is no escape from them because benchmarks are the only proofs we have of what these models can do.

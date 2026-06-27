@@ -99,49 +99,76 @@ site.process([".html"], (pages) => {
     if (!document) continue;
 
     const articleContent = document.querySelector(".article-content");
-    const tocPlaceholder = document.getElementById("toc-placeholder");
+    const tocContainer = document.getElementById("toc-container");
 
-    if (articleContent && tocPlaceholder) {
+    if (articleContent && tocContainer) {
       const headings = articleContent.querySelectorAll("h2, h3");
-      if (headings.length === 0) {
-        tocPlaceholder.remove();
-        continue;
-      }
-
+      const title = tocContainer.getAttribute("data-title") || "";
+      
       const tocNav = document.createElement("nav");
       tocNav.className = "toc-nav";
-      
-      const tocTitle = document.createElement("div");
-      tocTitle.className = "toc-title";
-      tocTitle.textContent = "Outline";
-      tocNav.appendChild(tocTitle);
+
+      // 1. "ON THIS PAGE" header
+      const tocHeader = document.createElement("div");
+      tocHeader.className = "toc-header-title";
+      tocHeader.innerHTML = `
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-meta-icon"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        <span>ON THIS PAGE</span>
+      `;
+      tocNav.appendChild(tocHeader);
 
       const tocList = document.createElement("ul");
       tocList.className = "toc-list";
 
-      headings.forEach((heading) => {
-        const text = heading.textContent || "";
-        const slug = heading.getAttribute("id") || text
-          .toLowerCase()
-          .replace(/[^\w\s-]/g, "")
-          .replace(/\s+/g, "-")
-          .replace(/^-+|-+$/g, "");
+      // 2. Article Title (Root item with orange dot)
+      const rootItem = document.createElement("li");
+      rootItem.className = "toc-item toc-root active";
+      
+      const rootDot = document.createElement("span");
+      rootDot.className = "toc-dot root-dot";
+      rootItem.appendChild(rootDot);
 
-        heading.setAttribute("id", slug);
+      const rootLink = document.createElement("a");
+      rootLink.setAttribute("href", "#");
+      rootLink.textContent = title;
+      rootItem.appendChild(rootLink);
+      tocList.appendChild(rootItem);
 
-        const tocItem = document.createElement("li");
-        tocItem.className = `toc-item toc-${heading.tagName.toLowerCase()}`;
+      // 3. Subheadings
+      if (headings.length > 0) {
+        const subListWrapper = document.createElement("div");
+        subListWrapper.className = "toc-sublist-wrapper";
+        
+        headings.forEach((heading) => {
+          const text = heading.textContent || "";
+          const slug = heading.getAttribute("id") || text
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/^-+|-+$/g, "");
 
-        const tocLink = document.createElement("a");
-        tocLink.setAttribute("href", `#${slug}`);
-        tocLink.textContent = text;
+          heading.setAttribute("id", slug);
 
-        tocItem.appendChild(tocLink);
-        tocList.appendChild(tocItem);
-      });
+          const tocItem = document.createElement("div");
+          tocItem.className = `toc-subitem toc-${heading.tagName.toLowerCase()}`;
+
+          const dot = document.createElement("span");
+          dot.className = "toc-subdot";
+          tocItem.appendChild(dot);
+
+          const tocLink = document.createElement("a");
+          tocLink.setAttribute("href", `#${slug}`);
+          tocLink.textContent = text;
+
+          tocItem.appendChild(tocLink);
+          subListWrapper.appendChild(tocItem);
+        });
+
+        tocList.appendChild(subListWrapper);
+      }
 
       tocNav.appendChild(tocList);
-      tocPlaceholder.appendChild(tocNav);
+      tocContainer.appendChild(tocNav);
     }
   }
 });

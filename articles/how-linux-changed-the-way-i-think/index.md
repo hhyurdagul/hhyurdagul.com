@@ -3,7 +3,10 @@ date: 2026-03-18
 title: How Linux Changed the Way I Think
 desc: After enough years of using Linux, tinkering with it, breaking things and fixing them again, you start to carry a certain instinct with you. You begin to feel that most things on a computer are not fixed objects to be accepted as they are, but systems that can be questioned, inspected, and maybe bent a little.
 showcase: true
-category: Article
+tags:
+  - Linux
+  - Engineering
+  - Systems
 ---
 
 ## Introduction
