@@ -1,13 +1,13 @@
 .terminal-box {
-  background: #0d0d0d;
-  border: 1px solid #222;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-base);
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 1.5rem;
 
   & .tb-header {
-    background: #161616;
-    border-bottom: 1px solid #222;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-base);
     align-items: center;
     display: flex;
     padding: 10px 16px;

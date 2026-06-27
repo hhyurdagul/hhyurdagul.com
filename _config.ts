@@ -35,7 +35,7 @@ site.use(katex({
 }))
 site.use(googleFonts({
   cssFile: "/css/fonts.css",
-  fonts: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+  fonts: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
 }))
 site.use(lightningCss())
 
@@ -90,5 +90,60 @@ export function getReadingTime(content: string, wordsPerMinute: number = 225): s
 
 site.helper("formatDate", formatDate, {type: "tag"})
 site.helper("extractReadingTime", getReadingTime, {type: "tag"})
+
+site.process([".html"], (pages) => {
+  for (const page of pages) {
+    if (page.data.type !== "article") continue;
+    
+    const document = page.document;
+    if (!document) continue;
+
+    const articleContent = document.querySelector(".article-content");
+    const tocPlaceholder = document.getElementById("toc-placeholder");
+
+    if (articleContent && tocPlaceholder) {
+      const headings = articleContent.querySelectorAll("h2, h3");
+      if (headings.length === 0) {
+        tocPlaceholder.remove();
+        continue;
+      }
+
+      const tocNav = document.createElement("nav");
+      tocNav.className = "toc-nav";
+      
+      const tocTitle = document.createElement("div");
+      tocTitle.className = "toc-title";
+      tocTitle.textContent = "Outline";
+      tocNav.appendChild(tocTitle);
+
+      const tocList = document.createElement("ul");
+      tocList.className = "toc-list";
+
+      headings.forEach((heading) => {
+        const text = heading.textContent || "";
+        const slug = heading.getAttribute("id") || text
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/^-+|-+$/g, "");
+
+        heading.setAttribute("id", slug);
+
+        const tocItem = document.createElement("li");
+        tocItem.className = `toc-item toc-${heading.tagName.toLowerCase()}`;
+
+        const tocLink = document.createElement("a");
+        tocLink.setAttribute("href", `#${slug}`);
+        tocLink.textContent = text;
+
+        tocItem.appendChild(tocLink);
+        tocList.appendChild(tocItem);
+      });
+
+      tocNav.appendChild(tocList);
+      tocPlaceholder.appendChild(tocNav);
+    }
+  }
+});
 
 export default site;
