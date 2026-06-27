@@ -1,12 +1,13 @@
 ---
 title: Articles
 metas:
-  description: Article page of hhyurdagul.com
+description: Article page of hhyurdagul.com
 ---
 
 <header class="page-header page-enter">
   <p class="mono-prompt cursor-blink">
-    <span class="prompt-user">hhyurdagul</span><span class="prompt-host">:</span><span class="prompt-dir">~</span><span class="prompt-sym">$</span> <span class="prompt-cmd">cat</span> <span class="prompt-arg">/articles</span>
+    <span class="prompt-user">hhyurdagul</span><span class="prompt-host">:</span><span class="prompt-dir">~</span><span
+      class="prompt-sym">λ</span> <span class="prompt-cmd">ls</span> <span class="prompt-arg">/articles</span>
   </p>
   <h1 class="hero-title">Articles</h1>
   <p class="hero-desc">Thinking. On engineering, mathematics, systems, life, and the things I can't stop
@@ -20,19 +21,19 @@ metas:
     {{ set totalReadingTime = 0 }}
     {{ set articleCount = 0 }}
     {{ for article of search.pages("type=article", "date=desc") }}
-      {{ set temp = article.content |> extractReadingTime |> parseInt }}
-      {{ set totalReadingTime = totalReadingTime + temp }}
-      {{ set articleCount = articleCount + 1 }}
-      {{ set readingTime = article.content |> extractReadingTime }}
-      <article class="fade-in" style="--i: {{ articleCount }}">
-        {{ comp.ArticleCard({
-          url: article.url,
-          title: article.title,
-          date: article.date,
-          readingTime: readingTime,
-          tags: article.tags
-        }) }}
-      </article>
+    {{ set temp = article.content |> extractReadingTime |> parseInt }}
+    {{ set totalReadingTime = totalReadingTime + temp }}
+    {{ set articleCount = articleCount + 1 }}
+    {{ set readingTime = article.content |> extractReadingTime }}
+    <article class="fade-in" style="--i: {{ articleCount }}">
+      {{ comp.ArticleCard({
+      url: article.url,
+      title: article.title,
+      date: article.date,
+      readingTime: readingTime,
+      tags: article.tags
+      }) }}
+    </article>
     {{ /for }}
   </div>
 

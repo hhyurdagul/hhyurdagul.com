@@ -1,11 +1,14 @@
 ---
 title: Homepage
 metas:
-  description: Homepage of hhyurdagul.com
+description: Homepage of hhyurdagul.com
 ---
 
 <header class="hero container page-enter">
-  <p class="mono-prompt cursor-blink">hhyurdagul:~$ whoami</p>
+  <p class="mono-prompt cursor-blink">
+    <span class="prompt-user">hhyurdagul</span><span class="prompt-host">:</span><span class="prompt-dir">~</span><span
+      class="prompt-sym">λ</span> <span class="prompt-cmd">whoami</span>
+  </p>
   <h1>Hasan Hüseyin<br><span>Yurdagül</span></h1>
   <p class="hero-desc">Machine learning engineer. Consultant. Deep thinker.<br>I build things from first principles.
   </p>
@@ -45,13 +48,13 @@ metas:
 
     <div class="prose-list">
       {{ for article of search.pages("type=article showcase=true", "date=desc") }}
-        {{ set readingTime = article.content |> extractReadingTime }}
-        {{ comp.ProseItem({
-          url: article.url,
-          title: article.title,
-          date: article.date,
-          readingTime: readingTime
-        }) }}
+      {{ set readingTime = article.content |> extractReadingTime }}
+      {{ comp.ProseItem({
+      url: article.url,
+      title: article.title,
+      date: article.date,
+      readingTime: readingTime
+      }) }}
       {{ /for }}
     </div>
 
@@ -69,20 +72,20 @@ metas:
       Arch + Hyprland. Freedom matters. Window managers matter.</p>
 
     {{ comp.TerminalBox({
-      title: "distro_hop.sh",
-      rows: [
-        { prompt: "$", text: "[2016] Linux Mint # the beginning" },
-        { prompt: "$", text: "[2016] Ubuntu # the obvious next" },
-        { prompt: "$", text: "[2016] Pop!_OS # the hyped children" },
-        { prompt: "$", text: "[2016] Fedora # usable, but not fresh" },
-        { prompt: "$", text: "[2016] Manjaro # intro to arch, but gentle" },
-        { prompt: "$", text: "[2017] Arch Linux # the real deal" },
-        { prompt: "$", text: "[2020] NixOS # beautiful pain" },
-        { prompt: "$", text: "[2021] macOS (M1) # incredible hardware" },
-        { prompt: "$", text: "[2022] Arch (again) # yearning freedom" },
-        { prompt: "$", text: "[2022] macOS (M1) # disgusting software, but unbeatable hardware" },
-        { prompt: "$", text: "[2025] Arch + Hyprland # returning home" }
-      ]
+    title: "distro_hop.sh",
+    rows: [
+    { prompt: "$", text: "[2016] Linux Mint # the beginning" },
+    { prompt: "$", text: "[2016] Ubuntu # the obvious next" },
+    { prompt: "$", text: "[2016] Pop!_OS # the hyped children" },
+    { prompt: "$", text: "[2016] Fedora # usable, but not fresh" },
+    { prompt: "$", text: "[2016] Manjaro # intro to arch, but gentle" },
+    { prompt: "$", text: "[2017] Arch Linux # the real deal" },
+    { prompt: "$", text: "[2020] NixOS # beautiful pain" },
+    { prompt: "$", text: "[2021] macOS (M1) # incredible hardware" },
+    { prompt: "$", text: "[2022] Arch (again) # yearning freedom" },
+    { prompt: "$", text: "[2022] macOS (M1) # disgusting software, but unbeatable hardware" },
+    { prompt: "$", text: "[2025] Arch + Hyprland # returning home" }
+    ]
     }) }}
 
     <div style="margin-top: 2.5rem;">
@@ -103,30 +106,33 @@ metas:
     </div>
 
     <div class="tech-grids">
-      {{ comp.TerminalBox({
-        title: "cs_amazement.log",
-        marginZero: true,
-        content: "The first thing that amazed me in CS was the <span class=\"text-white\">linked list</span> — this elegant, recursive data structure where every node points to the next. Then <span class=\"text-white\">automata theory</span>: the idea that a simple machine with states and transitions could model computation itself."
-      }) }}
-      {{ comp.TerminalBox({
-        title: "ai_amazement.log",
-        marginZero: true,
-        content: "In AI, <span class=\"text-white\">autoencoders</span> blew my mind — the idea that a network could learn to compress and reconstruct, discovering the essence of data. And <span class=\"text-white\">GANs</span>: two networks battling each other, creating something from nothing. Adversarial creation is pure genius."
-      }) }}
+      {{ comp TerminalBox {title: "cs_amazement.log", marginZero: true} }}
+      <p>The first thing that amazed me in CS was the <span class='text-white'>linked list</span> — this
+        elegant, recursive data structure where every node points to the next. Then <span class='text-white'>automata
+          theory</span>: the idea that a simple machine with states and transitions could model computation itself.</p>
+      {{ /comp }}
+
+
+
+      {{ comp TerminalBox {title: "ai_amazement.log", marginZero: true} }}
+      <p>In AI, <span class="text-white">autoencoders</span> blew my mind — the idea that a network could learn
+        to compress and reconstruct, discovering the essence of data. And <span class="text-white">GANs</span>: two
+        networks battling each other, creating something from nothing. Adversarial creation is pure genius.</p>
+      {{ /comp }}
     </div>
 
     <div style="margin-top: 2.5rem;">
       {{ comp.TerminalBox({
-        title: "editor_journey.md",
-        rows: [
-          { prompt: "~", text: "neovim ── longtime user, broke every update" },
-          { prompt: "~", text: "helix ── current editor, good defaults, stable and fine" },
-          { prompt: "~", text: "" },
-          { prompt: "~", text: "# I value my time more as I age" },
-          { prompt: "~", text: "# I don't have enough time to configure everything." },
-          { prompt: "~", text: "# I need things delivered, but I must be able to change them." },
-          { prompt: "~", text: "# Helix game me the balance of freedom, and sanity" }
-        ]
+      title: "editor_journey.md",
+      rows: [
+      { prompt: "~", text: "neovim ── longtime user, broke every update" },
+      { prompt: "~", text: "helix ── current editor, good defaults, stable and fine" },
+      { prompt: "~", text: "" },
+      { prompt: "~", text: "# I value my time more as I age" },
+      { prompt: "~", text: "# I don't have enough time to configure everything." },
+      { prompt: "~", text: "# I need things delivered, but I must be able to change them." },
+      { prompt: "~", text: "# Helix game me the balance of freedom, and sanity" }
+      ]
       }) }}
     </div>
   </section>
@@ -137,11 +143,11 @@ metas:
     <h2 class="section-title">/work</h2>
     <div class="work-list">
       {{ for item of work }}
-        {{ comp.WorkItem({
-          title: item.title,
-          loc: item.loc,
-          content: item.desc
-        }) }}
+      {{ comp.WorkItem({
+      title: item.title,
+      loc: item.loc,
+      content: item.desc
+      }) }}
       {{ /for }}
     </div>
   </section>
