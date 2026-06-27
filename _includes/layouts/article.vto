@@ -38,17 +38,17 @@ layout: layouts/layout.vto
   {{ set prevPost = search.previousPage(url, "type=article", "date=desc") }}
   {{ set nextPost = search.nextPage(url, "type=article", "date=desc") }}
 
-  <div class="next-post-nav">
+  <div class="post-nav">
     {{ if prevPost }}
-    <a href={{ prevPost.url }} class="prev-post-btn">
-      <p class="next-post-label">← previous</p>
-      <p class="next-post-title">{{ prevPost.title }}</p>
+    <a href={{ prevPost.url }} class="post-nav-btn">
+      <p class="post-nav-label">← previous</p>
+      <p class="post-nav-title">{{ prevPost.title }}</p>
     </a>
     {{ /if }}
     {{ if nextPost }}
-    <a href={{ nextPost.url }} class="next-post-btn">
-      <p class="next-post-label">next →</p>
-      <p class="next-post-title">{{ nextPost.title }}</p>
+    <a href={{ nextPost.url }} class="post-nav-btn right">
+      <p class="post-nav-label">next →</p>
+      <p class="post-nav-title">{{ nextPost.title }}</p>
     </a>
     {{ /if }}
   </div>

@@ -1,0 +1,25 @@
+.work-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.work-item {
+  border-left: 2px solid var(--border-base);
+  padding-left: 1.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.work-meta {
+  color: var(--text-dim);
+  font-size: 0.875rem;
+  font-family: var(--font-mono);
+  margin-top: 0.25rem;
+}
+
+.work-desc {
+  margin-top: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
