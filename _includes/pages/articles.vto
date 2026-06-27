@@ -21,22 +21,16 @@ description: Article page of hhyurdagul.com
     {{ set temp = article.content |> extractReadingTime |> parseInt }}
     {{ set totalReadingTime = totalReadingTime + temp }}
     {{ set articleCount = articleCount + 1 }}
+    {{ set readingTime = article.content |> extractReadingTime }}
     <article class="fade-in" style="--i: {{ articleCount }}">
-      <a href={{ article.url }} class="article-card">
-        <div class="article-info">
-          <h2 class="article-title">{{article.title}}</h2>
-          <p class="article-desc">{{article.desc}}</p>
-
-          <div class="article-meta">
-            <time class="meta-text" datetime={{ article.date }}>{{ article.date |> formatDate }}</time>
-            <span class="meta-dot">·</span>
-            <span class="meta-text">{{ article.content |> extractReadingTime }}</span>
-            <span class="meta-dot">·</span>
-            <span class="meta-text">{{ article.category ? article.category : "Note" }}</span>
-          </div>
-        </div>
-        <span class="article-arrow" aria-hidden="true">→</span>
-      </a>
+      {{ comp.ArticleCard({
+        url: article.url,
+        title: article.title,
+        desc: article.desc,
+        date: article.date,
+        readingTime: readingTime,
+        category: article.category
+      }) }}
     </article>
     {{/for}}
 

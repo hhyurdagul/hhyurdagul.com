@@ -1,0 +1,15 @@
+<a href="{{ url }}" class="article-card">
+  <div class="article-info">
+    <h2 class="article-title">{{ title }}</h2>
+    <p class="article-desc">{{ desc }}</p>
+
+    <div class="article-meta">
+      <time class="meta-text" datetime="{{ date }}">{{ date |> formatDate }}</time>
+      <span class="meta-dot">·</span>
+      <span class="meta-text">{{ readingTime }}</span>
+      <span class="meta-dot">·</span>
+      <span class="meta-text">{{ category ? category : "Note" }}</span>
+    </div>
+  </div>
+  <span class="article-arrow" aria-hidden="true">→</span>
+</a>

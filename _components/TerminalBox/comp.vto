@@ -1,0 +1,22 @@
+<div class="terminal-box"{{ if marginZero }} style="margin: 0;"{{ /if }}>
+  <div class="tb-header">
+    <span class="tb-dot" style="background: rgb(255, 95, 86);"></span>
+    <span class="tb-dot" style="background: rgb(255, 189, 46);"></span>
+    <span class="tb-dot" style="background: rgb(39, 201, 63);"></span>
+    <span class="tb-title">{{ title }}</span>
+  </div>
+  {{ if content }}
+    <div class="tb-body" style="color: var(--text-muted); font-family: var(--font-sans);">
+      {{ content }}
+    </div>
+  {{ else if rows }}
+    <div class="tb-body">
+      {{ for row of rows }}
+        <div class="tb-row">
+          <span class="tb-prompt">{{ row.prompt }}</span>
+          <span class="text-main">{{ row.text |> safe }}</span>
+        </div>
+      {{ /for }}
+    </div>
+  {{ /if }}
+</div>
