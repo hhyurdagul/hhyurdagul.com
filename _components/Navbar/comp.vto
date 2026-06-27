@@ -1,17 +1,27 @@
 <nav class="navbar">
   <div class="nav-container">
-    <a href="/" class="nav-brand">hhyurdagul</a>
+    <a href="/" class="nav-brand">
+      <span class="brand-accent">~</span>/hhyurdagul
+    </a>
+    
     <div class="nav-links">
-      <a href="/" class="nav-link">Home</a>
-      <a href="/articles" class="nav-link">Articles</a>
+      <a href="/articles" class="nav-link{{ if url && url.startsWith('/articles') }} active{{ /if }}">
+        Articles
+      </a>
+      
       <div class="contact-wrap">
-        <a class="nav-link" aria-haspopup="true" aria-expanded="false">Elsewhere</a>
+        <button class="nav-link elsewhere-trigger" type="button" aria-haspopup="true" aria-expanded="false">
+          Elsewhere
+          <svg class="chevron-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
 
         <div class="drawer" role="dialog" aria-label="Contact information">
           <strong class="title">Get in touch</strong>
           <p class="sub">I'm hhyurdagul across platforms.</p>
 
-          <a class="row" href="mailto:hhyurdagul@gmail.com" target="_blank" rel="noopener noreferrer">
+          <a class="row row-email" href="mailto:hhyurdagul@gmail.com" target="_blank" rel="noopener noreferrer">
             <span class="ico" aria-hidden="true">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -19,13 +29,13 @@
                 <path d="M3 7l9 6 9-6"></path>
               </svg>
             </span>
-            <div>
+            <div class="row-content">
               <strong>Email</strong>
               <small>hhyurdagul@gmail.com</small>
             </div>
           </a>
 
-          <a class="row" href="https://github.com/hhyurdagul" target="_blank" rel="noopener noreferrer">
+          <a class="row row-github" href="https://github.com/hhyurdagul" target="_blank" rel="noopener noreferrer">
             <span class="ico" aria-hidden="true">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -34,13 +44,13 @@
                 </path>
               </svg>
             </span>
-            <div>
+            <div class="row-content">
               <strong>GitHub</strong>
               <small>@hhyurdagul</small>
             </div>
           </a>
 
-          <a class="row" href="https://linkedin.com/in/hhyurdagul" target="_blank" rel="noopener noreferrer">
+          <a class="row row-linkedin" href="https://linkedin.com/in/hhyurdagul" target="_blank" rel="noopener noreferrer">
             <span class="ico" aria-hidden="true">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -49,13 +59,13 @@
                 <circle cx="4" cy="4" r="2"></circle>
               </svg>
             </span>
-            <div>
+            <div class="row-content">
               <strong>LinkedIn</strong>
               <small>in/hhyurdagul</small>
             </div>
           </a>
 
-          <a class="row" href="https://x.com/hhyurdagul" target="_blank" rel="noopener noreferrer">
+          <a class="row row-twitter" href="https://x.com/hhyurdagul" target="_blank" rel="noopener noreferrer">
             <span class="ico" aria-hidden="true">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -63,7 +73,7 @@
                 <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path>
               </svg>
             </span>
-            <div>
+            <div class="row-content">
               <strong>Twitter/X</strong>
               <small>@hhyurdagul</small>
             </div>
