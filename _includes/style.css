@@ -140,6 +140,26 @@ button {
   font-size: 0.75rem;
   color: var(--text-dark);
   margin-bottom: 1rem;
+
+  & .prompt-user {
+    color: var(--text-accent);
+    font-weight: 500;
+  }
+  & .prompt-host {
+    color: var(--text-dim);
+  }
+  & .prompt-dir {
+    color: #a78bfa;
+  }
+  & .prompt-sym {
+    color: var(--text-muted);
+  }
+  & .prompt-cmd {
+    color: #34d399;
+  }
+  & .prompt-arg {
+    color: var(--text-white);
+  }
 }
 
 .hero-desc {
@@ -456,9 +476,11 @@ article.main-content {
   }
 }
 
+
+
 /* End of File Indicator */
 .eof-indicator {
-  padding: 2rem 0;
+  padding: 3rem 0;
   text-align: center;
 
   & p {
@@ -468,11 +490,12 @@ article.main-content {
 
   & .eof-line-1 {
     color: var(--text-darker);
+    letter-spacing: 0.1em;
   }
 
   & .eof-line-2 {
-    color: var(--border-base);
-    margin-top: 0.25rem;
+    color: var(--text-dim);
+    margin-top: 0.375rem;
   }
 }
 

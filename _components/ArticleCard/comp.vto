@@ -1,15 +1,36 @@
 <a href="{{ url }}" class="article-card">
   <div class="article-info">
     <h2 class="article-title">{{ title }}</h2>
-    <p class="article-desc">{{ desc }}</p>
 
     <div class="article-meta">
-      <time class="meta-text" datetime="{{ date }}">{{ date |> formatDate }}</time>
-      <span class="meta-dot">·</span>
-      <span class="meta-text">{{ readingTime }}</span>
-      <span class="meta-dot">·</span>
-      <span class="meta-text">{{ category ? category : "Note" }}</span>
+      <span class="meta-item" title="Publication date">
+        <svg class="meta-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <time datetime="{{ date }}">{{ date |> formatDate }}</time>
+      </span>
+      
+      <span class="meta-item" title="Reading time">
+        <svg class="meta-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>{{ readingTime }}</span>
+      </span>
     </div>
   </div>
-  <span class="article-arrow" aria-hidden="true">→</span>
+  
+  <div class="article-right">
+    {{ if tags && tags.length > 0 }}
+      <div class="article-tags">
+        {{ for tag of tags }}
+          <span class="article-tag">{{ tag }}</span>
+        {{ /for }}
+      </div>
+    {{ /if }}
+    <span class="article-arrow" aria-hidden="true">→</span>
+  </div>
 </a>
