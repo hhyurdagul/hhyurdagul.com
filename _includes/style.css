@@ -559,6 +559,7 @@ article.main-content {
   }
 
   & p,
+  & div.article-paragraph,
   & ul,
   & ol {
     color: var(--text-main);
@@ -566,6 +567,10 @@ article.main-content {
     font-size: var(--article-size, var(--article-font-size));
     line-height: 1.85;
     margin-bottom: 1.5rem;
+  }
+
+  & div.article-paragraph {
+    position: relative;
   }
 
   & h2,
@@ -691,9 +696,22 @@ article.main-content {
 
 .reading-progress-bar {
   height: 100%;
-  width: 0%;
+  width: 100%;
   background-color: var(--text-accent);
-  transition: width 0.1s ease-out;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+@keyframes grow-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@supports (animation-timeline: scroll()) {
+  .reading-progress-bar {
+    animation: grow-progress auto linear;
+    animation-timeline: scroll();
+  }
 }
 
 .article-top-bar {
@@ -736,8 +754,18 @@ article.main-content {
 }
 
 /* --- Sidenotes --- */
-.sidenote-ref {
+.sidenote-wrapper {
+  display: inline;
+}
+
+details.sidenote-container {
+  display: inline-block;
   counter-increment: sidenote-counter;
+}
+
+details.sidenote-container summary.sidenote-ref {
+  display: inline;
+  list-style: none;
   vertical-align: super;
   font-size: 0.75rem;
   line-height: 0;
@@ -754,15 +782,19 @@ article.main-content {
     content: counter(sidenote-counter);
   }
 
+  &::-webkit-details-marker {
+    display: none;
+  }
+
   &:hover {
     color: var(--text-white);
     background-color: var(--border-base);
   }
+}
 
-  &.active {
-    color: var(--text-white);
-    background-color: var(--text-accent);
-  }
+details.sidenote-container[open] summary.sidenote-ref {
+  color: var(--text-white);
+  background-color: var(--text-accent);
 }
 
 .sidenote {
@@ -798,33 +830,34 @@ article.main-content {
 }
 
 @media (min-width: 1400px) {
+  details.sidenote-container summary.sidenote-ref {
+    cursor: default;
+    pointer-events: none;
+  }
+
   .sidenote {
-    float: right;
-    clear: right;
-    margin-right: -22rem;
+    position: absolute;
+    right: -22rem;
     width: 18rem;
-    margin-top: 0;
-    margin-bottom: 1rem;
-    position: relative;
+    display: block;
   }
 }
 
 @media (max-width: 1399px) {
-  .sidenote {
+  details.sidenote-container + .sidenote {
     display: none;
-    float: none;
+    position: static;
     margin: 0.5rem 0 1rem 0;
     width: 100%;
-    margin-right: 0;
     background-color: var(--bg-surface);
     border-left: 2px solid var(--text-accent);
     padding: 0.75rem 1rem;
     border-radius: 0.375rem;
     animation: fadeIn 0.2s ease-out;
+  }
 
-    &.active {
-      display: block;
-    }
+  details.sidenote-container[open] + .sidenote {
+    display: block;
   }
 }
 

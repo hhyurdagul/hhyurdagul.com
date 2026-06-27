@@ -99,6 +99,113 @@ site.process([".html"], (pages) => {
     if (!document) continue;
 
     const articleContent = document.querySelector(".article-content");
+    
+    if (articleContent) {
+      // 1. Convert paragraphs containing footnote references to <div class="article-paragraph">
+      const paragraphs = Array.from(articleContent.querySelectorAll("p"));
+      paragraphs.forEach((p: any) => {
+        const text = p.textContent ? p.textContent.trim() : "";
+        if (text.includes("[^") && !text.match(/^\[\^([^\]]+)\]:\s*/)) {
+          const div = document.createElement("div");
+          div.className = "article-paragraph";
+          div.innerHTML = p.innerHTML;
+          for (const attr of p.attributes) {
+            div.setAttribute(attr.name, attr.value);
+          }
+          p.parentNode.replaceChild(div, p);
+        }
+      });
+
+      // 2. Sidenotes extraction
+      const notesMap = new Map();
+      const remainingParagraphs = Array.from(articleContent.querySelectorAll("p"));
+      remainingParagraphs.forEach((p: any) => {
+        const text = p.textContent ? p.textContent.trim() : "";
+        const match = text.match(/^\[\^([^\]]+)\]:\s*(.*)/s);
+        if (match) {
+          const id = match[1];
+          notesMap.set(id, p.innerHTML.replace(/^\[\^[^\]]+\]:\s*/, ""));
+          p.remove();
+        }
+      });
+
+      if (notesMap.size > 0) {
+        const textNodes: any[] = [];
+        const walk = (node: any) => {
+          if (node.nodeType === 3) { // TEXT_NODE
+            if (node.nodeValue && node.nodeValue.includes("[^")) {
+              textNodes.push(node);
+            }
+          } else {
+            for (let child = node.firstChild; child; child = child.nextSibling) {
+              if (
+                child.nodeName === "PRE" ||
+                child.nodeName === "CODE" ||
+                child.nodeName === "SCRIPT" ||
+                child.nodeName === "STYLE" ||
+                child.nodeName === "DETAILS"
+              ) {
+                continue;
+              }
+              walk(child);
+            }
+          }
+        };
+        walk(articleContent);
+
+        textNodes.forEach((textNode: any) => {
+          const text = textNode.nodeValue;
+          const parent = textNode.parentNode;
+          if (!parent) return;
+
+          const regex = /\[\^([^\]]+)\]/g;
+          let match;
+          let lastIndex = 0;
+          const nodes: any[] = [];
+
+          while ((match = regex.exec(text)) !== null) {
+            const id = match[1];
+            if (notesMap.has(id)) {
+              if (match.index > lastIndex) {
+                nodes.push(document.createTextNode(text.substring(lastIndex, match.index)));
+              }
+
+              const wrapper = document.createElement("span");
+              wrapper.className = "sidenote-wrapper";
+
+              const details = document.createElement("details");
+              details.className = "sidenote-container";
+
+              const summary = document.createElement("summary");
+              summary.className = "sidenote-ref";
+              summary.setAttribute("data-id", id);
+              details.appendChild(summary);
+
+              const sidenote = document.createElement("span");
+              sidenote.className = "sidenote";
+              sidenote.innerHTML = notesMap.get(id);
+
+              wrapper.appendChild(details);
+              wrapper.appendChild(sidenote);
+
+              nodes.push(wrapper);
+              lastIndex = regex.lastIndex;
+            }
+          }
+
+          if (lastIndex > 0) {
+            if (lastIndex < text.length) {
+              nodes.push(document.createTextNode(text.substring(lastIndex)));
+            }
+            nodes.forEach(node => {
+              parent.insertBefore(node, textNode);
+            });
+            parent.removeChild(textNode);
+          }
+        });
+      }
+    }
+
     const tocContainer = document.getElementById("toc-container");
 
     if (articleContent && tocContainer) {
