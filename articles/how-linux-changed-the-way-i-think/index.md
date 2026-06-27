@@ -9,8 +9,6 @@ tags:
   - Systems
 ---
 
-## Introduction
-
 This is one of those things that sounds small when stated plainly, but stayed with me because of what it revealed. On the surface, this is a story about controlling my monitor through software on Linux. But that is only the example, not the point.
 
 What really interests me is the kind of experience Linux gives over time. After enough years of using it, tinkering with it, breaking things and fixing them again, you start to carry a certain instinct with you. You begin to feel that most things on a computer are not fixed objects to be accepted as they are, but systems that can be questioned, inspected, and maybe bent a little.

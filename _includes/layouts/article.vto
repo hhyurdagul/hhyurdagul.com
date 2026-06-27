@@ -2,6 +2,9 @@
 layout: layouts/layout.vto
 ---
 
+{{ set prevPost = search.previousPage(url, "type=article", "date=desc") }}
+{{ set nextPost = search.nextPage(url, "type=article", "date=desc") }}
+
 <div class="reading-progress-container">
   <div id="reading-progress" class="reading-progress-bar"></div>
 </div>
@@ -9,81 +12,77 @@ layout: layouts/layout.vto
 <article class="main-content page-enter">
   <div class="article-body-wrapper">
     <aside class="article-toc-sidebar">
-      <h1 class="mobile-article-title">{{ title }}</h1>
       <div class="sidebar-card">
-        <!-- Sidebar Header (Date & Controls) -->
-        <div class="sidebar-top-row">
-          <!-- Date -->
-          <div class="sidebar-meta-item">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-meta-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            <span class="sidebar-meta-text">{{ date |> formatDate }}</span>
-          </div>
-
-          <!-- Reader Controls -->
-          <div class="reader-controls" aria-label="Reading options">
-            <button id="font-decrease" class="reader-btn" title="Decrease font size">A-</button>
-            <button id="font-reset" class="reader-btn" title="Reset font size">A</button>
-            <button id="font-increase" class="reader-btn" title="Increase font size">A+</button>
-          </div>
-        </div>
-
         <!-- TOC Container -->
         <div id="toc-container" data-title="{{ title }}"></div>
-
-        <!-- Tags -->
-        {{ if tags }}
-        <div class="sidebar-tags-section">
-          <div class="sidebar-section-title">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-            <span>TAGS</span>
-          </div>
-          <div class="sidebar-tags-list">
-            {{ for tag of tags }}
-              <span class="sidebar-tag-pill">{{ tag }}</span>
-            {{ /for }}
-          </div>
-        </div>
-        {{ /if }}
       </div>
     </aside>
 
     <div class="article-content">
-      <a href="/articles" class="back-link">
-        <span class="arrow">←</span>/Articles
-      </a>
+      <!-- Article Header -->
+      <header class="article-header">
+        <h1 class="article-title">{{ title }}</h1>
+        
+        <div class="sidebar-card metadata-bar">
+          <!-- Sidebar Header (Date & Controls) -->
+          <div class="sidebar-top-row">
+            <!-- Date -->
+            <div class="sidebar-meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-meta-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <span class="sidebar-meta-text">{{ date |> formatDate }}</span>
+            </div>
+
+            <!-- Reader Controls -->
+            <div class="reader-controls" aria-label="Reading options">
+              <button id="font-decrease" class="reader-btn" title="Decrease font size">A-</button>
+              <button id="font-reset" class="reader-btn" title="Reset font size">A</button>
+              <button id="font-increase" class="reader-btn" title="Increase font size">A+</button>
+            </div>
+          </div>
+
+          <!-- Tags -->
+          {{ if tags }}
+          <div class="sidebar-tags-section">
+            <div class="sidebar-section-title">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-meta-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+              <span>TAGS</span>
+            </div>
+            <div class="sidebar-tags-list">
+              {{ for tag of tags }}
+                <span class="sidebar-tag-pill">{{ tag }}</span>
+              {{ /for }}
+            </div>
+          </div>
+          {{ /if }}
+        </div>
+      </header>
+
+      <!-- Content -->
       {{ content }}
+
+      <!-- Navigation Section -->
+      {{ if prevPost || nextPost }}
+      <div class="bottom-nav-section">
+        {{ if prevPost }}
+        <a href="{{ prevPost.url }}" class="sidebar-nav-link prev">
+          <span class="nav-label">← Previous</span>
+          <span class="nav-title">{{ prevPost.title }}</span>
+        </a>
+        {{ /if }}
+        {{ if nextPost }}
+        <a href="{{ nextPost.url }}" class="sidebar-nav-link next">
+          <span class="nav-label">Next →</span>
+          <span class="nav-title">{{ nextPost.title }}</span>
+        </a>
+        {{ /if }}
+      </div>
+      {{ /if }}
     </div>
   </div>
-
-  <!-- End Mark -->
-  <div class="end-mark-container">
-    <div class="section-line"></div>
-    <span class="end-mark">∎</span>
-    <div class="section-line"></div>
-  </div>
-
-  {{ set prevPost = search.previousPage(url, "type=article", "date=desc") }}
-  {{ set nextPost = search.nextPage(url, "type=article", "date=desc") }}
-
-  <div class="post-nav">
-    {{ if prevPost }}
-    <a href={{ prevPost.url }} class="post-nav-btn">
-      <p class="post-nav-label">← previous</p>
-      <p class="post-nav-title">{{ prevPost.title }}</p>
-    </a>
-    {{ /if }}
-    {{ if nextPost }}
-    <a href={{ nextPost.url }} class="post-nav-btn right">
-      <p class="post-nav-label">next →</p>
-      <p class="post-nav-title">{{ nextPost.title }}</p>
-    </a>
-    {{ /if }}
-  </div>
-
 </article>
 
 <script>
-  (function() {
+  (function () {
     document.addEventListener("DOMContentLoaded", () => {
       // 1. Sidenotes transformation
       const content = document.querySelector(".article-content");
@@ -97,7 +96,7 @@ layout: layouts/layout.vto
           const match = text.match(/^\[\^([^\]]+)\]:\s*(.*)/s);
           if (match) {
             const id = match[1];
-            notesMap.set(id, { html: p.innerHTML.replace(/^\[\^[^\]]+\]:\s*/, ""), element: p });
+            notesMap.set(id, {html: p.innerHTML.replace(/^\[\^[^\]]+\]:\s*/, ""), element: p});
             p.remove();
           }
         });
@@ -120,36 +119,36 @@ layout: layouts/layout.vto
             const parent = textNode.parentNode;
             const regex = /\[\^([^\]]+)\]/g;
             let match;
-            
+
             const fragment = document.createDocumentFragment();
             let lastIndex = 0;
-            
+
             while ((match = regex.exec(text)) !== null) {
               const id = match[1];
               if (notesMap.has(id)) {
                 fragment.appendChild(document.createTextNode(text.substring(lastIndex, match.index)));
-                
+
                 const ref = document.createElement("span");
                 ref.className = "sidenote-ref";
                 ref.dataset.id = id;
-                
+
                 const sidenote = document.createElement("span");
                 sidenote.className = "sidenote";
                 sidenote.innerHTML = notesMap.get(id).html;
-                
+
                 ref.addEventListener("click", (e) => {
                   e.preventDefault();
                   const isActive = ref.classList.toggle("active");
                   sidenote.classList.toggle("active", isActive);
                 });
-                
+
                 fragment.appendChild(ref);
                 fragment.appendChild(sidenote);
-                
+
                 lastIndex = regex.lastIndex;
               }
             }
-            
+
             if (lastIndex > 0) {
               fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
               parent.replaceChild(fragment, textNode);
@@ -165,19 +164,19 @@ layout: layouts/layout.vto
           const contentRect = content.getBoundingClientRect();
           const contentHeight = content.offsetHeight;
           const windowHeight = window.innerHeight;
-          
+
           // Progress percentage calculated based on article scroll position
           const scrolled = window.scrollY - (content.offsetTop - 100);
           const totalScrollable = contentHeight - windowHeight + 200;
-          
+
           let progress = 0;
           if (scrolled > 0) {
             progress = Math.min((scrolled / totalScrollable) * 100, 100);
           }
-          
+
           progressBar.style.width = `${progress}%`;
         };
-        
+
         window.addEventListener("scroll", updateProgress);
         window.addEventListener("resize", updateProgress);
         updateProgress();
@@ -187,22 +186,22 @@ layout: layouts/layout.vto
       const increaseBtn = document.getElementById("font-increase");
       const decreaseBtn = document.getElementById("font-decrease");
       const resetBtn = document.getElementById("font-reset");
-      
+
       if (increaseBtn && decreaseBtn && content) {
         const storageKey = "reader-font-size-scale";
         let scale = parseFloat(localStorage.getItem(storageKey)) || 1.0;
-        
+
         const updateFontSize = (newScale) => {
           scale = Math.max(0.85, Math.min(newScale, 1.3));
           content.style.setProperty("--article-size", `${scale * 1.0625}rem`);
           localStorage.setItem(storageKey, scale);
         };
-        
+
         // Initialize size
         if (scale !== 1.0) {
           updateFontSize(scale);
         }
-        
+
         increaseBtn.addEventListener("click", () => updateFontSize(scale + 0.05));
         decreaseBtn.addEventListener("click", () => updateFontSize(scale - 0.05));
         if (resetBtn) {

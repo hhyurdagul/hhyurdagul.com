@@ -549,9 +549,7 @@ article.main-content {
 
   & a {
     color: var(--text-accent);
-    text-decoration: underline;
     text-decoration-color: var(--border-hover);
-    text-underline-offset: 4px;
     transition: text-decoration-color var(--transition), color var(--transition);
 
     &:hover {
@@ -667,14 +665,15 @@ article.main-content {
   }
 
   /* Drop cap styling */
-  &>p:first-child::first-letter {
+  &>p:first-of-type::first-letter {
     float: left;
     color: var(--text-white);
     margin-top: 0.05em;
-    padding-right: 0.08em;
+    margin-right: 0.1em;
+    margin-bottom: -0.05em;
     font-size: 3.2em;
     font-weight: 700;
-    line-height: 0.85;
+    line-height: 0.8;
     font-family: var(--font-serif);
   }
 }
@@ -916,10 +915,6 @@ article.main-content {
   padding: 1.25rem;
   box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.4);
   transition: border-color var(--transition);
-
-  &:hover {
-    border-color: var(--border-hover);
-  }
 }
 
 .sidebar-top-row {
@@ -1108,59 +1103,122 @@ article.main-content {
 
 @media (max-width: 1399px) {
   .article-toc-sidebar {
-    width: 100%;
-    margin-bottom: 2rem;
+    display: none;
   }
+}
 
-  .sidebar-card {
-    position: static;
-    max-height: none;
-    overflow: visible;
-    box-shadow: none;
-    padding: 1rem 0;
-    border: none;
-    border-bottom: 1px solid var(--border-base);
-    border-radius: 0;
-    background-color: transparent;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    align-items: center;
-    justify-content: space-between;
+.sidebar-nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-base);
+}
 
-    &:hover {
-      border-color: var(--border-base);
+.sidebar-nav-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-decoration: none;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  transition: color var(--transition);
+
+  &:hover {
+    color: var(--text-white);
+
+    & .nav-label {
+      color: var(--text-accent);
     }
   }
 
-  #toc-container {
-    display: none;
+  & .nav-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    transition: color var(--transition);
   }
 
-  .sidebar-tags-section {
+  & .nav-title {
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  &.prev {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  &.next {
+    align-items: flex-end;
+    text-align: right;
+  }
+}
+
+.bottom-nav-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-base);
+
+  & .sidebar-nav-link {
+    flex: 1 1 50%;
+  }
+
+  & .sidebar-nav-link.next {
+    margin-left: auto;
+  }
+}
+
+/* --- Article Header & Metadata Bar --- */
+.article-header {
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid var(--border-base);
+}
+
+.article-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--text-white);
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  margin-bottom: 1.25rem;
+  font-family: var(--font-sans);
+
+  @media (max-width: 767px) {
+    font-size: 1.75rem;
+  }
+}
+
+.metadata-bar {
+  position: static;
+  max-height: none;
+  overflow: visible;
+  box-shadow: none;
+  padding: 1rem 0;
+  border: none;
+  border-top: 1px solid var(--border-base);
+  border-radius: 0;
+  background-color: transparent;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+
+  & .sidebar-tags-section {
     padding-top: 0;
     border-top: none;
     flex-direction: row;
     align-items: center;
     gap: 0.75rem;
-  }
-
-}
-
-.mobile-article-title {
-  display: none;
-}
-
-@media (max-width: 1399px) {
-  .mobile-article-title {
-    display: block;
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text-white);
-    letter-spacing: -0.025em;
-    line-height: 1.25;
-    margin-top: 0.5rem;
-    margin-bottom: 1.5rem;
+    margin-top: 0;
   }
 }
