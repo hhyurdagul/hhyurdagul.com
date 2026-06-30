@@ -1,0 +1,186 @@
+---
+title: Work
+metas:
+description: Professional roles and R&D consultancy portfolio of Hasan Hüseyin Yurdagül
+---
+
+<header class="page-header page-enter">
+  <p class="mono-prompt cursor-blink">
+    <span class="prompt-user">hhyurdagul</span><span class="prompt-host">:</span><span class="prompt-dir">~</span><span
+      class="prompt-sym">λ</span> <span class="prompt-cmd">whoami</span> <span class="prompt-arg">--experience</span>
+  </p>
+  <h1 class="hero-title">Work</h1>
+  <p class="hero-desc">AI leadership, applied machine learning systems, and R&D consultancy spanning 30+ companies and
+    municipal organizations.</p>
+</header>
+
+<div class="main-content">
+  <div class="section-line"></div>
+
+  <!-- Professional Roles Section -->
+  <section id="professional-roles" class="section-padding fade-in">
+    <h2 class="section-title">/professional-roles</h2>
+
+    <div class="timeline">
+      {{ for role of professional_roles }}
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-header">
+            <h3 class="timeline-company">{{ role.company }}</h3>
+            <span class="timeline-role">{{ role.title }}</span>
+            <div class="timeline-meta">
+              <span>{{ role.dates }}</span>
+              <span>·</span>
+              <span>{{ role.loc }}</span>
+            </div>
+          </div>
+
+          <p class="timeline-desc">{{ role.description }}</p>
+
+          <ul class="timeline-highlights">
+            {{ for highlight of role.highlights }}
+            <li class="timeline-highlight-item">{{ highlight }}</li>
+            {{ /for }}
+          </ul>
+
+          <div class="timeline-tech">
+            {{ for t of role.tech }}
+            <span class="tag">{{ t }}</span>
+            {{ /for }}
+          </div>
+        </div>
+      </div>
+      {{ /for }}
+    </div>
+  </section>
+
+  <div class="section-line"></div>
+
+  <!-- Consulting Portfolio Section -->
+  <section id="consulting-portfolio" class="section-padding fade-in">
+    <h2 class="section-title">/consulting-directory</h2>
+
+    <div class="directory-controls">
+      <!-- Search input -->
+      <div class="search-wrapper">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="directory-search" class="search-input" placeholder="Search by company or technology..."
+          aria-label="Search consultancies">
+      </div>
+
+      <!-- Tier filters -->
+      <div class="filter-group">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="flagship">Flagship</button>
+        <button class="filter-btn" data-filter="supporting">Supporting</button>
+        <button class="filter-btn" data-filter="contextual">Contextual</button>
+      </div>
+    </div>
+
+    <!-- Grid of Consultancies -->
+    <div class="consultancy-grid" id="consultancy-grid">
+      {{ for index, item of consultancies }}
+      <div class="consultancy-card" data-company="{{ item.company.toLowerCase() }}"
+        data-tech="{{ item.tech.join(',').toLowerCase() }}" data-tier="{{ item.tier }}">
+
+        <div class="consultancy-card-header">
+          <div class="consultancy-company-row">
+            <h3 class="consultancy-name">
+              {{ item.company }}
+              {{ if item.url }}
+              <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer"
+                aria-label="Visit {{ item.company }} website">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" class="consultancy-link-icon">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+              </a>
+              {{ /if }}
+            </h3>
+
+            <span class="consultancy-tier-badge tier-{{ item.tier }}">{{ item.tier }}</span>
+          </div>
+
+          <div class="consultancy-dates">{{ item.dates }}</div>
+        </div>
+
+        <p class="consultancy-desc">{{ item.desc }}</p>
+
+        <div class="consultancy-tech-list">
+          {{ for t of item.tech }}
+          <span class="consultancy-tech-tag">{{ t }}</span>
+          {{ /for }}
+        </div>
+      </div>
+      {{ /for }}
+
+      <!-- No results element -->
+      <div class="no-results" id="no-results-message" style="display: none;">
+        No consulting records found matching your search.
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Client-side Search and Filter Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('directory-search');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.consultancy-card');
+    const noResultsMsg = document.getElementById('no-results-message');
+
+    let currentSearch = '';
+    let currentFilter = 'all';
+
+    const updateVisibility = () => {
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const company = card.getAttribute('data-company') || '';
+        const tech = card.getAttribute('data-tech') || '';
+        const tier = card.getAttribute('data-tier') || '';
+
+        const matchesSearch = company.includes(currentSearch) || tech.includes(currentSearch);
+        const matchesFilter = currentFilter === 'all' || tier === currentFilter;
+
+        if (matchesSearch && matchesFilter) {
+          card.style.display = 'flex';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      if (visibleCount === 0) {
+        noResultsMsg.style.display = 'block';
+      } else {
+        noResultsMsg.style.display = 'none';
+      }
+    };
+
+    // Search input listener
+    searchInput.addEventListener('input', (e) => {
+      currentSearch = e.target.value.toLowerCase().trim();
+      updateVisibility();
+    });
+
+    // Filter buttons listener
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        currentFilter = btn.getAttribute('data-filter') || 'all';
+        updateVisibility();
+      });
+    });
+  });
+</script>

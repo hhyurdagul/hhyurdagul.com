@@ -1,0 +1,43 @@
+[
+  {
+    "company": "Universal Software",
+    "title": "Head of R&D AI",
+    "dates": "Jan 2024 - Present",
+    "loc": "Istanbul, Turkey (Hybrid)",
+    "description": "Promoted to lead the AI R&D division, directing municipal and enterprise AI strategy, leading cross-functional engineering teams, and representing the organization in international project consortiums.",
+    "highlights": [
+      "Architected and deployed an LLM and embedding-based support ticketing optimization system using clustering and sentence similarity for automatic topic extraction, error-free text postprocessing, and auto-answering, resulting in a 50%-60% support speed increase.",
+      "Developed an automatic ticketing categorization system for municipal portals using TF-IDF and sentiment embedding classification models, eliminating manual routing across all partner municipalities.",
+      "Served as the technical lead for two Horizon Europe proposals: FloodGuard (a 3.5 million Euro flood prediction consortium lead) and Pre-act (fire prediction)."
+    ],
+    "tech": ["Python", "LLMs", "Transformers", "Word Embeddings", "TF-IDF", "Clustering", "Horizon Europe Scoping"]
+  },
+  {
+    "company": "Universal Software",
+    "title": "Senior AI/ML Engineer",
+    "dates": "Apr 2021 - Dec 2023",
+    "loc": "Istanbul, Turkey (Hybrid)",
+    "description": "Developed and deployed robust machine learning models, time-series forecasting, and computer vision systems for municipal utility networks and industrial clients.",
+    "highlights": [
+      "Built a real-time inventory object detection system using YOLOv8, deployed on mobile devices for Enerjisa field workers to validate inventory photos and prevent database clogging.",
+      "Created predictive maintenance systems using ML/DL classification algorithms, including a one-week failure window prediction system for Enerjisa industrial assets and CNC machine failure prediction systems.",
+      "Designed an IoT-driven municipal garbage truck route optimization system using heuristic algorithms that compute optimal routes based on bin fullness, fire alarms, and flood events.",
+      "Developed time-series forecasting pipelines using LSTM neural networks for municipal water consumption (Istanbul Water Administration) and gas/electricity consumption (GAM-GAD modules)."
+    ],
+    "tech": ["Python", "YOLOv8", "LSTM", "scikit-learn", "TensorFlow", "Keras", "Heuristics"]
+  },
+  {
+    "company": "OxyAI",
+    "title": "AI/ML Engineer (Contract)",
+    "dates": "May 2021 - Jan 2023",
+    "loc": "Remote · Turkey",
+    "description": "Architected and deployed hybrid and multi-modal recommendation systems for commercial client platforms.",
+    "highlights": [
+      "Built a hybrid multi-modal recommendation pipeline for the online art gallery platform 'Collectors', combining user textual profiles and CNN-extracted visual preferences to match artwork with high accuracy.",
+      "Developed a collaborative filtering recommendation engine for the audiobook app 'Dinlebi' (an Audible-style platform) using matrix factorization and user interaction history.",
+      "Designed a user onboarding data-collection flow for Dinlebi to mitigate the cold-start problem.",
+      "Utilized collaborative filtering, content-based filtering, matrix factorization, CNNs, and Transformer-based feature extraction models."
+    ],
+    "tech": ["Python", "CNNs", "Transformers", "Matrix Factorization", "Collaborative Filtering", "Content-Based Filtering", "Deep Learning"]
+  }
+]
