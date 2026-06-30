@@ -175,6 +175,40 @@ button {
   line-height: 1.625;
 }
 
+.story-link {
+  margin-top: 1.5rem;
+
+  & a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-accent);
+    background-color: rgba(142, 168, 219, 0.1);
+    border: 1px solid var(--text-accent);
+    padding: 0.625rem 1.125rem;
+    border-radius: 0.5rem;
+    transition: all var(--transition);
+
+    & span {
+      transition: transform var(--transition);
+    }
+
+    &:hover {
+      background-color: rgba(142, 168, 219, 0.18);
+      border-color: var(--text-accent-hover);
+      color: var(--text-accent-hover);
+      transform: translateY(-2px);
+
+      & span {
+        transform: translateX(4px);
+      }
+    }
+  }
+}
+
 .section-title {
   font-family: var(--font-mono);
   font-size: 0.75rem;
