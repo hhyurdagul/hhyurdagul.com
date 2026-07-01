@@ -13,7 +13,7 @@
   box-shadow:
     0 12px 40px -10px rgba(0, 0, 0, 0.5),
     0 0 20px rgba(142, 168, 219, 0.01);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--transition);
 
   & .nav-container {
     max-width: var(--max-w-container);
@@ -125,6 +125,7 @@
       opacity: 0;
       transform: translateY(-10px) scale(0.98);
       pointer-events: none;
+      /* intentional overshoot (>1) for a physical pop-open feel, not the shared --transition */
       transition: opacity .22s ease, transform .25s cubic-bezier(.2, .9, .3, 1.15);
       transform-origin: top right;
       z-index: 60;
@@ -167,7 +168,7 @@
         align-items: center;
         gap: 0.875rem;
         padding: 0.625rem 0.75rem;
-        border-radius: 0.5rem;
+        border-radius: var(--radius-md);
         text-decoration: none;
         color: var(--text-main);
         border: 1px solid transparent;
@@ -193,7 +194,7 @@
         & .ico {
           width: 32px;
           height: 32px;
-          border-radius: 0.375rem;
+          border-radius: var(--radius-md);
           display: grid;
           place-items: center;
           background: rgba(255, 255, 255, 0.02);
@@ -230,7 +231,7 @@
       }
 
       & .row-email {
-        --row-hover-accent: #f87171;
+        --row-hover-accent: var(--accent-email);
         --row-hover-border: rgba(248, 113, 113, 0.3);
         --row-hover-glow: rgba(248, 113, 113, 0.08);
         --row-hover-shadow: rgba(248, 113, 113, 0.15);
@@ -242,7 +243,7 @@
       }
 
       & .row-github {
-        --row-hover-accent: #e5e7eb;
+        --row-hover-accent: var(--accent-github);
         --row-hover-border: rgba(229, 231, 235, 0.3);
         --row-hover-glow: rgba(229, 231, 235, 0.08);
         --row-hover-shadow: rgba(229, 231, 235, 0.1);
@@ -254,7 +255,7 @@
       }
 
       & .row-linkedin {
-        --row-hover-accent: #60a5fa;
+        --row-hover-accent: var(--accent-linkedin);
         --row-hover-border: rgba(96, 165, 250, 0.3);
         --row-hover-glow: rgba(96, 165, 250, 0.08);
         --row-hover-shadow: rgba(96, 165, 250, 0.15);
@@ -266,7 +267,7 @@
       }
 
       & .row-twitter {
-        --row-hover-accent: #f3f4f6;
+        --row-hover-accent: var(--accent-twitter);
         --row-hover-border: rgba(243, 244, 246, 0.3);
         --row-hover-glow: rgba(243, 244, 246, 0.08);
         --row-hover-shadow: rgba(243, 244, 246, 0.1);
@@ -297,7 +298,7 @@
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   background: rgba(10, 10, 10, 0.5);
-  transition: opacity .3s ease;
+  transition: opacity var(--transition);
   z-index: 40;
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, transparent 60px, #000 60px, #000 100%);
   mask-image: linear-gradient(to bottom, transparent 0, transparent 60px, #000 60px, #000 100%);

@@ -10,7 +10,11 @@
   transition: border-color var(--transition);
 
   &:hover {
-    border-color: var(--border-hover);
+    border-color: var(--border-base);
+
+    & .prose-title {
+      color: var(--text-white);
+    }
 
     & .prose-arrow {
       color: var(--text-muted);
@@ -18,21 +22,21 @@
   }
 
   & .prose-title {
-    color: var(--text-white);
+    color: var(--text-main);
     font-size: 0.875rem;
-    font-weight: 600;
+    font-weight: 500;
     transition: color var(--transition);
   }
 
   & .prose-meta {
     font-size: 0.75rem;
-    color: var(--text-dark);
+    color: var(--text-dim);
     font-family: var(--font-mono);
     margin-top: 0.25rem;
   }
 
   & .prose-arrow {
-    color: var(--border-hover);
+    color: var(--text-darker);
     font-family: var(--font-mono);
     font-size: 0.875rem;
     transition: color var(--transition);

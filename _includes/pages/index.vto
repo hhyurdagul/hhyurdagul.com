@@ -1,7 +1,8 @@
 ---
 title: Homepage
 metas:
-description: Homepage of hhyurdagul.com
+  title: HHYurdagul - Homepage
+  description: Homepage of hhyurdagul.com
 ---
 
 <header class="hero container page-enter">
@@ -58,9 +59,9 @@ description: Homepage of hhyurdagul.com
       {{ /for }}
     </div>
 
-    <button class="all-entries-btn">
+    <a class="btn all-entries-btn" href="/articles/">
       All entries <span>→</span>
-    </button>
+    </a>
   </section>
 
   <div class="section-line"></div>
@@ -131,7 +132,7 @@ description: Homepage of hhyurdagul.com
       { prompt: "~", text: "# I value my time more as I age" },
       { prompt: "~", text: "# I don't have enough time to configure everything." },
       { prompt: "~", text: "# I need things delivered, but I must be able to change them." },
-      { prompt: "~", text: "# Helix game me the balance of freedom, and sanity" }
+      { prompt: "~", text: "# Helix gave me the balance of freedom, and sanity" }
       ]
       }) }}
     </div>
@@ -142,14 +143,38 @@ description: Homepage of hhyurdagul.com
   <section id="work" class="section-padding fade-in">
     <h2 class="section-title">/work</h2>
     <div class="work-list">
-      {{ for item of work }}
       {{ comp.WorkItem({
-      title: item.title,
-      loc: item.loc,
-      content: item.desc
+        company: "Universal Software",
+        title: "Head of R&D AI",
+        dates: "Jan 2024 - Present",
+        loc: "Istanbul, Turkey (Hybrid)",
+        url: "https://www.universalyazilim.com/",
+        description: "Lead the AI R&D division directing municipal and enterprise AI strategy. Deployed LLM and sentence-similarity pipelines for support ticketing optimization that cut response times in half, and built automated categorization systems using sentiment embeddings. Also serving as the technical lead for international Horizon Europe consortium proposals such as FloodGuard and Pre-act.",
+        tech: ["Python", "LLMs", "Transformers", "Word Embeddings", "TF-IDF", "Clustering", "Horizon Europe Scoping"]
       }) }}
-      {{ /for }}
+
+      {{ comp.WorkItem({
+        company: "R&D AI/ML Consultancy",
+        title: "Independent Consultant",
+        dates: "Sep 2020 - Present",
+        loc: "Turkey (Remote)",
+        description: "Provide strategic machine learning, time-series forecasting, and R&D consultancy for flagship e-commerce and fintech platforms. Built semantic search and image classification systems for Inveon, developed end-to-end pricing and churn prediction pipelines on Azure for Moka, and shipped forecasting tools for Ikas and Robokobi.",
+        tech: ["Python", "FastAPI", "Streamlit", "Docker", "Kubernetes", "Azure", "Time-Series Forecasting", "Recommender Systems"]
+      }) }}
+
+      {{ comp.WorkItem({
+        company: "M.Sc. Artificial Intelligence",
+        title: "Thesis Research",
+        dates: "Aug 2023 - Feb 2026",
+        loc: "Çukurova University",
+        description: "Completed Master's in Artificial Intelligence with a thesis focused on monocular depth estimation and attention-driven vision networks. Developed models capable of estimating an object's physical length from a single photograph without requiring physical reference markers in the frame.",
+        tech: ["Computer Vision", "Depth Estimation", "Attention Models", "PyTorch", "Deep Learning"]
+      }) }}
     </div>
+
+    <a class="btn all-entries-btn" href="/work/">
+      Full work history <span>→</span>
+    </a>
   </section>
 
 </div>

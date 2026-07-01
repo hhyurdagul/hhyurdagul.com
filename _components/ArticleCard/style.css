@@ -16,9 +16,6 @@
 
   &:hover {
     border-color: var(--border-base);
-    background: none;
-    box-shadow: none;
-    transform: none;
 
     & .article-title {
       color: var(--text-white);
@@ -26,7 +23,6 @@
 
     & .article-arrow {
       color: var(--text-muted);
-      transform: none;
     }
 
     & .article-tag {
@@ -98,8 +94,8 @@
     letter-spacing: 0.05em;
     background: rgba(30, 32, 37, 0.3);
     color: var(--text-dim);
-    padding: 0.125rem 0.5rem;
-    border-radius: 9999px;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-pill);
     border: 1px solid var(--border-subtle);
     transition: all var(--transition);
     white-space: nowrap;

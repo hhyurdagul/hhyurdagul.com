@@ -1,0 +1,28 @@
+<div class="timeline-item">
+  <div class="timeline-dot"></div>
+  <div class="timeline-content">
+    <div class="timeline-header">
+      <h3 class="timeline-company">{{ company }}</h3>
+      <span class="timeline-role">{{ title }}</span>
+      <div class="timeline-meta">
+        <span>{{ dates }}</span>
+        <span>·</span>
+        <span>{{ loc }}</span>
+      </div>
+    </div>
+
+    <p class="timeline-desc">{{ description }}</p>
+
+    <ul class="timeline-highlights">
+      {{ for highlight of highlights }}
+      <li class="timeline-highlight-item">{{ highlight }}</li>
+      {{ /for }}
+    </ul>
+
+    <div class="timeline-tech">
+      {{ for t of tech }}
+      <span class="tag">{{ t }}</span>
+      {{ /for }}
+    </div>
+  </div>
+</div>

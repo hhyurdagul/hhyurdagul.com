@@ -1,7 +1,8 @@
 ---
 title: Work
 metas:
-description: Professional roles and R&D consultancy portfolio of Hasan Hüseyin Yurdagül
+  title: HHYurdagul - Work
+  description: Professional roles and R&D consultancy portfolio of Hasan Hüseyin Yurdagül
 ---
 
 <header class="page-header page-enter">
@@ -12,7 +13,7 @@ description: Professional roles and R&D consultancy portfolio of Hasan Hüseyin 
   <h1 class="hero-title">Work</h1>
   <p class="hero-desc">AI leadership, applied machine learning systems, and R&D consultancy spanning 30+ companies and
     municipal organizations.</p>
-  <p class="story-link"><a href="/articles/six-years-of-consulting-and-one-bad-tkinter-app/">Read my full work story <span>→</span></a></p>
+  <p class="story-link"><a class="btn" href="/articles/six-years-of-consulting-and-one-bad-tkinter-app/">Read my full work story <span>→</span></a></p>
 </header>
 
 <div class="main-content">
@@ -24,34 +25,15 @@ description: Professional roles and R&D consultancy portfolio of Hasan Hüseyin 
 
     <div class="timeline">
       {{ for role of professional_roles }}
-      <div class="timeline-item">
-        <div class="timeline-dot"></div>
-        <div class="timeline-content">
-          <div class="timeline-header">
-            <h3 class="timeline-company">{{ role.company }}</h3>
-            <span class="timeline-role">{{ role.title }}</span>
-            <div class="timeline-meta">
-              <span>{{ role.dates }}</span>
-              <span>·</span>
-              <span>{{ role.loc }}</span>
-            </div>
-          </div>
-
-          <p class="timeline-desc">{{ role.description }}</p>
-
-          <ul class="timeline-highlights">
-            {{ for highlight of role.highlights }}
-            <li class="timeline-highlight-item">{{ highlight }}</li>
-            {{ /for }}
-          </ul>
-
-          <div class="timeline-tech">
-            {{ for t of role.tech }}
-            <span class="tag">{{ t }}</span>
-            {{ /for }}
-          </div>
-        </div>
-      </div>
+      {{ comp.TimelineItem({
+      company: role.company,
+      title: role.title,
+      dates: role.dates,
+      loc: role.loc,
+      description: role.description,
+      highlights: role.highlights,
+      tech: role.tech
+      }) }}
       {{ /for }}
     </div>
   </section>
@@ -76,50 +58,24 @@ description: Professional roles and R&D consultancy portfolio of Hasan Hüseyin 
 
       <!-- Tier filters -->
       <div class="filter-group">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="flagship">Flagship</button>
-        <button class="filter-btn" data-filter="supporting">Supporting</button>
-        <button class="filter-btn" data-filter="contextual">Contextual</button>
+        <button class="btn filter-btn active" data-filter="all">All</button>
+        <button class="btn filter-btn" data-filter="flagship">Flagship</button>
+        <button class="btn filter-btn" data-filter="supporting">Supporting</button>
+        <button class="btn filter-btn" data-filter="contextual">Contextual</button>
       </div>
     </div>
 
     <!-- Grid of Consultancies -->
     <div class="consultancy-grid" id="consultancy-grid">
-      {{ for index, item of consultancies }}
-      <div class="consultancy-card" data-company="{{ item.company.toLowerCase() }}"
-        data-tech="{{ item.tech.join(',').toLowerCase() }}" data-tier="{{ item.tier }}">
-
-        <div class="consultancy-card-header">
-          <div class="consultancy-company-row">
-            <h3 class="consultancy-name">
-              {{ item.company }}
-              {{ if item.url }}
-              <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer"
-                aria-label="Visit {{ item.company }} website">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round" class="consultancy-link-icon">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                  <polyline points="15 3 21 3 21 9"></polyline>
-                  <line x1="10" y1="14" x2="21" y2="3"></line>
-                </svg>
-              </a>
-              {{ /if }}
-            </h3>
-
-            <span class="consultancy-tier-badge tier-{{ item.tier }}">{{ item.tier }}</span>
-          </div>
-
-          <div class="consultancy-dates">{{ item.dates }}</div>
-        </div>
-
-        <p class="consultancy-desc">{{ item.desc }}</p>
-
-        <div class="consultancy-tech-list">
-          {{ for t of item.tech }}
-          <span class="consultancy-tech-tag">{{ t }}</span>
-          {{ /for }}
-        </div>
-      </div>
+      {{ for item of consultancies }}
+      {{ comp.ConsultancyCard({
+      company: item.company,
+      url: item.url,
+      tier: item.tier,
+      dates: item.dates,
+      desc: item.desc,
+      tech: item.tech
+      }) }}
       {{ /for }}
 
       <!-- No results element -->

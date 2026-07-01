@@ -1,0 +1,105 @@
+.consultancy-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+  transition: border-color var(--transition), transform var(--transition);
+
+  &:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+  }
+}
+
+.consultancy-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.consultancy-company-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.consultancy-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-white);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.consultancy-link-icon {
+  color: var(--text-dim);
+  opacity: 0.6;
+  transition: opacity var(--transition), color var(--transition);
+
+  &:hover {
+    color: var(--text-accent);
+    opacity: 1;
+  }
+}
+
+.consultancy-tier-badge {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+
+  &.tier-flagship {
+    background-color: rgba(249, 115, 22, 0.1);
+    color: var(--accent-toc-root);
+    border: 1px solid rgba(249, 115, 22, 0.2);
+  }
+
+  &.tier-supporting {
+    background-color: rgba(142, 168, 219, 0.1);
+    color: var(--text-accent);
+    border: 1px solid rgba(142, 168, 219, 0.2);
+  }
+
+  &.tier-contextual {
+    background-color: var(--border-subtle);
+    color: var(--text-muted);
+    border: 1px solid var(--border-base);
+  }
+}
+
+.consultancy-dates {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.consultancy-desc {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.consultancy-tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.consultancy-tech-tag {
+  font-family: var(--font-mono);
+  font-size: 0.675rem;
+  color: var(--text-dim);
+  background-color: rgba(23, 23, 23, 0.2);
+  border: 1px solid var(--border-base);
+  padding: 0.15rem 0.375rem;
+  border-radius: var(--radius-sm);
+}

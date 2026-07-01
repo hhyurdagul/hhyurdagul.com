@@ -13,7 +13,7 @@ Everybody I know who actually works with LLMs hates benchmarks. They're biased, 
 
 Since leaderboards can't be trusted completely when I want to choose a model to work with, the only real solution to select correctly is to test them myself extensively. But that's as you have probably done it before knows is very tedious. New models drop weekly, each with different pricing, latency, and capabilities, and keeping up feels impossible. So we tend to stick with what we know, like Opus or Codex models.
 
-Now of course, there is the opinions of other people, and it consntaly changes but you can get the general idea following others and understand which models are good for which tasks. For example, you might know that Gemini is pretty good in generating UI than other models, and in the past Opus models was very bad at generating UIs especially compared with Codex, but now it is swapped, when followed general knowledge, it seems the roles reversed, for UI Opus is better and for engineering tasks Codex is better. 
+Now of course, there is the opinions of other people, and it constantly changes but you can get the general idea following others and understand which models are good for which tasks. For example, you might know that Gemini is pretty good in generating UI than other models, and in the past Opus models was very bad at generating UIs especially compared with Codex, but now it is swapped, when followed general knowledge, it seems the roles reversed, for UI Opus is better and for engineering tasks Codex is better. 
 
 What is great about going with collective ideas of humans is that they are much more trustable than leaderboards because the knowledge comes from real life, but those real life usages biased towards vibe-coding. What I mean by this is, people use and have most of their ideas come from using models in one-shot or vibe coding scenarious, where understanding of the codebase has no value at all, because they are always telling AI to do any of the job. But this is very overhyped, in a case of losing an access to big models or cleaning the context would create much much more work to do, because it should understand all the codebase from very beginning because you don't know what the codebase looks like and it grow bigger much faster than you expected.
 
@@ -23,7 +23,7 @@ To showcase what I am talking about in a practical sense, I want to talk about a
 
 1. Use AI ([Gemini](https://gemini.google.com/)) to generate the CSS of the website.
 2. Use some sort of static site generator ([Soupault](https://soupault.net)) to generate the HTML of the website.
-    - Create the basic template of the site to make AI understand the structure of the website. Because soupault is very odd and unused site generator, AI's are not happy about it, they just know its name, and does not how to operate it.
+    - Create the basic template of the site to make AI understand the structure of the website. Because soupault is very odd and unused site generator, AI's are not happy about it, they just know its name, and don't know how to operate it.
 3. Get the raw code of the design file from AI as HTML.
 4. Prompt the agentic framework using the template and the raw HTML to generate the final project.
 
