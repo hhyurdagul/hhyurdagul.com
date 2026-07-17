@@ -37,6 +37,39 @@ site.use(googleFonts({
   cssFile: "/css/fonts.css",
   fonts: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
 }))
+
+// --- Custom Component Style Extractor Plugin ---
+site.process([".html", ".css"], (pages) => {
+  const uniqueStyles = new Set<string>();
+
+  // 1. Extract styles from HTML pages
+  for (const page of pages) {
+    if (page.outputPath?.endsWith(".html")) {
+      const document = page.document;
+      if (!document) continue;
+
+      const componentStyles = document.querySelectorAll("style[component]");
+      if (componentStyles.length === 0) continue;
+
+      componentStyles.forEach((styleEl: any) => {
+        uniqueStyles.add(styleEl.textContent);
+        styleEl.remove(); // Remove from the page body
+      });
+    }
+  }
+
+  // 2. Append consolidated styles to the global style.css page
+  if (uniqueStyles.size > 0) {
+    const bundleCss = Array.from(uniqueStyles).join("\n");
+    const stylePage = pages.find((p) => p.outputPath === "/style.css" || p.data.url === "/style.css");
+    if (stylePage) {
+      stylePage.content += "\n" + bundleCss;
+    } else {
+      console.warn("Global style.css page not found in Lume build!");
+    }
+  }
+});
+
 site.use(lightningCss())
 
 site.use(shiki({

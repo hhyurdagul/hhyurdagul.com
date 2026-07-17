@@ -87,3 +87,344 @@
   </div>
 </nav>
 <div class="blur-veil" aria-hidden="true"></div>
+
+<style component>
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: none;
+  width: 100%;
+  max-width: none;
+  z-index: 100;
+  background: rgba(19, 20, 22);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    0 12px 40px -10px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(142, 168, 219, 0.01);
+  transition: all var(--transition);
+
+  & .nav-container {
+    max-width: var(--max-w-container);
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  & .nav-brand {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-white);
+    transition: color var(--transition);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+
+    & .brand-accent {
+      color: var(--text-accent);
+      transition: all var(--transition);
+    }
+
+    &:hover {
+      color: var(--text-white);
+
+      & .brand-accent {
+        color: var(--text-accent-hover);
+        text-shadow: 0 0 8px rgba(142, 168, 219, 0.6);
+      }
+    }
+  }
+
+  & .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  & .nav-link {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    padding: 0.5rem 0.875rem;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    cursor: pointer;
+    background: none;
+
+    &:hover,
+    &.active {
+      color: var(--text-white);
+    }
+  }
+
+  & .contact-wrap {
+    cursor: default;
+    position: relative;
+    display: inline-flex;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 100% 0 auto 0;
+      height: 14px;
+    }
+
+    & .chevron-icon {
+      transition: transform var(--transition);
+      opacity: 0.7;
+    }
+
+    &:hover .chevron-icon,
+    &:focus-within .chevron-icon {
+      transform: rotate(180deg);
+      opacity: 1;
+    }
+
+    &:hover .drawer,
+    &:focus-within .drawer {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    & .drawer {
+      position: absolute;
+      top: calc(100% + 12px);
+      right: 0;
+      width: min(340px, 92vw);
+      background: linear-gradient(135deg, rgba(20, 22, 26, 0.96), rgba(15, 16, 18, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      box-shadow:
+        0 20px 40px -15px rgba(0, 0, 0, 0.8),
+        0 0 50px rgba(142, 168, 219, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      opacity: 0;
+      transform: translateY(-10px) scale(0.98);
+      pointer-events: none;
+      /* intentional overshoot (>1) for a physical pop-open feel, not the shared --transition */
+      transition: opacity .22s ease, transform .25s cubic-bezier(.2, .9, .3, 1.15);
+      transform-origin: top right;
+      z-index: 60;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: -6px;
+        right: 22px;
+        width: 12px;
+        height: 12px;
+        background: rgba(20, 22, 26, 0.96);
+        border-left: 1px solid rgba(255, 255, 255, 0.08);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        transform: rotate(45deg);
+        border-radius: 2px 0 0 0;
+      }
+
+      & strong.title {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.375rem;
+        color: var(--text-accent);
+        display: block;
+      }
+
+      & p.sub {
+        font-size: 0.8125rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        line-height: 1.4;
+      }
+
+      & .row {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        padding: 0.625rem 0.75rem;
+        border-radius: var(--radius-md);
+        text-decoration: none;
+        color: var(--text-main);
+        border: 1px solid transparent;
+        transition: all var(--transition);
+        margin-bottom: 0.25rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        &:hover {
+          color: var(--text-white);
+          transform: translateX(3px);
+
+          & .ico {
+            color: var(--row-hover-accent);
+            border-color: var(--row-hover-border);
+            background: var(--row-hover-glow);
+            box-shadow: 0 0 12px var(--row-hover-shadow);
+          }
+        }
+
+        & .ico {
+          width: 32px;
+          height: 32px;
+          border-radius: var(--radius-md);
+          display: grid;
+          place-items: center;
+          background: rgba(255, 255, 255, 0.02);
+          color: var(--text-muted);
+          flex: 0 0 auto;
+          border: 1px solid var(--border-base);
+          transition: all var(--transition);
+        }
+
+        & .row-content {
+          display: flex;
+          flex-direction: column;
+          gap: 0.125rem;
+        }
+
+        & strong {
+          font-family: var(--font-sans);
+          font-weight: 500;
+          font-size: 0.875rem;
+          color: var(--text-white);
+          line-height: 1.2;
+          text-transform: none;
+          letter-spacing: normal;
+          margin-bottom: 0;
+        }
+
+        & small {
+          display: block;
+          color: var(--text-dim);
+          font-size: 0.75rem;
+          font-family: var(--font-mono);
+          line-height: 1.2;
+        }
+      }
+
+      & .row-email {
+        --row-hover-accent: var(--accent-email);
+        --row-hover-border: rgba(248, 113, 113, 0.3);
+        --row-hover-glow: rgba(248, 113, 113, 0.08);
+        --row-hover-shadow: rgba(248, 113, 113, 0.15);
+
+        &:hover {
+          background: rgba(248, 113, 113, 0.04);
+          border-color: rgba(248, 113, 113, 0.1);
+        }
+      }
+
+      & .row-github {
+        --row-hover-accent: var(--accent-github);
+        --row-hover-border: rgba(229, 231, 235, 0.3);
+        --row-hover-glow: rgba(229, 231, 235, 0.08);
+        --row-hover-shadow: rgba(229, 231, 235, 0.1);
+
+        &:hover {
+          background: rgba(229, 231, 235, 0.04);
+          border-color: rgba(229, 231, 235, 0.1);
+        }
+      }
+
+      & .row-linkedin {
+        --row-hover-accent: var(--accent-linkedin);
+        --row-hover-border: rgba(96, 165, 250, 0.3);
+        --row-hover-glow: rgba(96, 165, 250, 0.08);
+        --row-hover-shadow: rgba(96, 165, 250, 0.15);
+
+        &:hover {
+          background: rgba(96, 165, 250, 0.04);
+          border-color: rgba(96, 165, 250, 0.1);
+        }
+      }
+
+      & .row-twitter {
+        --row-hover-accent: var(--accent-twitter);
+        --row-hover-border: rgba(243, 244, 246, 0.3);
+        --row-hover-glow: rgba(243, 244, 246, 0.08);
+        --row-hover-shadow: rgba(243, 244, 246, 0.1);
+
+        &:hover {
+          background: rgba(243, 244, 246, 0.04);
+          border-color: rgba(243, 244, 246, 0.1);
+        }
+      }
+
+      & .divider {
+        height: 1px;
+        background: var(--border-base);
+        margin: 0.5rem 0;
+      }
+    }
+  }
+}
+
+.blur-veil {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background: rgba(10, 10, 10, 0.5);
+  transition: opacity var(--transition);
+  z-index: 40;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, transparent 60px, #000 60px, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, transparent 60px, #000 60px, #000 100%);
+}
+
+body:has(.contact-wrap:hover) .blur-veil,
+body:has(.contact-wrap:focus-within) .blur-veil {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body:has(.contact-wrap:hover),
+body:has(.contact-wrap:focus-within) {
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .navbar {
+    & .nav-container {
+      padding: 0.6rem 1rem;
+    }
+
+    & .nav-brand {
+      font-size: 0.8125rem;
+    }
+
+    & .nav-link {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.7rem;
+    }
+  }
+
+  .blur-veil {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, transparent 54px, #000 54px, #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, transparent 54px, #000 54px, #000 100%);
+  }
+}
+</style>

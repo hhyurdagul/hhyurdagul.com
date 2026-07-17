@@ -41,3 +41,114 @@
   </div>
   {{ /if }}
 </div>
+
+<style component>
+.work-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.work-item {
+  border-left: 2px solid var(--border-base);
+  padding-left: 1.5rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  transition: border-color var(--transition);
+
+  &:hover {
+    border-color: var(--text-accent);
+  }
+
+  & .work-header {
+    display: flex;
+    flex-direction: column;
+  }
+
+  & .work-title {
+    font-family: var(--font-sans);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-white);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  & .work-role {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--text-accent);
+    margin-top: 0.25rem;
+  }
+
+  & .work-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    margin-top: 0.25rem;
+  }
+
+  & .work-desc {
+    margin-top: 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  & .work-highlights {
+    list-style: none;
+    padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  & .work-highlight-item {
+    position: relative;
+    padding-left: 1.25rem;
+    font-size: 0.8125rem;
+    color: var(--text-main);
+    line-height: 1.5;
+
+    &::before {
+      content: "↳";
+      position: absolute;
+      left: 0;
+      color: var(--text-dim);
+    }
+  }
+
+  & .work-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-top: 1rem;
+  }
+
+  & .work-tech-tag {
+    font-family: var(--font-mono);
+    font-size: 0.675rem;
+    color: var(--text-dim);
+    background-color: rgba(23, 23, 23, 0.2);
+    border: 1px solid var(--border-base);
+    padding: 0.15rem 0.375rem;
+    border-radius: var(--radius-sm);
+  }
+
+  & .work-link-icon {
+    color: var(--text-dim);
+    opacity: 0.6;
+    transition: opacity var(--transition), color var(--transition);
+
+    &:hover {
+      color: var(--text-accent);
+      opacity: 1;
+    }
+  }
+}
+</style>

@@ -1,3 +1,30 @@
 <footer class="site-footer">
   <p>hhyurdagul <span>©</span> 2026 // Truth never bends.</p>
 </footer>
+
+<style component>
+.site-footer {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  border-top: 1px solid var(--border-subtle);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  & p {
+    color: var(--text-dark);
+  }
+
+  & span {
+    color: var(--text-darker);
+  }
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+</style>
