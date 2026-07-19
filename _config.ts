@@ -25,6 +25,7 @@ site.use(checkUrls())
 site.use(seo())
 site.use(validateHTML())
 site.use(feed({
+  output: "/feed.xml",
   query: "type=article",
   info: {
     title: "HHYurdagul's RSS Feed"
