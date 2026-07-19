@@ -758,6 +758,54 @@ article.main-content {
     color: inherit;
   }
 
+  & table {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    margin: 1.5rem 0 2rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  & th {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    text-align: left;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--border-hover);
+  }
+
+  & td {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-main);
+    vertical-align: top;
+  }
+
+  & th:first-child,
+  & td:first-child {
+    padding-left: 0;
+  }
+
+  & th:last-child,
+  & td:last-child {
+    padding-right: 0;
+  }
+
+  & tbody tr {
+    transition: background-color var(--transition);
+
+    &:hover {
+      background-color: var(--bg-surface);
+    }
+  }
+
   /* Drop cap styling */
   &>p:first-of-type::first-letter {
     float: left;

@@ -1,12 +1,15 @@
 <nav class="navbar">
   <div class="nav-container">
     <a href="/" class="nav-brand">
-      <span class="brand-accent">~</span>/hhyurdagul
+      <span class="brand-accent">~</span><span class="brand-name">/hhyurdagul</span>
     </a>
     
     <div class="nav-links">
       <a href="/articles" class="nav-link{{ if url && url.startsWith('/articles') }} active{{ /if }}">
         Articles
+      </a>
+      <a href="/projects" class="nav-link{{ if url && url.startsWith('/projects') }} active{{ /if }}">
+        Projects
       </a>
       <a href="/work" class="nav-link{{ if url && url.startsWith('/work') }} active{{ /if }}">
         Work
@@ -126,6 +129,8 @@
     display: flex;
     align-items: center;
     gap: 0.125rem;
+    white-space: nowrap;
+    flex-shrink: 0;
 
     & .brand-accent {
       color: var(--text-accent);
@@ -409,22 +414,34 @@ body:has(.contact-wrap:focus-within) {
 @media (max-width: 640px) {
   .navbar {
     & .nav-container {
-      padding: 0.6rem 1rem;
+      padding: 0.6rem 0.875rem;
     }
 
     & .nav-brand {
       font-size: 0.8125rem;
     }
 
+    & .nav-links {
+      gap: 0;
+    }
+
     & .nav-link {
-      padding: 0.4rem 0.75rem;
-      font-size: 0.7rem;
+      padding: 0.4rem 0.5rem;
+      font-size: 0.675rem;
+      letter-spacing: 0.03em;
+      gap: 0.25rem;
     }
   }
 
   .blur-veil {
     -webkit-mask-image: linear-gradient(to bottom, transparent 0, transparent 54px, #000 54px, #000 100%);
     mask-image: linear-gradient(to bottom, transparent 0, transparent 54px, #000 54px, #000 100%);
+  }
+}
+
+@media (max-width: 430px) {
+  .navbar .nav-brand .brand-name {
+    display: none;
   }
 }
 </style>

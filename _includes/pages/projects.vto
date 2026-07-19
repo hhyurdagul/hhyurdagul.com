@@ -1,0 +1,53 @@
+---
+title: Projects
+metas:
+  title: HHYurdagul - Projects
+  description: Projects page of hhyurdagul.com
+---
+
+<header class="page-header page-enter">
+  <p class="mono-prompt cursor-blink">
+    <span class="prompt-user">hhyurdagul</span><span class="prompt-host">:</span><span class="prompt-dir">~</span><span
+      class="prompt-sym">λ</span> <span class="prompt-cmd">ls</span> <span class="prompt-arg">/projects</span>
+  </p>
+  <h1 class="hero-title">Projects</h1>
+  <p class="hero-desc">Case studies. Systems I've built end-to-end — from raw data to models to
+    things running in production.</p>
+</header>
+
+<div class="main-content">
+  <div class="section-line"></div>
+
+  <div class="project-list">
+    {{ set projectCount = 0 }}
+    {{ for project of search.pages("type=project", "date=desc") }}
+    {{ set projectCount = projectCount + 1 }}
+    {{ set readingTime = project.content |> extractReadingTime }}
+    <article class="fade-in" style="--i: {{ projectCount }}">
+      {{ comp.ProjectCard({
+      url: project.url,
+      title: project.title,
+      desc: project.desc,
+      date: project.date,
+      readingTime: readingTime,
+      status: project.status,
+      tags: project.tags
+      }) }}
+    </article>
+    {{ /for }}
+  </div>
+
+  <!-- End indicator -->
+  <div class="eof-indicator">
+    <p class="eof-line-1">— EOF —</p>
+    <p class="eof-line-2">{{ projectCount }} entries · built from first principles</p>
+  </div>
+</div>
+
+<style component>
+.project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+</style>

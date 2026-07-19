@@ -11,6 +11,7 @@ import seo from "lume/plugins/seo.ts";
 import feed from "lume/plugins/feed.ts";
 import validateHTML from "lume/plugins/validate_html.ts";
 import shiki from "https://deno.land/x/lume_shiki/mod.ts";
+import mermaid from "https://deno.land/x/lume_mermaid@v0.1.4/mod.ts";
 
 
 const site = lume({
@@ -56,6 +57,11 @@ site.process([".html", ".css"], (pages) => {
     const bundleCss = Array.from(uniqueStyles).join("\n");
     const stylePage = pages.find((p) => p.outputPath === "/style.css" || p.data.url === "/style.css");
     if (stylePage) {
+      // content may be loaded as Uint8Array; decode it or string
+      // concatenation turns it into comma-joined byte numbers
+      if (stylePage.content instanceof Uint8Array) {
+        stylePage.content = new TextDecoder().decode(stylePage.content);
+      }
       stylePage.content += "\n" + bundleCss;
     } else {
       console.warn("Global style.css page not found in Lume build!");
@@ -74,6 +80,11 @@ site.use(feed({
     title: "HHYurdagul's RSS Feed"
   }
 }))
+
+// Converts ```mermaid code blocks into <div class="mermaid"> elements.
+// Script injection is disabled; project.vto lazy-loads mermaid only on
+// pages that actually contain a diagram.
+site.use(mermaid({ injectScript: false }))
 
 site.use(shiki({
   highlighter: {
@@ -133,7 +144,7 @@ site.helper("extractReadingTime", getReadingTime, {type: "tag"})
 
 site.process([".html"], (pages) => {
   for (const page of pages) {
-    if (page.data.type !== "article") continue;
+    if (page.data.type !== "article" && page.data.type !== "project") continue;
     
     const document = page.document;
     if (!document) continue;

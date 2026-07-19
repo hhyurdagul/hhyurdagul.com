@@ -66,6 +66,41 @@ metas:
 
   <div class="section-line"></div>
 
+  <section id="projects" class="section-padding fade-in">
+    <h2 class="section-title">/projects</h2>
+    <p class="text-muted" style="margin-bottom: 2rem;">Case studies of systems I've built end-to-end.</p>
+
+    <div class="home-project-list">
+      {{ for project of search.pages("type=project", "date=desc") }}
+      {{ set readingTime = project.content |> extractReadingTime }}
+      {{ comp.ProjectCard({
+      url: project.url,
+      title: project.title,
+      desc: project.desc,
+      date: project.date,
+      readingTime: readingTime,
+      status: project.status,
+      tags: project.tags
+      }) }}
+      {{ /for }}
+    </div>
+
+    <a class="btn all-entries-btn" href="/projects/">
+      All projects <span>→</span>
+    </a>
+
+    <style component>
+    .home-project-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    </style>
+  </section>
+
+  <div class="section-line"></div>
+
   <section id="tech" class="section-padding fade-in">
     <h2 class="section-title">/tech</h2>
     <p class="text-muted" style="margin-bottom: 2rem;">I've been a Linux user since 2016. The journey has been long —
