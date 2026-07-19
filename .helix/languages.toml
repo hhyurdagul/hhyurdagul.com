@@ -1,0 +1,23 @@
+[language-server.deno-lsp]
+command = "deno"
+args = ["lsp"]
+config.deno.enable = true
+config.deno.lint = true
+config.deno.unstable = true
+config.deno.suggest.imports.hosts = { "https://deno.land" = true, "https://cdn.jsdelivr.net" = true, "https://jsr.io" = true, "https://esm.sh" = true }
+
+[[language]]
+name = "typescript"
+language-servers = ["deno-lsp"]
+
+[[language]]
+name = "javascript"
+language-servers = ["deno-lsp"]
+
+[[language]]
+name = "tsx"
+language-servers = ["deno-lsp"]
+
+[[language]]
+name = "jsx"
+language-servers = ["deno-lsp"]

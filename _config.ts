@@ -17,20 +17,6 @@ const site = lume({
   location: new URL("https://hhyurdagul.com"),
 });
 
-site.use(basePath())
-site.use(robots())
-site.use(sitemap())
-site.use(metas())
-site.use(checkUrls())
-site.use(seo())
-site.use(validateHTML())
-site.use(feed({
-  output: "/feed.xml",
-  query: "type=article",
-  info: {
-    title: "HHYurdagul's RSS Feed"
-  }
-}))
 site.use(katex({
   cssFile: "/css/katex.css"
 }))
@@ -38,6 +24,12 @@ site.use(googleFonts({
   cssFile: "/css/fonts.css",
   fonts: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
 }))
+
+site.use(robots())
+site.use(sitemap())
+site.use(checkUrls())
+site.use(seo())
+site.use(validateHTML())
 
 // --- Custom Component Style Extractor Plugin ---
 site.process([".html", ".css"], (pages) => {
@@ -73,6 +65,16 @@ site.process([".html", ".css"], (pages) => {
 
 site.use(lightningCss())
 
+site.use(basePath())
+site.use(metas())
+site.use(feed({
+  output: "/feed.xml",
+  query: "type=article",
+  info: {
+    title: "HHYurdagul's RSS Feed"
+  }
+}))
+
 site.use(shiki({
   highlighter: {
     langs: ["javascript", "toml", "html", "python"],
@@ -80,6 +82,10 @@ site.use(shiki({
   },
   theme: "tokyo-night",
 }))
+
+
+
+
 
 site.add("_includes/CNAME")
 site.add("_includes/style.css")
