@@ -26,12 +26,6 @@ site.use(googleFonts({
   fonts: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
 }))
 
-site.use(robots())
-site.use(sitemap())
-site.use(checkUrls())
-site.use(seo())
-site.use(validateHTML())
-
 // --- Custom Component Style Extractor Plugin ---
 site.process([".html", ".css"], (pages) => {
   const uniqueStyles = new Set<string>();
@@ -94,8 +88,11 @@ site.use(shiki({
   theme: "tokyo-night",
 }))
 
-
-
+site.use(robots())
+site.use(sitemap())
+site.use(checkUrls())
+site.use(seo())
+site.use(validateHTML())
 
 
 site.add("_includes/CNAME")
