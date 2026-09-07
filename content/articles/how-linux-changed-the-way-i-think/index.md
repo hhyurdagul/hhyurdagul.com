@@ -97,7 +97,7 @@ always a solution, if you are willing to investigate enough you can always find
 that solution.
 
 That belief did not come from a single discovery, but from years of tinkering
-across Linux distributions, desktop environments, and window managers. [^1]
+across Linux distributions, desktop environments, and window managers.{% sidenote(id="linux-distros") %}I used Mint, Ubuntu, Debian, Fedora, PopOS, Manjaro, Arch, NixOS, and even one distribution that marketed itself as very close to macOS, though I cannot remember its name now. On the desktop and window-manager side, I went through GNOME, KDE, LXQt, Deepin, Xfce, i3, bspwm, Qtile, Awesome, something written by Haskell, Suckless Stuff and eventually Hyprland.{% end %}
 
 Over time, that kind of experience teaches patience, curiosity, and a deeper
 instinct: that almost everything in Linux can be inspected, configured, or
@@ -135,7 +135,7 @@ years of tinkering with it, had taught me otherwise.
 
 To be fair, this problem can probably be solved on macOS or Windows as well. The
 difference is not pure capability, but what each system teaches you to imagine.
-On Linux, it feels natural to ask where the system exposes the device[^2], how
+On Linux, it feels natural to ask where the system exposes the device{% sidenote(id="linux-dev") %}As a literal file under directory /dev.{% end %}, how
 to talk to it, and whether it can be scripted. After enough time in that
 environment, exploration becomes instinct.
 
@@ -148,10 +148,3 @@ it into other parts of life too: the sense that things are not always as fixed
 as they first appear, that constraints can be questioned, and that with enough
 patience and effort, more is possible than you initially assumed.
 
-[^1]: I used Mint, Ubuntu, Debian, Fedora, PopOS, Manjaro, Arch, NixOS, and even
-    one distribution that marketed itself as very close to macOS, though I
-    cannot remember its name now. On the desktop and window-manager side, I went
-    through GNOME, KDE, LXQt, Deepin, Xfce, i3, bspwm, Qtile, Awesome, something
-    written by Haskell, Suckless Stuff and eventually Hyprland.
-
-[^2]: As a literal file under directory /dev.

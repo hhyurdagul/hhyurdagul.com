@@ -609,3 +609,17 @@ button.feed-pill { font-family: inherit; background: none; cursor: pointer; }
 
 /* ---- Header shares the prose measure, never the full grid ---- */
 .article-header { max-width: 42rem; }
+
+/* ---- Lone next link sits right, like a real next button ---- */
+.article-pagination a.next:only-child { margin-left: auto; }
+
+/* ---- Very wide screens: TOC docks to the viewport edge ---- */
+@media (min-width: 1500px) {
+  .article-grid .toc {
+    position: fixed;
+    right: 2rem;
+    top: 6rem;
+    width: 11rem;
+    max-height: calc(100vh - 8rem);
+  }
+}
