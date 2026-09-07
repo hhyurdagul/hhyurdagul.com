@@ -478,3 +478,6 @@ label.margin-toggle.sidenote-number::after {
 @media (max-width: 860px) {
   body.sidebar-open { overflow: hidden; }
 }
+
+/* ---- Active sidebar link: same treatment as hover, persistent ---- */
+.sidebar-links a.active { background: var(--bg-soft); color: var(--fg); font-weight: 500; }

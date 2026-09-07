@@ -39,17 +39,35 @@
     </button>
     <div class="sidebar-top">
       <h1 class="site-title"><a href="{{ get_url(path='/', lang=lang) }}" class="logo-letters" data-split>{{ config.extra.logo_text }}</a></h1>
+      <p class="bio">{{ trans(key="bio_1", lang=lang) }}</p>
+      <p class="bio">{{ trans(key="bio_2", lang=lang) }}</p>
       <details class="bio-details">
         <summary>{{ trans(key="about", lang=lang) }}</summary>
         <p class="bio">{{ trans(key="bio_1", lang=lang) }}</p>
         <p class="bio">{{ trans(key="bio_2", lang=lang) }}</p>
       </details>
-      <p class="bio">{{ trans(key="bio_1", lang=lang) }}</p>
-      <p class="bio">{{ trans(key="bio_2", lang=lang) }}</p>
+      {# Active section marker for nav highlight #}
+      {% set_global sec = "" %}
+      {% if section and section.extra.kind %}{% set_global sec = section.extra.kind %}{% elif page and page.components %}{% if "blog" in page.components %}{% set_global sec = "posts" %}{% elif "projects" in page.components %}{% set_global sec = "projects" %}{% elif "about" in page.components %}{% set_global sec = "about" %}{% endif %}{% endif %}
+      {% set blog_sec = get_section(path="blog/_index.md", lang=lang) %}
+      {% set projects_sec = get_section(path="projects/_index.md", lang=lang) %}
+      {% set about_page = get_page(path="about.md", lang=lang) %}
       <div class="sidebar-links">
-        <a href="{{ get_url(path='/', lang=lang) }}">
+        <a href="{{ get_url(path='/', lang=lang) }}"{% if section and sec == "" %} class="active"{% endif %}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           <span>{{ trans(key="home", lang=lang) }}</span>
+        </a>
+        <a href="{{ about_page.permalink }}"{% if sec == "about" %} class="active"{% endif %}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>
+          <span>{{ trans(key="about", lang=lang) }}</span>
+        </a>
+        <a href="{{ blog_sec.permalink }}"{% if sec == "posts" %} class="active"{% endif %}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+          <span>{{ trans(key="writing", lang=lang) }}</span>
+        </a>
+        <a href="{{ projects_sec.permalink }}"{% if sec == "projects" %} class="active"{% endif %}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+          <span>{{ trans(key="work", lang=lang) }}</span>
         </a>
         <a href="{{ config.extra.github }}" target="_blank" rel="me noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77 5.44 5.44 0 0 0 3.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
@@ -58,6 +76,10 @@
         <a href="{{ config.extra.linkedin }}" target="_blank" rel="me noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 10v7M7 7v.01M12 17v-4a2 2 0 0 1 4 0v4m-4-7v7"/></svg>
           <span>LinkedIn</span>
+        </a>
+        <a href="{{ config.extra.email }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+          <span>{{ trans(key="email", lang=lang) }}</span>
         </a>
         <div class="feed-row">
           <a class="feed-pill" href="{{ get_url(path='rss.xml', lang=lang) }}">
@@ -73,7 +95,7 @@
     </div>
     <div class="sidebar-bottom">
       <div class="sidebar-links">
-        {% set tags_tax = get_taxonomy(kind="tags", lang=lang) %}<a href="{{ tags_tax.permalink }}">
+        {% set tags_tax = get_taxonomy(kind="tags", lang=lang) %}<a href="{{ tags_tax.permalink }}"{% if terms or term %} class="active"{% endif %}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
           <span>{{ trans(key="tags", lang=lang) }}</span>
         </a>
