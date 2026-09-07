@@ -46,6 +46,18 @@
         <p class="bio">{{ trans(key="bio_1", lang=lang) }}</p>
         <p class="bio">{{ trans(key="bio_2", lang=lang) }}</p>
       </details>
+      <div class="social-row">
+        <a href="{{ config.extra.github }}" target="_blank" rel="me noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77 5.44 5.44 0 0 0 3.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        </a>
+        <a href="{{ config.extra.linkedin }}" target="_blank" rel="me noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 10v7M7 7v.01M12 17v-4a2 2 0 0 1 4 0v4m-4-7v7"/></svg>
+        </a>
+        <a href="{{ config.extra.email }}" aria-label="{{ trans(key='email', lang=lang) }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+        </a>
+      </div>
+      <hr class="sidebar-divider">
       {# Active section marker for nav highlight #}
       {% set_global sec = "" %}
       {% if section and section.extra.kind %}{% set_global sec = section.extra.kind %}{% elif page and page.components %}{% if "blog" in page.components %}{% set_global sec = "posts" %}{% elif "projects" in page.components %}{% set_global sec = "projects" %}{% elif "about" in page.components %}{% set_global sec = "about" %}{% endif %}{% endif %}
@@ -69,36 +81,20 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
           <span>{{ trans(key="work", lang=lang) }}</span>
         </a>
-        <a href="{{ config.extra.github }}" target="_blank" rel="me noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77 5.44 5.44 0 0 0 3.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-          <span>GitHub</span>
-        </a>
-        <a href="{{ config.extra.linkedin }}" target="_blank" rel="me noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 10v7M7 7v.01M12 17v-4a2 2 0 0 1 4 0v4m-4-7v7"/></svg>
-          <span>LinkedIn</span>
-        </a>
-        <a href="{{ config.extra.email }}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
-          <span>{{ trans(key="email", lang=lang) }}</span>
-        </a>
-        <div class="feed-row">
-          <a class="feed-pill" href="{{ get_url(path='rss.xml', lang=lang) }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
-            <span>{{ trans(key="rss", lang=lang) }}</span>
-          </a>
-          <a class="feed-pill" href="{{ get_url(path='atom.xml', lang=lang) }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
-            <span>{{ trans(key="atom", lang=lang) }}</span>
-          </a>
-        </div>
       </div>
     </div>
     <div class="sidebar-bottom">
-      <div class="sidebar-links">
-        {% set tags_tax = get_taxonomy(kind="tags", lang=lang) %}<a href="{{ tags_tax.permalink }}"{% if terms or term %} class="active"{% endif %}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-          <span>{{ trans(key="tags", lang=lang) }}</span>
+      <div class="feed-row">
+        <a class="feed-pill" href="{{ get_url(path='rss.xml', lang=lang) }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+          <span>{{ trans(key="rss", lang=lang) }}</span>
         </a>
+        <a class="feed-pill" href="{{ get_url(path='atom.xml', lang=lang) }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+          <span>{{ trans(key="atom", lang=lang) }}</span>
+        </a>
+      </div>
+      <div class="sidebar-links">
         <button type="button" id="theme-toggle" aria-label="Toggle color theme">
           <span class="icon-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></span>
           <span class="icon-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>

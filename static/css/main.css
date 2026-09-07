@@ -481,3 +481,40 @@ label.margin-toggle.sidenote-number::after {
 
 /* ---- Active sidebar link: same treatment as hover, persistent ---- */
 .sidebar-links a.active { background: var(--bg-soft); color: var(--fg); font-weight: 500; }
+
+/* ---- Social icon row + divider ---- */
+.social-row { display: flex; align-items: center; gap: .15rem; margin-top: 1rem; }
+.social-row a { display: inline-flex; padding: .45rem; border-radius: .5rem; color: var(--muted); }
+.social-row a:hover { background: var(--bg-soft); color: var(--fg); }
+.social-row svg { width: 18px; height: 18px; display: block; }
+.sidebar-divider { border: 0; border-top: 1px solid var(--line); margin: 1rem 0 0; }
+.sidebar-bottom .feed-row { margin: 0 0 .9rem; }
+.sidebar-bottom .sidebar-links { margin-top: 0; }
+
+/* ---- Desktop sidebar rhythm: fit 100vh with room to spare ---- */
+@media (min-width: 861px) {
+  .sidebar { padding: 2rem; }
+  .site-title { margin-bottom: 1rem; }
+  .sidebar .logo-letters { font-size: 1.5rem; }
+  .bio { margin-bottom: .75rem; }
+  .sidebar-links { margin-top: 1rem; }
+  .sidebar-links a, .sidebar-links button { padding-top: .36rem; padding-bottom: .36rem; }
+  .sidebar-bottom { margin-top: 1.5rem; }
+  .sidebar-divider { margin-top: .85rem; }
+  .sidebar-bottom .feed-row { margin-bottom: .7rem; }
+  .lang-switch { margin-top: .8rem; }
+  .sidebar-footer { margin-top: .6rem; }
+}
+
+/* ---- Short desktop windows: compact further, never hide content ---- */
+@media (min-width: 861px) and (max-height: 780px) {
+  .sidebar { padding: 1.25rem 1.5rem; }
+  .sidebar .site-title { margin-bottom: .6rem; }
+  .sidebar .site-title .logo-letters { font-size: 1.3rem; }
+  .sidebar .bio { font-size: .85rem; margin-bottom: .6rem; }
+  .sidebar .social-row { margin-top: .75rem; }
+  .sidebar-divider { margin-top: .7rem; }
+  .sidebar-top .sidebar-links { margin-top: .75rem; }
+  .sidebar-links a, .sidebar-links button { padding-top: .28rem; padding-bottom: .28rem; }
+  .sidebar-bottom { margin-top: 1rem; }
+}
