@@ -22,6 +22,9 @@
     toggle.addEventListener("click", function () {
       var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
       document.documentElement.setAttribute("data-theme", next);
+      var gl = document.getElementById("giallo-light"), gd = document.getElementById("giallo-dark");
+      if (gl) gl.disabled = next === "dark";
+      if (gd) gd.disabled = next !== "dark";
       try { localStorage.setItem("theme", next); } catch (_) {}
     });
   }

@@ -207,7 +207,7 @@ a { color: inherit; }
   border-radius: .35em;
   padding: .12em .35em;
 }
-.prose pre {
+.prose pre:not(.giallo) {
   background: var(--code-bg);
   border: 1px solid var(--line);
   border-radius: .7rem;
@@ -588,3 +588,21 @@ button.feed-pill { font-family: inherit; background: none; cursor: pointer; }
 .toc-link { display: block; font-size: .78rem; line-height: 1.4; padding: .3rem .5rem; margin: 0 -.5rem; border-radius: 4px; }
 .toc-link:hover { background: var(--bg-soft); }
 .toc > ul { gap: .4rem; }
+
+/* ---- Readable measure: narrower prose column, matching rail ---- */
+@media (min-width: 1280px) {
+  .content:has(.article.with-toc) { max-width: 60rem; }
+  .article-grid { grid-template-columns: minmax(0, 42rem) 11rem; }
+  .sidenote { width: 11rem; margin-right: calc(-11rem - 2rem); }
+}
+/* ---- Article header rule ---- */
+.article-header { border-bottom: 1px solid var(--line); padding-bottom: 1.25rem; margin-bottom: 0; }
+.prose { margin-top: 1.5rem; }
+
+/* ---- Highlighted code line layout (giallo) ---- */
+.giallo-l { display: inline-block; min-height: 1lh; width: 100%; }
+.giallo-ln { display: inline-block; user-select: none; margin-right: .4em; padding: 0 .4em; min-width: 3ch; text-align: right; opacity: .8; }
+
+/* ---- TOC rail never scrolls sideways ---- */
+.article-grid .toc { overflow-x: hidden; }
+.toc-link { overflow-wrap: break-word; }

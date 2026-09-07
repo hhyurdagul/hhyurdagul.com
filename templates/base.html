@@ -21,8 +21,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ get_url(path='css/main.css') }}">
+  <link id="giallo-light" rel="stylesheet" href="{{ get_url(path='giallo-light.css') }}">
+  <link id="giallo-dark" rel="stylesheet" href="{{ get_url(path='giallo-dark.css') }}">
   <link rel="icon" type="image/svg+xml" href="{{ get_url(path='favicon.svg') }}">
   <script>(function(){var t,e=null;try{e=localStorage.getItem("theme")}catch(_){}t=e||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),document.documentElement.setAttribute("data-theme",t)})();</script>
+  <script>(function(){var d=document.documentElement.getAttribute("data-theme")==="dark";var l=document.getElementById("giallo-light"),g=document.getElementById("giallo-dark");if(l)l.disabled=d;if(g)g.disabled=!d;})();</script>
   {% block head_extra %}{% endblock head_extra %}
 </head>
 <body>
