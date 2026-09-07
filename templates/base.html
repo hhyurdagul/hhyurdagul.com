@@ -16,6 +16,7 @@
   <meta property="og:url" content="{{ current_url | default(value=config.base_url) }}">
   <meta property="og:title" content="{% block ogtitle %}{{ config.title }}{% endblock ogtitle %}">
   <meta property="og:description" content="{% block ogdesc %}{{ config.description }}{% endblock ogdesc %}">
+  {% if config.extra.og_image %}<meta property="og:image" content="{{ get_url(path=config.extra.og_image) }}">{% endif %}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
@@ -60,10 +61,11 @@
       <hr class="sidebar-divider">
       {# Active section marker for nav highlight #}
       {% set_global sec = "" %}
-      {% if section and section.extra.kind %}{% set_global sec = section.extra.kind %}{% elif page and page.components %}{% if "blog" in page.components %}{% set_global sec = "posts" %}{% elif "projects" in page.components %}{% set_global sec = "projects" %}{% elif "about" in page.components %}{% set_global sec = "about" %}{% endif %}{% endif %}
-      {% set blog_sec = get_section(path="blog/_index.md", lang=lang) %}
+      {% if section and section.extra.kind %}{% set_global sec = section.extra.kind %}{% elif page and page.components %}{% if "articles" in page.components %}{% set_global sec = "posts" %}{% elif "projects" in page.components %}{% set_global sec = "projects" %}{% elif "about" in page.components %}{% set_global sec = "about" %}{% elif "work" in page.components %}{% set_global sec = "career" %}{% endif %}{% endif %}
+      {% set articles_sec = get_section(path="articles/_index.md", lang=lang) %}
       {% set projects_sec = get_section(path="projects/_index.md", lang=lang) %}
       {% set about_page = get_page(path="about.md", lang=lang) %}
+      {% set work_page = get_page(path="work.md", lang=lang) %}
       <div class="sidebar-links">
         <a href="{{ get_url(path='/', lang=lang) }}"{% if section and sec == "" %} class="active"{% endif %}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -73,13 +75,17 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>
           <span>{{ trans(key="about", lang=lang) }}</span>
         </a>
-        <a href="{{ blog_sec.permalink }}"{% if sec == "posts" %} class="active"{% endif %}>
+        <a href="{{ articles_sec.permalink }}"{% if sec == "posts" %} class="active"{% endif %}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
           <span>{{ trans(key="writing", lang=lang) }}</span>
         </a>
         <a href="{{ projects_sec.permalink }}"{% if sec == "projects" %} class="active"{% endif %}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
           <span>{{ trans(key="work", lang=lang) }}</span>
+        </a>
+        <a href="{{ work_page.permalink }}"{% if sec == "career" %} class="active"{% endif %}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+          <span>{{ trans(key="career", lang=lang) }}</span>
         </a>
       </div>
     </div>
@@ -101,19 +107,6 @@
           <span class="theme-toggle-label">{{ trans(key="theme", lang=lang) }}</span>
         </button>
       </div>
-      {# Language switcher: peer translation when available, else other language home #}
-      {% set other = "tr" %}{% if lang == "tr" %}{% set other = "en" %}{% endif %}
-      {% set_global other_url = get_url(path="/", lang=other) %}
-      {% if page %}
-        {% for t in page.translations %}{% if t.lang == other %}{% set_global other_url = t.permalink %}{% endif %}{% endfor %}
-      {% elif section %}
-        {% for t in section.translations %}{% if t.lang == other %}{% set_global other_url = t.permalink %}{% endif %}{% endfor %}
-      {% endif %}
-      <div class="lang-switch" aria-label="{{ trans(key='language', lang=lang) }}">
-        {% if lang == "en" %}<span class="lang-active">EN</span>{% else %}<a href="{{ other_url }}">EN</a>{% endif %}
-        <span class="lang-sep">/</span>
-        {% if lang == "tr" %}<span class="lang-active">TR</span>{% else %}<a href="{{ other_url }}">TR</a>{% endif %}
-      </div>
       <div class="sidebar-footer">&copy; {{ now() | date(format="%Y") }} {{ config.extra.author }}</div>
     </div>
   </aside>
@@ -121,6 +114,7 @@
     {% block content %}{% endblock content %}
   </main>
 </div>
+<script defer src="{{ get_url(path='js/mermaid.js') }}"></script>
 <script defer src="{{ get_url(path='js/main.js') }}"></script>
 </body>
 </html>

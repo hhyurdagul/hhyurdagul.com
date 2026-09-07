@@ -14,12 +14,12 @@
 <div class="section">
   {% for item in paginator.pages %}
   {% if section.extra.kind == "projects" %}
-  <a class="link-row-ext" {% if item.extra.repo_url %}href="{{ item.extra.repo_url }}" target="_blank" rel="noopener"{% else %}href="{{ item.permalink }}"{% endif %}>
+  <a class="link-row-ext" href="{{ item.permalink }}">
     <div class="link-row-ext-inner">
-      <span class="link-row-title">{{ item.title }}{% if item.extra.badge %} <span class="badge">{{ item.extra.badge }}</span>{% endif %}</span>
+      <span class="link-row-title">{{ item.title }}</span>
       <div class="link-row-desc">{{ item.description }}</div>
     </div>
-    <span class="ext-arrow"{% if not item.extra.repo_url %} style="visibility:hidden"{% endif %}>&#8599;</span>
+    <span class="ext-arrow" style="visibility:hidden">&#8599;</span>
   </a>
   {% else %}
   <a class="link-row" href="{{ item.permalink }}">

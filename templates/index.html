@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% set blog = get_section(path="blog/_index.md", lang=lang) %}
+{% set blog = get_section(path="articles/_index.md", lang=lang) %}
 {% set projects = get_section(path="projects/_index.md", lang=lang) %}
 {% set date_ym = trans(key="date_ym", lang=lang) %}
 <div class="section">
@@ -16,13 +16,13 @@
 </div>
 <div class="section">
   <div class="section-label">{{ trans(key="work", lang=lang) }}</div>
-  {% for project in projects.pages | slice(end=4) %}
-  <a class="link-row-ext" {% if project.extra.repo_url %}href="{{ project.extra.repo_url }}" target="_blank" rel="noopener"{% else %}href="{{ project.permalink }}"{% endif %}>
+  {% for project in projects.pages | filter(attribute="extra.showcase", value=true) | slice(end=4) %}
+  <a class="link-row-ext" href="{{ project.permalink }}">
     <div class="link-row-ext-inner">
-      <span class="link-row-title">{{ project.title }}{% if project.extra.badge %} <span class="badge">{{ project.extra.badge }}</span>{% endif %}</span>
+      <span class="link-row-title">{{ project.title }}</span>
       <div class="link-row-desc">{{ project.description }}</div>
     </div>
-    <span class="ext-arrow"{% if not project.extra.repo_url %} style="visibility:hidden"{% endif %}>&#8599;</span>
+    <span class="ext-arrow" style="visibility:hidden">&#8599;</span>
   </a>
   {% endfor %}
   <a class="more-link" href="{{ projects.permalink }}">{{ trans(key="all_work", lang=lang) }} <span class="arrow">&#8594;</span></a>

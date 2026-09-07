@@ -518,3 +518,26 @@ label.margin-toggle.sidenote-number::after {
   .sidebar-links a, .sidebar-links button { padding-top: .28rem; padding-bottom: .28rem; }
   .sidebar-bottom { margin-top: 1rem; }
 }
+
+/* ---- Prose tables: scrollable, themed ---- */
+.prose table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; font-family: var(--font-ui); font-size: .88rem; line-height: 1.55; margin: 0 0 1.4em; }
+.prose th, .prose td { border: 1px solid var(--line); padding: .5rem .75rem; text-align: left; vertical-align: top; }
+.prose th { background: var(--bg-soft); font-weight: 600; white-space: nowrap; }
+.prose td { min-width: 8rem; }
+
+/* ---- Mermaid diagrams ---- */
+.mermaid { background: var(--code-bg); border: 1px solid var(--line); border-radius: .7rem; padding: 1rem; margin: 0 0 1.4em; overflow-x: auto; text-align: center; font-family: var(--font-ui); font-size: .85rem; }
+
+/* ---- Work page: roles and consultancy roster ---- */
+.role { margin: 0 0 2.25rem; }
+.role-head { font-size: 1.05rem; }
+.role-meta { color: var(--muted); font-size: .88rem; margin: .15rem 0 .6rem; }
+.role p { margin: 0 0 .6rem; font-size: .98rem; }
+.role ul { margin: 0 0 .8rem; padding-left: 1.3rem; font-size: .95rem; }
+.role li { margin-bottom: .3rem; }
+.consult { margin: 0 0 1.75rem; }
+.consult-head { font-weight: 600; font-size: 1.02rem; }
+.consult-head a { text-decoration: none; }
+.consult-head a:hover { color: var(--accent); }
+.consult-dates { font-weight: 400; color: var(--muted); font-size: .85rem; margin-left: .5rem; white-space: nowrap; }
+.consult p { margin: .35rem 0 .6rem; font-size: .95rem; }

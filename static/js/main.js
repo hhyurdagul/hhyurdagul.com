@@ -113,7 +113,7 @@
     wrapper.className = "code-block";
     var header = document.createElement("div");
     header.className = "code-block-header";
-    var langName = "code";
+    var langName = code.getAttribute("data-lang") || "code";
     Array.from(code.classList).forEach(function (c) {
       if (c.indexOf("language-") === 0) langName = c.slice("language-".length);
     });

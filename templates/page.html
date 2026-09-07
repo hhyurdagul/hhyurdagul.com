@@ -20,10 +20,17 @@
       <span class="meta-sep">&#183;</span>
       <span>{{ page.reading_time }} {{ trans(key="min_read", lang=lang) }}</span>
     </div>
-    {% elif page.extra.repo_url or page.extra.demo_url %}
+    {% elif page.extra.repo_url or page.extra.demo_url or page.extra.status %}
     <div class="article-meta project-links">
-      {% if page.extra.repo_url %}<a href="{{ page.extra.repo_url }}" target="_blank" rel="noopener">Repository &#8599;</a>{% endif %}
-      {% if page.extra.demo_url %}<a href="{{ page.extra.demo_url }}" target="_blank" rel="noopener">Demo &#8599;</a>{% endif %}
+      {% if page.extra.status %}<span class="project-status">{{ page.extra.status }}</span>{% endif %}
+      {% if page.extra.role %}<span class="meta-sep">&#183;</span><span>{{ page.extra.role }}</span>{% endif %}
+      {% if page.extra.repo_url %}<span class="meta-sep">&#183;</span><a href="{{ page.extra.repo_url }}" target="_blank" rel="noopener">Repository &#8599;</a>{% endif %}
+      {% if page.extra.demo_url %}<span class="meta-sep">&#183;</span><a href="{{ page.extra.demo_url }}" target="_blank" rel="noopener">Demo &#8599;</a>{% endif %}
+    </div>
+    {% endif %}
+    {% if page.extra.stack %}
+    <div class="tag-list">
+      {% for s in page.extra.stack %}<span class="tag">{{ s }}</span>{% endfor %}
     </div>
     {% endif %}
   </header>
