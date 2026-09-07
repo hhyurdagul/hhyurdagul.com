@@ -15,7 +15,7 @@
   <a class="more-link" href="{{ blog.permalink }}">{{ trans(key="all_posts", lang=lang) }} <span class="arrow">&#8594;</span></a>
 </div>
 <div class="section">
-  <div class="section-label">{{ trans(key="work", lang=lang) }}</div>
+  <div class="section-label">{{ trans(key="projects", lang=lang) }}</div>
   {% for project in projects.pages | filter(attribute="extra.showcase", value=true) | slice(end=4) %}
   <a class="link-row-ext" href="{{ project.permalink }}">
     <div class="link-row-ext-inner">

@@ -385,7 +385,6 @@ label.margin-toggle.sidenote-number::after {
     gap: 2rem;
   }
   .article-grid > .rail { grid-column: 2; grid-row: 1; min-width: 0; }
-  .article-grid > .prose { grid-column: 1; grid-row: 1; min-width: 0; margin-top: 0; }
   .article-grid .toc-toggle { display: none; }
   .article-grid .toc {
     position: sticky;
@@ -563,3 +562,29 @@ body { font-size: 15px; line-height: 1.75; -webkit-font-smoothing: antialiased; 
 button.feed-pill { font-family: inherit; background: none; cursor: pointer; }
 .sidebar-footer a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .sidebar-footer a:hover { color: var(--accent); }
+
+/* ---- Prose column: footer and pagination share the text width ---- */
+@media (min-width: 1280px) {
+  .article-grid > .prose-col { grid-column: 1; grid-row: 1; min-width: 0; }
+  .article-grid .prose-col > .prose { margin-top: 0; }
+}
+
+/* ---- Omegion prose treatment: quiet links, italic quotes, boxed code ---- */
+.prose h2, .prose h3 { margin-top: 2em; margin-bottom: .75em; line-height: 1.35; }
+.prose a { color: inherit; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 2px; }
+.prose a:hover { text-decoration-color: var(--accent); }
+.prose blockquote { font-style: italic; }
+.prose ul { list-style: disc; }
+.prose ol { list-style: decimal; }
+.code-block { border: 1px solid var(--line); border-radius: .7rem; overflow: hidden; margin: 0 0 1.4em; }
+.code-block-header { background: var(--bg-soft); padding: .55rem .9rem; border-bottom: 1px solid var(--line); margin-bottom: 0; }
+.code-block-lang { text-transform: uppercase; letter-spacing: .05em; font-size: .7rem; }
+.prose .code-block pre { border: 0; border-radius: 0; margin: 0; }
+.code-copy { border: 0; }
+.code-copy:hover { background: var(--accent-soft); border-color: transparent; }
+/* ---- Omegion tags: soft pills ---- */
+.tag { font-size: .75rem; background: var(--bg-soft); border: 0; border-radius: 4px; padding: .25rem .6rem; }
+/* ---- Omegion TOC: compact rail links ---- */
+.toc-link { display: block; font-size: .78rem; line-height: 1.4; padding: .3rem .5rem; margin: 0 -.5rem; border-radius: 4px; }
+.toc-link:hover { background: var(--bg-soft); }
+.toc > ul { gap: .4rem; }

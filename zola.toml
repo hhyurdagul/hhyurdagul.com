@@ -26,8 +26,9 @@ feed_filenames = ["atom.xml", "rss.xml"]
 [translations]
 writing = "Writing"
 work = "Work"
+projects = "Projects"
 all_posts = "All posts"
-all_work = "All work"
+all_work = "All projects"
 tags = "Tags"
 theme = "Theme"
 home = "Home"
@@ -51,5 +52,4 @@ email = "Email"
 bio_1 = "Currently leading AI R&D roadmap at Universal Software."
 bio_2 = "Consulting R&D Centers on time-series forecasting, attention networks, and production ML pipelines."
 recent_note = "Recent articles and selected work."
-career = "Career"
 

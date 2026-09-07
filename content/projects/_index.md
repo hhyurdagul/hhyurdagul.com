@@ -1,4 +1,5 @@
 +++
+title = "Projects"
 sort_by = "date"
 description = "Selected machine learning projects and consulting engagements."
 paginate_by = 10

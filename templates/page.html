@@ -9,7 +9,7 @@
 {% block content %}
 {% set kind = page.extra.kind | default(value="post") %}
 {% set is_article = kind == "post" %}
-{% set has_toc = is_article and page.toc and page.extra.toc | default(value=true) %}
+{% set has_toc = page.toc and page.extra.toc | default(value=true) %}
 {% set date_full = trans(key="date_full", lang=lang) %}
 <article class="article{% if has_toc %} with-toc{% endif %}">
   <header class="article-header">
@@ -50,9 +50,9 @@
     </ul>
   </nav>
   </div>
+  <div class="prose-col">
   {% endif %}
   <div class="prose">{{ page.content | safe }}</div>
-  {% if has_toc %}</div>{% endif %}
   <div class="article-footer">
     {% if page.taxonomies.tags %}
     <div class="tag-list">
@@ -66,6 +66,10 @@
     {% if page.lower %}<a class="prev" href="{{ page.lower.permalink }}"><span class="pagination-arrow">&larr;</span><span class="pagination-title">{{ page.lower.title }}</span></a>{% endif %}
     {% if page.higher %}<a class="next" href="{{ page.higher.permalink }}"><span class="pagination-title">{{ page.higher.title }}</span><span class="pagination-arrow">&rarr;</span></a>{% endif %}
   </nav>
+  {% endif %}
+  {% if has_toc %}
+  </div>
+  </div>
   {% endif %}
 </article>
 {% endblock content %}
