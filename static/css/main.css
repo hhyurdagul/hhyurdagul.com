@@ -606,3 +606,6 @@ button.feed-pill { font-family: inherit; background: none; cursor: pointer; }
 /* ---- TOC rail never scrolls sideways ---- */
 .article-grid .toc { overflow-x: hidden; }
 .toc-link { overflow-wrap: break-word; }
+
+/* ---- Header shares the prose measure, never the full grid ---- */
+.article-header { max-width: 42rem; }
