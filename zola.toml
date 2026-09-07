@@ -9,22 +9,16 @@ external_links_target_blank = true
 smart_punctuation = true
 
 [extra]
-author = "HHYurdagul"
+author = "Hasan Hüseyin Yurdagül"
 github = "https://github.com/hhyurdagul"
-linkedin = "https://www.linkedin.com/in/hhyurdagul/"
+linkedin = "https://linkedin.com/in/hhyurdagul"
 email = "mailto:hhyurdagul@gmail.com"
 logo_text = "hhyurdagul"
+og_image = "assets/og.png"
 
 [languages.en]
-title = "hhyurdagul"
-description = "Machine learning engineer and consultant. Notes on ML systems, MLOps, and shipping models to production."
-taxonomies = [{ name = "tags", feed = true }]
-generate_feeds = true
-feed_filenames = ["atom.xml", "rss.xml"]
-
-[languages.tr]
-title = "hhyurdagul"
-description = "Makine öğrenmesi mühendisi ve danışman. ML sistemleri, MLOps ve modelleri üretime alma üzerine notlar."
+title = "HHYurdagul"
+description = "Personal website of Hasan Hüseyin Yurdagül — ML Engineer & R&D Consultant."
 taxonomies = [{ name = "tags", feed = true }]
 generate_feeds = true
 feed_filenames = ["atom.xml", "rss.xml"]
@@ -54,35 +48,8 @@ about = "About"
 date_full = "%d %B %Y"
 date_ym = "%b %Y"
 email = "Email"
-bio_1 = "I design and ship machine learning systems where wrong predictions have real costs."
-bio_2 = "Most days that's model development and MLOps; other days a small evaluation harness or a consulting engagement, written up here."
-recent_note = "Recent notes and shipped work."
+bio_1 = "Currently leading AI R&D roadmap at Universal Software."
+bio_2 = "Consulting R&D Centers on time-series forecasting, attention networks, and production ML pipelines."
+recent_note = "Recent articles and selected work."
+career = "Career"
 
-[languages.tr.translations]
-writing = "Yazılar"
-work = "Projeler"
-all_posts = "Tüm yazılar"
-all_work = "Tüm projeler"
-tags = "Etiketler"
-theme = "Tema"
-home = "Ana sayfa"
-menu = "Menüyü aç"
-close_menu = "Menüyü kapat"
-toc = "İçindekiler"
-copy = "Kopyala"
-copied = "Kopyalandı"
-min_read = "dk okuma"
-updated = "Güncellendi"
-older = "Eskiler"
-newer = "Yeniler"
-page_of = "Sayfa $CURRENT / $TOTAL"
-language = "Dil"
-rss = "RSS"
-atom = "Atom"
-about = "Hakkında"
-date_full = "%d.%m.%Y"
-date_ym = "%m.%Y"
-email = "E-posta"
-bio_1 = "Yanlış tahminlerin gerçek maliyeti olduğu makine öğrenmesi sistemleri tasarlayıp üretime alıyorum."
-bio_2 = "Çoğu gün model geliştirme ve MLOps; diğer günler küçük bir değerlendirme aracı ya da bir danışmanlık işi. Hepsini burada yazıyorum."
-recent_note = "Son notlar ve tamamlanan işler."

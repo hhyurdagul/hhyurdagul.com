@@ -1,0 +1,68 @@
+[
+  {
+    "company": "Universal Software",
+    "title": "Technical Lead, AI R&D",
+    "dates": "Jan 2024 - Present",
+    "loc": "Istanbul-based · Remote",
+    "description": "Lead the hands-on AI R&D roadmap, architecture reviews, delivery planning, and stakeholder coordination; mentor 3-5 engineers building ML products for municipalities, ministries, and utilities.",
+    "highlights": [
+      "Architected a human-reviewed support intelligence platform across 60+ municipalities, delivering evidence retrieval, answer drafts, and automated routing; cut median first-response time by 50%.",
+      "Co-lead a TÜBİTAK 1832 national R&D grant with hydraulic engineers; designed attention-based seq2seq flash-flood forecasting deployed across 8 regions and 16 river basins.",
+      "Own evaluation design end to end — leakage-safe backtests, champion promotion, and validated serving — so models ship on evidence rather than on a single headline metric."
+    ],
+    "tech": [
+      "Python",
+      "PyTorch",
+      "LLMs",
+      "RAG",
+      "Embeddings",
+      "seq2seq + Attention",
+      "FastAPI",
+      "Team Leadership"
+    ]
+  },
+  {
+    "company": "Universal Software",
+    "title": "AI/ML Engineer → Senior AI/ML Engineer",
+    "dates": "Apr 2021 - Dec 2023 · promoted Jan 2023",
+    "loc": "Istanbul-based · Remote",
+    "description": "Built and deployed forecasting, computer vision, and predictive-maintenance systems for municipal utility networks and industrial clients.",
+    "highlights": [
+      "Shipped a real-time Enerjisa field-photo validation pipeline combining YOLOv8 detection with blur, duplication, and empty-frame checks, reducing invalid submissions reaching inventory review by 30%.",
+      "Designed IoT-driven waste-collection routing that converted live bin-fullness and fire/flood sensor events into priority routes, reducing planned distance by 18% in historical simulations.",
+      "Built predictive-maintenance classifiers for Enerjisa assets and CNC assembly lines, identifying 82% of failures within a 7-day warning window.",
+      "Developed LSTM pipelines for municipal water-demand and industrial gas/electricity forecasting, improving MAPE by 21% relative to operational or seasonal-naive baselines."
+    ],
+    "tech": [
+      "Python",
+      "YOLOv8",
+      "LSTM",
+      "scikit-learn",
+      "TensorFlow",
+      "Keras",
+      "Heuristics",
+      "IoT Telemetry"
+    ]
+  },
+  {
+    "company": "OxyAI",
+    "title": "AI/ML Engineer (Part-time Contract)",
+    "dates": "May 2021 - Jan 2023",
+    "loc": "Remote · Türkiye",
+    "description": "Built production recommender systems for commercial consumer platforms, combining multimodal and collaborative-filtering approaches.",
+    "highlights": [
+      "Built a multimodal recommender for the online art gallery 'Collectors', matching artwork to users through textual profiles and CNN-extracted visual preferences.",
+      "Developed a collaborative-filtering engine for the audiobook app 'Dinlebi' using matrix factorization over user interaction history, with an onboarding flow designed to mitigate cold start.",
+      "Increased recommendation CTR by 14%; both systems remained in production for 3+ years."
+    ],
+    "tech": [
+      "Python",
+      "CNNs",
+      "Transformers",
+      "Matrix Factorization",
+      "Collaborative Filtering",
+      "Content-Based Filtering",
+      "Deep Learning"
+    ]
+  }
+]

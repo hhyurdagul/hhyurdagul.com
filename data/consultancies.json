@@ -1,0 +1,500 @@
+[
+  {
+    "label": "Flagship engagements",
+    "items": [
+      {
+        "company": "Inveon",
+        "dates": "Nov 2022 - Ongoing",
+        "url": "https://inveon.com/",
+        "description": "Built search, image classification, and similarity recommendation systems. Developed product search on titles and description metadata without exact match requirements, and a mixture-of-experts style image classifier across 50+ subcategories. Deployed interactive Streamlit platforms and FastAPI backends.",
+        "tools": [
+          "Python",
+          "FastAPI",
+          "Streamlit",
+          "PyTorch",
+          "Scikit-learn"
+        ],
+        "domain": [
+          "Image Classification",
+          "Deep Learning",
+          "Semantic Search",
+          "Recommender Systems"
+        ]
+      },
+      {
+        "company": "Moka",
+        "dates": "Feb 2023 - Ongoing",
+        "url": "https://www.mokaunited.com/",
+        "description": "Developed fintech/payment ML tools including price/quote prediction, churn prediction, lifetime value analysis, and financial forecasting apps. Designed production pipelines deployed on Azure using Docker and Kubernetes, working with collaborative git pull request workflows.",
+        "tools": [
+          "Python",
+          "FastAPI",
+          "Streamlit",
+          "Docker",
+          "Azure",
+          "Git"
+        ],
+        "domain": [
+          "Fintech Analytics",
+          "Time-Series Forecasting",
+          "Churn/LTV"
+        ]
+      },
+      {
+        "company": "Ikas",
+        "dates": "Sep 2024 - Ongoing",
+        "url": "https://ikas.com/",
+        "description": "Created demand, revenue, and call-center forecasting systems integrated directly into their e-commerce SaaS. Deployed desktop Tkinter MLStudio apps and Streamlit business apps backed by inference APIs.",
+        "tools": [
+          "Python",
+          "Tkinter",
+          "Streamlit",
+          "Polars",
+          "FastAPI"
+        ],
+        "domain": [
+          "Time-Series Forecasting",
+          "Revenue Prediction",
+          "Demand Forecasting"
+        ]
+      },
+      {
+        "company": "Datakod",
+        "dates": "Jan 2022 - Dec 2024",
+        "url": "https://www.datakod.com/",
+        "description": "Designed a broad business intelligence and analytics system for e-commerce distributor channels. Features include market basket association rules (FP-growth, Apriori), RFM metrics, anomaly detection, sales forecasting, and customer clustering.",
+        "tools": [
+          "Python",
+          "Pandas",
+          "Scikit-learn",
+          "Keras",
+          "Statsmodels"
+        ],
+        "domain": [
+          "Association Rules (Apriori/FP-growth)",
+          "RFM Analytics",
+          "Clustering",
+          "Anomaly Detection",
+          "Sales Forecasting"
+        ]
+      },
+      {
+        "company": "Badem",
+        "dates": "Apr 2022 - Jun 2025",
+        "description": "Constructed concrete strength regression applications, patient churn models, lifetime value estimations, and customer segmentation reports. Shipped multiple Tkinter MLStudio applications and Streamlit dashboard tools.",
+        "tools": [
+          "Python",
+          "Tkinter",
+          "Streamlit",
+          "Pandas",
+          "Scikit-learn"
+        ],
+        "domain": [
+          "Regression",
+          "Classification",
+          "Churn/LTV",
+          "Segmentation"
+        ]
+      },
+      {
+        "company": "Albert Solino",
+        "dates": "May 2021 - Jan 2023",
+        "url": "https://www.albertsolino.com/",
+        "description": "Conducted BERT-based HR candidate identification feasibility, created a customer database-connected churn/LTV tool, email segmentation pipelines, and mentored mid-level developers on building a Flask MLStudio application.",
+        "tools": [
+          "Python",
+          "Sentence-Transformers",
+          "PyTorch",
+          "Streamlit",
+          "Flask",
+          "XGBoost"
+        ],
+        "domain": [
+          "NLP / HR Analytics",
+          "CRM Integration",
+          "Mentoring"
+        ]
+      },
+      {
+        "company": "Smartiks",
+        "dates": "Jan 2023 - May 2026",
+        "url": "https://www.smartiks.com.tr/",
+        "description": "Served as Senior ML consultant at the R&D center. Built Basal Metabolic Rate (BMR) prediction models for health sector clients, e-commerce campaign-centric customer clustering (K-Means, DBSCAN, CLARA), and drone-based bird detection algorithms, while leading technical proposal processes for ITEA projects.",
+        "tools": [
+          "Python",
+          "TensorFlow",
+          "Keras",
+          "Yolo",
+          "OpenCV",
+          "XGBoost"
+        ],
+        "domain": [
+          "Regression",
+          "Clustering (K-Means/DBSCAN/CLARA)",
+          "Computer Vision",
+          "ITEA Project Leadership"
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Supporting engagements",
+    "items": [
+      {
+        "company": "Barkosoft / Hesapcini",
+        "dates": "Oct 2022 - Jan 2024",
+        "url": "https://www.barkosoft.com.tr/",
+        "description": "Developed operational demand forecasting engines and API integrations for Hesapcini pre-accounting SaaS and WMS solutions.",
+        "tools": [
+          "Python",
+          "Pandas",
+          "Scikit-learn",
+          "Keras"
+        ],
+        "domain": [
+          "Time-Series Forecasting",
+          "WMS & Pre-accounting APIs"
+        ]
+      },
+      {
+        "company": "KolayBi",
+        "dates": "Jan 2022 - Dec 2024",
+        "url": "https://www.kolaybi.com/",
+        "description": "Designed churn prediction, customer lifetime value models, and demand forecasting backend APIs for SME finance SaaS platforms.",
+        "tools": [
+          "Python",
+          "Pandas",
+          "Scikit-learn",
+          "Keras",
+          "XGBoost"
+        ],
+        "domain": [
+          "Churn/LTV Modeling",
+          "Forecasting APIs"
+        ]
+      },
+      {
+        "company": "Kriko",
+        "dates": "Sep 2024 - Mar 2026",
+        "url": "https://kriko.io/",
+        "description": "Modeled organic marketing and network traffic forecasting, presenting forecasts via a customized Streamlit end-user dashboard.",
+        "tools": [
+          "Python",
+          "Pandas",
+          "Streamlit",
+          "Keras"
+        ],
+        "domain": [
+          "Network Traffic Forecasting",
+          "Marketing Analytics"
+        ]
+      },
+      {
+        "company": "Robokobi",
+        "dates": "Jan 2026 - Ongoing",
+        "url": "https://www.robosme.com/",
+        "description": "Built financial forecasting workflows for CRM and SME business-management software, utilizing Tkinter and Streamlit.",
+        "tools": [
+          "Python",
+          "Tkinter",
+          "Streamlit",
+          "Keras"
+        ],
+        "domain": [
+          "Financial Forecasting",
+          "SME Business Workflows"
+        ]
+      },
+      {
+        "company": "Vardabit",
+        "dates": "Jan 2023 - Apr 2024",
+        "url": "https://www.vardabit.com/",
+        "description": "Created bid quote prediction models and automated sales forecasting pipelines, utilizing Tkinter model-builders and Streamlit web applications.",
+        "tools": [
+          "Python",
+          "Pandas",
+          "Scikit-learn",
+          "Tkinter",
+          "Streamlit",
+          "Keras"
+        ],
+        "domain": [
+          "Quote Prediction",
+          "Sales Forecasting"
+        ]
+      },
+      {
+        "company": "Unsped",
+        "dates": "Sep 2021 - Oct 2022",
+        "url": "https://www.unsped.com.tr/",
+        "description": "Engineered import/export logistics analytics, customer churn classification, and CLTV regression, successfully securing TÜBİTAK 1511 grant funding.",
+        "tools": [
+          "Python",
+          "Pandas",
+          "Scikit-learn",
+          "XGBoost",
+          "Tkinter",
+          "Streamlit"
+        ],
+        "domain": [
+          "Logistics Analytics",
+          "Churn/CLTV Modeling",
+          "TÜBİTAK 1511 Grant"
+        ]
+      },
+      {
+        "company": "Protel",
+        "dates": "Aug 2021 - Apr 2022",
+        "url": "https://www.protel.com.tr/",
+        "description": "Mentored and led a team of five data scientists and engineers on developing large-scale restaurant demand forecasting algorithms using time-series and gradient boosting.",
+        "tools": [
+          "Python",
+          "ARIMA",
+          "LightGBM",
+          "XGBoost"
+        ],
+        "domain": [
+          "Demand Forecasting",
+          "Technical Leadership"
+        ]
+      },
+      {
+        "company": "Teknorot",
+        "dates": "Jan 2021 - Dec 2021",
+        "url": "https://www.teknorot.com/",
+        "description": "Built automotive export demand forecasting engines for steering and suspension spare parts. Shipped a custom Tkinter MLStudio application managing 10-20 distinct model configurations.",
+        "tools": [
+          "Python",
+          "Tkinter",
+          "Keras",
+          "TensorFlow"
+        ],
+        "domain": [
+          "Automotive Spare-Parts Logistics",
+          "Time-Series Forecasting"
+        ]
+      },
+      {
+        "company": "Comdata",
+        "dates": "Dec 2020 - Dec 2021",
+        "url": "https://www.comdata.com/",
+        "description": "Pioneered call-center call volume and handling time forecasting pipelines. Implemented an autoencoder-based anomaly detection workflow to scrub historical training data.",
+        "tools": [
+          "Python",
+          "Tkinter",
+          "Keras",
+          "TensorFlow",
+          "Autoencoders"
+        ],
+        "domain": [
+          "Call-Center Analytics",
+          "Anomaly Detection"
+        ]
+      },
+      {
+        "company": "SefaMerve",
+        "dates": "Sep 2020 - Dec 2021",
+        "url": "https://www.sefamerve.com/",
+        "description": "Developed a retail demand forecasting system for new products using CNN-based image similarity matching to historical product data, mapping forecasts based on style resemblance.",
+        "tools": [
+          "Python",
+          "Tkinter",
+          "CNN"
+        ],
+        "domain": [
+          "Image Similarity",
+          "Retail Demand Forecasting"
+        ]
+      },
+      {
+        "company": "Odeal",
+        "dates": "Apr 2021 - Dec 2021",
+        "url": "https://odeal.com/",
+        "description": "Conducted merchant transaction behavior clustering, customer churn analysis, and MLP modeling, publishing results via Streamlit prototypes.",
+        "tools": [
+          "Python",
+          "Scikit-learn",
+          "MLP",
+          "Streamlit"
+        ],
+        "domain": [
+          "Fintech Analytics",
+          "Merchant Transaction Clustering",
+          "Churn Analysis"
+        ]
+      },
+      {
+        "company": "Gtech",
+        "dates": "Feb 2021 - Sep 2021",
+        "url": "https://gtech.com.tr/",
+        "description": "Mentored three mid-level data scientists on machine learning, leading the development of a desktop MLStudio forecasting workbench.",
+        "tools": [
+          "Python",
+          "MLStudio"
+        ],
+        "domain": [
+          "Forecasting Workbench",
+          "Mentoring"
+        ]
+      },
+      {
+        "company": "Nano",
+        "dates": "Jan 2022 - Dec 2024",
+        "url": "https://nano.eu.com/",
+        "description": "Provided corporate training on machine learning and deep learning, guiding internal developers on building a custom C# MLStudio tool for regression and forecasting.",
+        "tools": [
+          "C#",
+          "MLStudio"
+        ],
+        "domain": [
+          "Regression & Forecasting",
+          "Corporate Training"
+        ]
+      },
+      {
+        "company": "HepsiEmlak",
+        "dates": "Sep 2021 - May 2022",
+        "url": "https://www.hepsiemlak.com/",
+        "description": "Scoped and drafted R&D Center registration and TÜBİTAK grant applications. Designed algorithms for listing recommendations, rental valuation, and duplication checking using CNN image matching.",
+        "tools": [
+          "CNN"
+        ],
+        "domain": [
+          "Recommendation Systems",
+          "Image Duplicate Detection",
+          "R&D Grant Writing"
+        ]
+      },
+      {
+        "company": "Hipposoft",
+        "dates": "Aug 2023 - Sep 2025",
+        "url": "https://www.hipposoft.net/",
+        "description": "Modeled customer churn and demand forecasting feasibility frameworks for various SME technology services.",
+        "tools": [
+          "Python",
+          "Scikit-learn"
+        ],
+        "domain": [
+          "Churn Prediction",
+          "Feature Engineering"
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Additional engagements",
+    "items": [
+      {
+        "company": "Ayasof",
+        "dates": "approx. Jan 2022 - Jan 2023",
+        "description": "Generated demand and sales forecasting pipeline reports for retail operations.",
+        "tools": [
+          "Python",
+          "Pandas"
+        ],
+        "domain": [
+          "Regression Forecasting",
+          "Retail Operations"
+        ]
+      },
+      {
+        "company": "CukurovaMakine",
+        "dates": "Nov 2021 - Jun 2022",
+        "description": "Designed and delivered an intensive 8-module machine learning and deep learning curriculum for industrial engineering teams.",
+        "tools": [
+          "Python"
+        ],
+        "domain": [
+          "Industrial ML/DL Curriculum",
+          "Corporate Training"
+        ]
+      },
+      {
+        "company": "JForce",
+        "dates": "Apr 2022 - Oct 2023",
+        "url": "https://jforce.com.tr/",
+        "description": "Conducted demand forecasting feasibility analysis for restaurant supply chains, alongside training courses for engineers.",
+        "tools": [
+          "Python"
+        ],
+        "domain": [
+          "Demand Forecasting Feasibility",
+          "Engineer Training"
+        ]
+      },
+      {
+        "company": "SmartPulse",
+        "dates": "Nov 2021 - Feb 2022",
+        "url": "https://www.smartpulse.io/",
+        "description": "Researched energy/SCADA and weather-based load forecasting feasibility using Extreme Learning Machine (ELM) networks.",
+        "tools": [
+          "Python",
+          "Extreme Learning Machine"
+        ],
+        "domain": [
+          "Energy Forecasting",
+          "SCADA Analytics"
+        ]
+      },
+      {
+        "company": "Storespy",
+        "dates": "Jan 2022 - Apr 2022",
+        "url": "https://appstorespy.com/",
+        "description": "Developed app store download and ranking prediction models using minimum Redundancy Maximum Relevance (mRMR) feature selection.",
+        "tools": [
+          "Python",
+          "mRMR",
+          "XGBoost",
+          "Deep Learning"
+        ],
+        "domain": [
+          "App Store Ranking Prediction",
+          "Feature Selection"
+        ]
+      },
+      {
+        "company": "VTC",
+        "dates": "Jan 2023 - May 2023",
+        "url": "https://www.vtcenerji.com/",
+        "description": "Created LSTM deep learning time-series models for energy forecasting and imbalance cost reporting.",
+        "tools": [
+          "Python",
+          "LSTM",
+          "TensorFlow",
+          "Keras"
+        ],
+        "domain": [
+          "Energy Trading",
+          "Time-Series Forecasting"
+        ]
+      },
+      {
+        "company": "Ortus",
+        "dates": "Mar 2026 - May 2026",
+        "url": "https://www.ortus4c.com/",
+        "description": "Produced feasibility reports on revenue model analysis, incorporating customer clustering and mRMR feature selection.",
+        "tools": [
+          "Python"
+        ],
+        "domain": [
+          "Customer Clustering",
+          "mRMR Feature Selection"
+        ]
+      },
+      {
+        "company": "PayTR",
+        "dates": "Mar 2026 - May 2026",
+        "url": "https://www.paytr.com/",
+        "description": "Conducted fraud modeling evaluation, creating classification testbeds and metrics reports for risk analysis.",
+        "tools": [
+          "Python",
+          "Scikit-learn"
+        ],
+        "domain": [
+          "Fraud Detection",
+          "Risk Classification"
+        ]
+      }
+    ]
+  }
+]
