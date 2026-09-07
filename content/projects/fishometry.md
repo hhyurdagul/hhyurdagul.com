@@ -12,7 +12,6 @@ status = "Research complete · Thesis writing"
 role = "Lead AI / Machine Learning Engineer"
 repo_url = "https://github.com/hhyurdagul/fishometry"
 showcase = true
-weight = 2
 stack = ["Python", "PyTorch", "YOLO", "Segment Anything", "Depth Anything V2", "EfficientNet", "XGBoost", "Polars", "Streamlit", "Gemini API", "Uv"]
 +++
 

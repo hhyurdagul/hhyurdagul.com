@@ -11,7 +11,6 @@ kind = "project"
 status = "Done"
 role = "Lead AI / Machine Learning Engineer"
 repo_url = "https://github.com/hhyurdagul/epias-demand-forecast"
-weight = 5
 stack = ["Python", "Polars", "Streamlit", "TimesFM 2.5", "PyTorch", "Parquet", "Uv"]
 +++
 

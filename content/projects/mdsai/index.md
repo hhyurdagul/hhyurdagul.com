@@ -11,7 +11,6 @@ kind = "project"
 status = "Deployed · Active R&D"
 role = "Lead AI / Machine Learning Engineer"
 showcase = true
-weight = 3
 stack = ["Python", "Polars", "Sentence Transformers (EmbeddingGemma)", "UMAP + HDBSCAN", "BERTopic", "LightGBM / XGBoost", "scikit-learn", "PyTorch / Transformers", "Gemini API", "Marimo", "Tableau"]
 +++
 

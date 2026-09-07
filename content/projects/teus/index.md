@@ -12,7 +12,6 @@ status = "Analytics complete · App in development"
 role = "Lead AI / Machine Learning Engineer"
 repo_url = "https://github.com/hhyurdagul/Teus"
 showcase = true
-weight = 4
 stack = ["Python", "PyTorch", "scikit-learn", "Polars", "FastAPI"]
 +++
 

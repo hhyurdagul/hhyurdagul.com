@@ -12,7 +12,6 @@ status = "Deployed"
 role = "Lead AI / Machine Learning Engineer"
 repo_url = "https://github.com/hhyurdagul/MLStudio"
 showcase = true
-weight = 1
 stack = ["Python", "Streamlit", "Polars", "scikit-learn", "PyTorch", "XGBoost", "CatBoost", "Pixi", "joblib"]
 +++
 
