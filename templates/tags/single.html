@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{{ term.name }} · {{ config.title }}{% endblock title %}
+{% block ogtitle %}{{ term.name }} · {{ config.title }}{% endblock ogtitle %}
+
+{% block content %}
+{% set date_ym = trans(key="date_ym", lang=lang) %}
+<div class="page-header"><h1>{{ term.name }}</h1></div>
+<div class="section">
+  {% for post in term.pages %}
+  <a class="link-row" href="{{ post.permalink }}">
+    <span class="link-row-title">{{ post.title }}</span>
+    <span class="link-row-meta">{{ post.date | date(format=date_ym) }}</span>
+  </a>
+  {% endfor %}
+</div>
+{% endblock content %}

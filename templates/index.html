@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% set blog = get_section(path="blog/_index.md", lang=lang) %}
+{% set projects = get_section(path="projects/_index.md", lang=lang) %}
+{% set date_ym = trans(key="date_ym", lang=lang) %}
+<div class="section">
+  <div class="section-label">{{ trans(key="writing", lang=lang) }}</div>
+  {% for post in blog.pages | slice(end=8) %}
+  <a class="link-row" href="{{ post.permalink }}">
+    <span class="link-row-title">{{ post.title }}</span>
+    <span class="link-row-meta">{{ post.date | date(format=date_ym) }}</span>
+  </a>
+  {% endfor %}
+  <a class="more-link" href="{{ blog.permalink }}">{{ trans(key="all_posts", lang=lang) }} <span class="arrow">&#8594;</span></a>
+</div>
+<div class="section">
+  <div class="section-label">{{ trans(key="work", lang=lang) }}</div>
+  {% for project in projects.pages | slice(end=4) %}
+  <a class="link-row-ext" {% if project.extra.repo_url %}href="{{ project.extra.repo_url }}" target="_blank" rel="noopener"{% else %}href="{{ project.permalink }}"{% endif %}>
+    <div class="link-row-ext-inner">
+      <span class="link-row-title">{{ project.title }}{% if project.extra.badge %} <span class="badge">{{ project.extra.badge }}</span>{% endif %}</span>
+      <div class="link-row-desc">{{ project.description }}</div>
+    </div>
+    <span class="ext-arrow"{% if not project.extra.repo_url %} style="visibility:hidden"{% endif %}>&#8599;</span>
+  </a>
+  {% endfor %}
+  <a class="more-link" href="{{ projects.permalink }}">{{ trans(key="all_work", lang=lang) }} <span class="arrow">&#8594;</span></a>
+</div>
+{% endblock content %}

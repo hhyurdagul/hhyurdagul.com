@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}{{ section.title }} · {{ config.title }}{% endblock title %}
+{% block description %}{{ section.description | default(value=config.description) }}{% endblock description %}
+{% block ogtitle %}{{ section.title }} · {{ config.title }}{% endblock ogtitle %}
+{% block ogdesc %}{{ section.description | default(value=config.description) }}{% endblock ogdesc %}
+
+{% block content %}
+{% set date_ym = trans(key="date_ym", lang=lang) %}
+<div class="page-header">
+  <h1>{{ section.title }}</h1>
+  {% if section.description %}<div class="page-intro"><p>{{ section.description }}</p></div>{% endif %}
+</div>
+<div class="section">
+  {% for item in paginator.pages %}
+  {% if section.extra.kind == "projects" %}
+  <a class="link-row-ext" {% if item.extra.repo_url %}href="{{ item.extra.repo_url }}" target="_blank" rel="noopener"{% else %}href="{{ item.permalink }}"{% endif %}>
+    <div class="link-row-ext-inner">
+      <span class="link-row-title">{{ item.title }}{% if item.extra.badge %} <span class="badge">{{ item.extra.badge }}</span>{% endif %}</span>
+      <div class="link-row-desc">{{ item.description }}</div>
+    </div>
+    <span class="ext-arrow"{% if not item.extra.repo_url %} style="visibility:hidden"{% endif %}>&#8599;</span>
+  </a>
+  {% else %}
+  <a class="link-row" href="{{ item.permalink }}">
+    <span class="link-row-title">{{ item.title }}</span>
+    <span class="link-row-meta">{{ item.date | date(format=date_ym) }}</span>
+  </a>
+  {% endif %}
+  {% endfor %}
+</div>
+{% if paginator.number_pagers > 1 %}
+<nav class="pagination">
+  {% if paginator.previous %}<a href="{{ paginator.previous }}"><span class="pagination-arrow">&larr;</span><span class="pagination-title">{{ trans(key="newer", lang=lang) }}</span></a>{% endif %}
+  <span class="pagination-status">{{ trans(key="page_of", lang=lang) | replace(from="$CURRENT", to=paginator.current_index) | replace(from="$TOTAL", to=paginator.number_pagers) }}</span>
+  {% if paginator.next %}<a href="{{ paginator.next }}"><span class="pagination-title">{{ trans(key="older", lang=lang) }}</span><span class="pagination-arrow">&rarr;</span></a>{% endif %}
+</nav>
+{% endif %}
+{% endblock content %}

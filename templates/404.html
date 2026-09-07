@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block title %}404 · {{ config.title }}{% endblock title %}
+
+{% block content %}
+<div class="page-header"><h1>404</h1></div>
+<div class="section"><p><a class="more-link" href="{{ get_url(path='/', lang=lang) }}">{{ trans(key="home", lang=lang) }} <span class="arrow">&#8594;</span></a></p></div>
+{% endblock content %}
