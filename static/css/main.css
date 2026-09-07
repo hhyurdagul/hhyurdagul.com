@@ -541,3 +541,25 @@ label.margin-toggle.sidenote-number::after {
 .consult-head a:hover { color: var(--accent); }
 .consult-dates { font-weight: 400; color: var(--muted); font-size: .85rem; margin-left: .5rem; white-space: nowrap; }
 .consult p { margin: .35rem 0 .6rem; font-size: .95rem; }
+
+/* ---- Omegion type scale: Lora headings and titles, Inter UI ---- */
+body { font-size: 15px; line-height: 1.75; -webkit-font-smoothing: antialiased; }
+.article-header h1, .page-header h1 { font-family: var(--font-prose); font-weight: 400; }
+.prose { font-size: .97rem; line-height: 1.85; }
+.prose h2, .prose h3 { font-family: var(--font-prose); font-weight: 400; }
+.prose h2 { font-size: 1.4rem; }
+.prose h3 { font-size: 1.15rem; }
+.prose p, .prose li { overflow-wrap: break-word; }
+.link-row-title { font-family: var(--font-prose); font-weight: 400; font-size: 1rem; }
+.section-label { font-size: .7rem; letter-spacing: .14em; }
+.article-meta { font-size: .8rem; }
+.link-row-meta { font-size: .75rem; }
+.link-row-desc { font-size: .8rem; }
+.bio { line-height: 1.8; }
+.sidebar-links a, .sidebar-links button { font-size: .82rem; }
+.sidebar .logo-letters { font-size: 1.4rem; }
+.site-title { margin-bottom: 2rem; }
+/* ---- Icon-only theme pill + footer credit ---- */
+button.feed-pill { font-family: inherit; background: none; cursor: pointer; }
+.sidebar-footer a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.sidebar-footer a:hover { color: var(--accent); }
