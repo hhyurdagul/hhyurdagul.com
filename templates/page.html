@@ -41,6 +41,7 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
   </button>
   <nav class="toc" id="toc" aria-label="{{ trans(key='toc', lang=lang) }}">
+    <span class="toc-indicator" aria-hidden="true"></span>
     <ul>
     {% for h1 in page.toc %}
       <li><a href="#{{ h1.id }}" class="toc-link">{{ h1.title }}</a>

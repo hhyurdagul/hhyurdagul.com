@@ -81,31 +81,80 @@
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
-  // TOC toggle (mobile) + scroll spy.
+  // Floating TOC disclosure and a scroll marker that also tracks upward jumps.
   var tocToggle = document.getElementById("toc-toggle");
   var toc = document.getElementById("toc");
   if (tocToggle && toc) {
-    tocToggle.addEventListener("click", function () {
-      var open = toc.classList.toggle("open");
+    var setTocOpen = function (open) {
+      toc.classList.toggle("open", open);
       tocToggle.setAttribute("aria-expanded", String(open));
+    };
+    tocToggle.addEventListener("click", function () {
+      setTocOpen(!toc.classList.contains("open"));
+    });
+    toc.addEventListener("click", function (event) {
+      if (event.target.closest(".toc-link")) {
+        setTocOpen(false);
+      }
+    });
+    document.addEventListener("click", function (event) {
+      if (!toc.contains(event.target) && !tocToggle.contains(event.target)) setTocOpen(false);
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && toc.classList.contains("open")) {
+        setTocOpen(false);
+        tocToggle.focus();
+      }
     });
   }
-  if (toc && "IntersectionObserver" in window) {
+  if (toc) {
     var links = Array.from(toc.querySelectorAll(".toc-link"));
-    var byId = new Map(links.map(function (a) { return [a.getAttribute("href").slice(1), a]; }));
-    var obs = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        var a = byId.get(en.target.id);
-        if (a && en.isIntersecting) {
-          links.forEach(function (l) { l.classList.remove("active"); });
-          a.classList.add("active");
-        }
+    var sections = links.map(function (link) {
+      return { link: link, heading: document.getElementById(decodeURIComponent(link.hash.slice(1))) };
+    }).filter(function (section) { return section.heading; });
+    var indicator = toc.querySelector(".toc-indicator");
+    var articleHeader = document.querySelector(".article-header");
+    var updateToc = function () {
+      if (!sections.length) return;
+      var top = Math.max(64, articleHeader.getBoundingClientRect().bottom + 32);
+      toc.style.setProperty("--toc-top", top + "px");
+      var active = sections[0];
+      sections.forEach(function (section) {
+        if (section.heading.getBoundingClientRect().top <= 96) active = section;
       });
-    }, { rootMargin: "-20% 0px -70% 0px" });
-    byId.forEach(function (_, id) {
-      var h = document.getElementById(id);
-      if (h) obs.observe(h);
+      if (window.scrollY > 0 && window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+        active = sections[sections.length - 1];
+      }
+      links.forEach(function (link) {
+        link.classList.toggle("active", link === active.link);
+        if (link === active.link) link.setAttribute("aria-current", "location");
+        else link.removeAttribute("aria-current");
+      });
+      if (indicator) {
+        var rect = active.link.getBoundingClientRect();
+        indicator.style.transform = "translateY(" + (rect.top - toc.getBoundingClientRect().top + toc.scrollTop) + "px)";
+        indicator.style.height = rect.height + "px";
+      }
+    };
+    var tocFrame = null;
+    var scheduleToc = function () {
+      if (tocFrame !== null) return;
+      tocFrame = window.requestAnimationFrame(function () {
+        tocFrame = null;
+        updateToc();
+      });
+    };
+    window.addEventListener("scroll", scheduleToc, { passive: true });
+    window.addEventListener("resize", function () {
+      if (window.matchMedia("(min-width: 1280px)").matches && tocToggle) {
+        setTocOpen(false);
+      }
+      scheduleToc();
     });
+    window.addEventListener("hashchange", scheduleToc);
+    window.addEventListener("load", scheduleToc);
+    if (document.fonts) document.fonts.ready.then(scheduleToc);
+    updateToc();
   }
 
   // Code copy buttons for fenced blocks with a language header.
