@@ -386,7 +386,7 @@
     "items": [
       {
         "company": "Ayasof",
-        "dates": "approx. Jan 2022 - Jan 2023",
+        "dates": "Jan 2022 - Jan 2023",
         "description": "Generated demand and sales forecasting pipeline reports for retail operations.",
         "tools": [
           "Python",

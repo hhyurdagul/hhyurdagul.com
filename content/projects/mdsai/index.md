@@ -7,6 +7,9 @@ date = 2025-05-19
 tags = ["Machine Learning", "NLP", "LLM", "RAG", "Topic Modeling", "MLOps", "Python"]
 
 [extra]
+short_title = "MdsAI"
+monogram = "AI"
+card_description = "Turning support history into retrieved evidence and human-reviewed answer drafts."
 kind = "project"
 status = "Deployed · Active R&D"
 role = "Lead AI / Machine Learning Engineer"

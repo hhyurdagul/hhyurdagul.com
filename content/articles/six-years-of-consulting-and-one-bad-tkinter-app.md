@@ -8,6 +8,7 @@ tags = ["Career", "Machine Learning", "Consulting"]
 
 [extra]
 kind = "post"
+intro = "How a forecasting tool grew into six years of consulting for more than 30 companies, alongside engineering jobs, team leadership, and a master’s degree."
 +++
 
 My career began with a surprising collaboration with my professor during the
@@ -16,10 +17,14 @@ computer engineering at Çukurova University, around 2020. He had some experienc
 working with government incentives and grants, especially Tübitak and official
 R&D Centers — Turkey's main public-funding routes for applied research. Machine
 learning and AI in general were the hotspots in those years, and grants were
-specifically targeting AI work. He hadn't been exposed to AI yet and wanted a
+specifically targeting AI work.
+
+He hadn't been exposed to AI yet and wanted a
 workforce that knows what he is dealing with, could tackle and solve those
 problems, build the tools, products, and systems, and secure the grant, and he
-found the one-man army, which is me, of course. We started in September 2020
+found the one-man army, which is me, of course.
+
+We started in September 2020
 with a modest clothing company, Sefamerve, which wanted demand forecasting for
 their products' future sales, which, of course, needs no explanation. By
 December that year we'd added Comdata, one of the well-known call centers, which
@@ -32,7 +37,9 @@ After a while, it became clear that the industry needs this; forecasting future
 values for any given data will eventually occur, so instead of coding everything
 manually, we could have created an app that would make it possible for us, and
 even for others who are not proficient code writers, to get results using
-machine learning and AI in general. So I did that. There was already a similar
+machine learning and AI in general. So I did that.
+
+There was already a similar
 ongoing project called DTReg, which was basic, only limited to Windows, and, of
 course, paid, and not free. Being a fresh young developer, I have made terrible
 mistakes, design choices, and engineering that will shoot me in the foot several
@@ -40,7 +47,9 @@ times in the future. One bad decision was to use tkinter for the UI, since DTReg
 was already using it, so I went with the same approach. Don't get me wrong, I am
 not against Tkinter, but it didn't look good at all, and we weren't in 1980; it
 was the 2020s. Looking at it now, I could have used QT instead of Tkinter, which
-would have looked much better. Not stopping there, I didn't separate ui and
+would have looked much better.
+
+Not stopping there, I didn't separate ui and
 logic from each other; it was one giant Python class where everything was tied
 together, mutable state everywhere, functions not returning, and changing the
 state itself, methods calling methods, no private functions, everything is one

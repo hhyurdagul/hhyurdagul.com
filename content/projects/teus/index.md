@@ -7,6 +7,7 @@ date = 2024-09-21
 tags = ["Deep Learning", "Time Series Forecasting", "Hydrology", "PyTorch", "Python"]
 
 [extra]
+short_title = "Teus"
 kind = "project"
 status = "Analytics complete · App in development"
 role = "Lead AI / Machine Learning Engineer"

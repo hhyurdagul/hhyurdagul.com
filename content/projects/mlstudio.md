@@ -7,6 +7,9 @@ date = 2026-07-07
 tags = ["Machine Learning", "MLOps", "Streamlit", "Time Series Forecasting", "Python", "Product Engineering"]
 
 [extra]
+short_title = "MLStudio"
+monogram = "ML"
+card_description = "A desktop ML tool used by 30+ companies, rebuilt as a web platform."
 kind = "project"
 status = "Deployed"
 role = "Lead AI / Machine Learning Engineer"

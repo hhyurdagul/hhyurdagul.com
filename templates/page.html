@@ -12,26 +12,38 @@
 {% set has_toc = page.toc and page.extra.toc | default(value=true) %}
 {% set date_full = trans(key="date_full", lang=lang) %}
 <article class="article{% if has_toc %} with-toc{% endif %}">
-  <header class="article-header">
+  <header class="article-header{% if kind == "project" %} project-header{% endif %}">
+    {% if kind == "project" %}
+    <div class="project-eyebrow">Selected project</div>
+    <h1>{{ page.extra.short_title | default(value=page.title) }}</h1>
+    <p class="article-intro">{{ page.description }}</p>
+    {% else %}
     <h1>{{ page.title }}</h1>
+    {% endif %}
     {% if is_article %}
     <div class="article-meta">
       <time datetime="{{ page.date | date(format='%Y-%m-%d') }}">{{ page.date | date(format=date_full) }}</time>
       <span class="meta-sep">&#183;</span>
       <span>{{ page.reading_time }} {{ trans(key="min_read", lang=lang) }}</span>
     </div>
-    {% elif page.extra.repo_url or page.extra.demo_url or page.extra.status %}
+    {% elif page.extra.repo_url or page.extra.demo_url or page.extra.status or page.extra.role %}
     <div class="article-meta project-links">
       {% if page.extra.status %}<span class="project-status">{{ page.extra.status }}</span>{% endif %}
-      {% if page.extra.role %}<span class="meta-sep">&#183;</span><span>{{ page.extra.role }}</span>{% endif %}
-      {% if page.extra.repo_url %}<span class="meta-sep">&#183;</span><a href="{{ page.extra.repo_url }}" target="_blank" rel="noopener">Repository &#8599;</a>{% endif %}
-      {% if page.extra.demo_url %}<span class="meta-sep">&#183;</span><a href="{{ page.extra.demo_url }}" target="_blank" rel="noopener">Demo &#8599;</a>{% endif %}
+      {% if page.extra.repo_url %}<a href="{{ page.extra.repo_url }}" target="_blank" rel="noopener">Repository &#8599;</a>{% endif %}
+      {% if page.extra.demo_url %}<a href="{{ page.extra.demo_url }}" target="_blank" rel="noopener">Demo &#8599;</a>{% endif %}
     </div>
     {% endif %}
+    {% if kind == "project" and page.extra.role %}<p class="project-role">{{ page.extra.role }}</p>{% endif %}
+    {% if is_article and page.extra.intro %}
+    <p class="article-intro">{{ page.extra.intro }}</p>
+    {% endif %}
     {% if page.extra.stack %}
-    <div class="tag-list">
-      {% for s in page.extra.stack %}<span class="tag">{{ s }}</span>{% endfor %}
-    </div>
+    <details class="project-technologies">
+      <summary>Technologies <span>{{ page.extra.stack | length }}</span></summary>
+      <div class="tag-list">
+        {% for s in page.extra.stack %}<span class="tag">{{ s }}</span>{% endfor %}
+      </div>
+    </details>
     {% endif %}
   </header>
   {% if has_toc %}

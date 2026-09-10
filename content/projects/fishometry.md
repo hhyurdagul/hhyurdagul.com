@@ -7,6 +7,9 @@ date = 2026-01-13
 tags = ["Computer Vision", "Deep Learning", "Monocular Measurement", "Image Segmentation", "PyTorch", "Python"]
 
 [extra]
+short_title = "Fishometry"
+monogram = "Fi"
+card_description = "Estimating fish length from a single image, without a reference object."
 kind = "project"
 status = "Research complete · Thesis writing"
 role = "Lead AI / Machine Learning Engineer"

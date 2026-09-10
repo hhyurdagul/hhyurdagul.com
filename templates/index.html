@@ -3,7 +3,21 @@
 {% block content %}
 {% set blog = get_section(path="articles/_index.md", lang=lang) %}
 {% set projects = get_section(path="projects/_index.md", lang=lang) %}
+{% set featured = get_page(path="projects/teus/index.md", lang=lang) %}
 {% set date_ym = trans(key="date_ym", lang=lang) %}
+<section class="section featured-project">
+  <div class="section-label">Featured project</div>
+  <a class="featured-project-link" href="{{ featured.permalink }}">
+    <div class="featured-project-meta">Teus <span aria-hidden="true">/</span> Flood forecasting</div>
+    <h2>Forecasting flash floods before they happen.</h2>
+    <p>River-discharge forecasts up to 72 hours ahead, built with deep learning and evaluated alongside hydrologists.</p>
+    <figure>
+      <img src="{{ featured.permalink }}assets/d22a114-flood-forecast.png" width="1120" height="370" alt="Observed discharge and the model forecast track a selected flood event at station D22A114.">
+      <figcaption>A selected 24-hour forecast · D22A114</figcaption>
+    </figure>
+    <span class="featured-project-cta">Explore the project <span aria-hidden="true">↗</span></span>
+  </a>
+</section>
 <div class="section">
   <div class="section-label">{{ trans(key="writing", lang=lang) }}</div>
   {% for post in blog.pages | slice(end=8) %}
@@ -16,14 +30,17 @@
 </div>
 <div class="section">
   <div class="section-label">{{ trans(key="projects", lang=lang) }}</div>
-  {% for project in projects.pages | filter(attribute="extra.showcase", value=true) | slice(end=4) %}
-  <a class="link-row-ext" href="{{ project.permalink }}">
+  {% for project in projects.pages | filter(attribute="extra.showcase", value=true) %}
+  {% if project.permalink != featured.permalink %}
+  <a class="link-row-ext project-row" href="{{ project.permalink }}">
+    <span class="project-monogram" aria-hidden="true">{{ project.extra.monogram | default(value="↗") }}</span>
     <div class="link-row-ext-inner">
-      <span class="link-row-title">{{ project.title }}</span>
-      <div class="link-row-desc">{{ project.description }}</div>
+      <span class="link-row-title">{{ project.extra.short_title | default(value=project.title) }}</span>
+      <div class="link-row-desc">{{ project.extra.card_description | default(value=project.description) }}</div>
     </div>
-    <span class="ext-arrow" style="visibility:hidden">&#8599;</span>
+    <span class="ext-arrow" aria-hidden="true">&#8599;</span>
   </a>
+  {% endif %}
   {% endfor %}
   <a class="more-link" href="{{ projects.permalink }}">{{ trans(key="all_work", lang=lang) }} <span class="arrow">&#8594;</span></a>
 </div>

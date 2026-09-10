@@ -8,6 +8,7 @@ tags = ["Linux", "Engineering", "Systems"]
 
 [extra]
 kind = "post"
+intro = "A small problem with monitor brightness became a reminder of what Linux taught me: systems can be questioned, understood, and changed."
 +++
 
 This is one of those things that sounds small when stated plainly, but stayed

@@ -1,20 +1,6 @@
-// Theme toggle, mobile sidebar, logo split, TOC, code copy. No search by design.
+// Theme toggle, mobile sidebar, TOC, code copy. No search by design.
 (function () {
   "use strict";
-
-  // Split logo text into staggered spans (progressive enhancement).
-  document.querySelectorAll("[data-split]").forEach(function (el) {
-    var text = el.textContent;
-    el.setAttribute("aria-label", text);
-    el.textContent = "";
-    Array.from(text).forEach(function (ch, i) {
-      var s = document.createElement("span");
-      s.style.setProperty("--i", String(i));
-      s.textContent = ch;
-      s.setAttribute("aria-hidden", "true");
-      el.appendChild(s);
-    });
-  });
 
   // Theme toggle.
   var toggle = document.getElementById("theme-toggle");
@@ -153,6 +139,9 @@
     });
     window.addEventListener("hashchange", scheduleToc);
     window.addEventListener("load", scheduleToc);
+    articleHeader.querySelectorAll("details").forEach(function (details) {
+      details.addEventListener("toggle", scheduleToc);
+    });
     if (document.fonts) document.fonts.ready.then(scheduleToc);
     updateToc();
   }
@@ -176,7 +165,7 @@
     btn.type = "button";
     btn.className = "code-copy";
     btn.setAttribute("aria-label", "Copy code");
-    btn.innerHTML = '<span class="code-copy-icon">⧉</span><span class="code-copy-label">Copy</span>';
+    btn.innerHTML = '<svg class="code-copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V4H4v12h4"/></svg><svg class="code-copy-icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span class="code-copy-label" aria-live="polite">Copy</span>';
     btn.addEventListener("click", function () {
       var done = function () {
         btn.classList.add("done");
@@ -186,9 +175,17 @@
           btn.querySelector(".code-copy-label").textContent = "Copy";
         }, 1500);
       };
+      var failed = function () {
+        btn.querySelector(".code-copy-label").textContent = "Select to copy";
+        var selection = window.getSelection();
+        var range = document.createRange();
+        range.selectNodeContents(code);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      };
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(code.innerText).then(done, done);
-      } else { done(); }
+        navigator.clipboard.writeText(code.innerText).then(done, failed);
+      } else { failed(); }
     });
     header.appendChild(label);
     header.appendChild(btn);

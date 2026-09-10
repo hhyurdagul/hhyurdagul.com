@@ -6,44 +6,59 @@
 {% block ogdesc %}{{ page.description | default(value=config.description) }}{% endblock ogdesc %}
 
 {% block content %}
-<div class="page-header">
-  <h1>{{ page.title }}</h1>
-  <div class="page-intro">{{ page.content | safe }}</div>
-</div>
 {% set roles = load_data(path="data/professional_roles.json") %}
 {% set groups = load_data(path="data/consultancies.json") %}
-<div class="section">
-  <div class="section-label">Roles</div>
-  {% for r in roles %}
-  <div class="role">
-    <div class="role-head"><strong>{{ r.title }}</strong> · {{ r.company }}</div>
-    <div class="role-meta">{{ r.dates }} · {{ r.loc }}</div>
-    <p>{{ r.description }}</p>
-    <ul>
-      {% for h in r.highlights %}<li>{{ h }}</li>{% endfor %}
-    </ul>
-    <div class="tag-list">
-      {% for t in r.tech %}<span class="tag">{{ t }}</span>{% endfor %}
+<article class="work-page">
+  <header class="page-header work-header">
+    <h1>{{ page.title }}</h1>
+    <div class="page-intro">{{ page.content | safe }}</div>
+    <nav class="work-index" aria-label="Work sections">
+      <a href="#roles">Roles <span>{{ roles | length }}</span></a>
+      {% for g in groups %}<a href="#engagements-{{ loop.index }}">{{ g.label }} <span>{{ g.items | length }}</span></a>{% endfor %}
+    </nav>
+  </header>
+  <section class="section work-roles" aria-labelledby="roles">
+    <h2 class="section-label" id="roles">Professional roles</h2>
+    <div class="role-timeline">
+      {% for r in roles %}
+      <article class="role{% if 'Present' in r.dates %} role-current{% endif %}">
+        <div class="role-dates">{{ r.dates }}{% if 'Present' in r.dates %}<span class="role-current-label">Current</span>{% endif %}</div>
+        <h3 class="role-head">{{ r.title }}</h3>
+        <div class="role-meta"><span class="role-company">{{ r.company }}</span><span>{{ r.loc }}</span></div>
+        <p>{{ r.description }}</p>
+        <details class="role-details">
+          <summary>Highlights &amp; technologies</summary>
+          <ul>{% for h in r.highlights %}<li>{{ h }}</li>{% endfor %}</ul>
+          <div class="tag-list">{% for t in r.tech %}<span class="tag">{{ t }}</span>{% endfor %}</div>
+        </details>
+      </article>
+      {% endfor %}
     </div>
-  </div>
+  </section>
+  {% for g in groups %}
+  <section class="section engagement-group" aria-labelledby="engagements-{{ loop.index }}">
+    <h2 class="section-label" id="engagements-{{ loop.index }}">{{ g.label }} <span>{{ g.items | length }}</span></h2>
+    {% for c in g.items %}
+    <details class="consult">
+      <summary>
+        <div class="consult-heading">
+          <h3>{{ c.company }}</h3>
+          <span class="consult-dates">{{ c.dates }}</span>
+          <span class="consult-domain">{{ c.domain | slice(end=2) | join(sep=" · ") }}</span>
+        </div>
+        <span class="consult-toggle" aria-hidden="true">+</span>
+      </summary>
+      <div class="consult-body">
+        <p>{{ c.description }}</p>
+        {% if c.url %}<a class="consult-site" href="{{ c.url }}" target="_blank" rel="noopener">Company website <span aria-hidden="true">↗</span></a>{% endif %}
+        <div class="tag-list">
+          {% for t in c.tools %}<span class="tag">{{ t }}</span>{% endfor %}
+          {% for d in c.domain %}<span class="tag">{{ d }}</span>{% endfor %}
+        </div>
+      </div>
+    </details>
+    {% endfor %}
+  </section>
   {% endfor %}
-</div>
-{% for g in groups %}
-<div class="section">
-  <div class="section-label">{{ g.label }}</div>
-  {% for c in g.items %}
-  <div class="consult">
-    <div class="consult-head">
-      {% if c.url %}<a href="{{ c.url }}" target="_blank" rel="noopener">{{ c.company }} &#8599;</a>{% else %}{{ c.company }}{% endif %}
-      <span class="consult-dates">{{ c.dates }}</span>
-    </div>
-    <p>{{ c.description }}</p>
-    <div class="tag-list">
-      {% for t in c.tools %}<span class="tag">{{ t }}</span>{% endfor %}
-      {% for d in c.domain %}<span class="tag">{{ d }}</span>{% endfor %}
-    </div>
-  </div>
-  {% endfor %}
-</div>
-{% endfor %}
+</article>
 {% endblock content %}

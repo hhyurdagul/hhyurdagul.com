@@ -3,7 +3,7 @@
   --bg: #faf9f7;
   --bg-soft: #f1efeB;
   --fg: #1c1a17;
-  --muted: #6f6a61;
+  --muted: #68635b;
   --line: #e3ded4;
   --accent: #b3541e;
   --accent-soft: rgba(179, 84, 30, .1);
@@ -19,7 +19,7 @@
   --bg: #161412;
   --bg-soft: #1e1b18;
   --fg: #ece7dd;
-  --muted: #a39a8b;
+  --muted: #ada597;
   --line: #2e2a25;
   --accent: #e08a4e;
   --accent-soft: rgba(224, 138, 78, .12);
@@ -61,7 +61,7 @@ a { color: inherit; }
   margin: 0 auto 0 0;
 }
 
-/* Logo with staggered letter animation */
+/* Static pixel wordmark */
 .logo-letters {
   font-family: var(--font-logo);
   font-size: 1.6rem;
@@ -69,15 +69,6 @@ a { color: inherit; }
   text-decoration: none;
   letter-spacing: .02em;
   display: inline-block;
-}
-.logo-letters span {
-  display: inline-block;
-  animation: logo-in .4s both;
-  animation-delay: calc(var(--i) * 45ms);
-}
-@keyframes logo-in {
-  from { opacity: 0; transform: translateY(.45em); }
-  to { opacity: 1; transform: none; }
 }
 .site-title { margin: 0 0 1.25rem; font-size: 1.6rem; }
 .bio { color: var(--muted); font-size: .92rem; line-height: 1.55; margin: 0 0 .9rem; }
@@ -618,19 +609,52 @@ label.margin-toggle.sidenote-number::after {
 /* ---- Mermaid diagrams ---- */
 .mermaid { background: var(--code-bg); border: 1px solid var(--line); border-radius: .7rem; padding: 1rem; margin: 0 0 1.4em; overflow-x: auto; text-align: center; font-family: var(--font-ui); font-size: .85rem; }
 
-/* ---- Work page: roles and consultancy roster ---- */
-.role { margin: 0 0 2.25rem; }
-.role-head { font-size: 1.05rem; }
-.role-meta { color: var(--muted); font-size: .88rem; margin: .15rem 0 .6rem; }
-.role p { margin: 0 0 .6rem; font-size: .98rem; }
-.role ul { margin: 0 0 .8rem; padding-left: 1.3rem; font-size: .95rem; }
-.role li { margin-bottom: .3rem; }
-.consult { margin: 0 0 1.75rem; }
-.consult-head { font-weight: 600; font-size: 1.02rem; }
-.consult-head a { text-decoration: none; }
-.consult-head a:hover { color: var(--accent); }
-.consult-dates { font-weight: 400; color: var(--muted); font-size: .85rem; margin-left: .5rem; white-space: nowrap; }
-.consult p { margin: .35rem 0 .6rem; font-size: .95rem; }
+/* ---- Work: career timeline and expandable consultancy roster ---- */
+.work-header { margin-bottom: 2.75rem; }
+.work-index { display: flex; flex-wrap: wrap; gap: .45rem 1rem; padding-top: .25rem; }
+.work-index a { font-size: .75rem; text-decoration: none; color: var(--muted); }
+.work-index a:hover { color: var(--fg); text-decoration: underline; text-underline-offset: 4px; }
+.work-index span { margin-left: .2rem; font-size: .65rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.work-page .section-label { scroll-margin-top: 5rem; }
+.work-page .section-label > span { float: right; letter-spacing: 0; }
+.role-timeline { border-left: 1px solid var(--line); margin-left: .25rem; }
+.role { position: relative; padding: 0 0 2.25rem 1.5rem; }
+.role:last-child { padding-bottom: .25rem; }
+.role::before { content: ""; position: absolute; top: .35rem; left: -4px; width: 7px; height: 7px; border: 1px solid var(--muted); border-radius: 50%; background: var(--bg); }
+.role-current::before { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px var(--bg); }
+.role-dates { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; color: var(--muted); font-size: .72rem; line-height: 1.6; }
+.role-current-label { color: var(--accent); font-size: .65rem; }
+.role-head { font-family: var(--font-prose); font-weight: 400; font-size: 1.2rem; line-height: 1.4; margin: .4rem 0; }
+.role-meta { display: flex; flex-direction: column; gap: .1rem; color: var(--muted); font-size: .73rem; margin-bottom: .85rem; }
+.role-company { font-weight: 500; font-size: .82rem; color: var(--fg); }
+.role p { margin: 0 0 .65rem; font-size: .88rem; line-height: 1.8; }
+.role-details { font-size: .82rem; }
+.role-details summary { width: fit-content; cursor: pointer; color: var(--muted); font-size: .75rem; }
+.role-details summary:hover { color: var(--fg); }
+.role-details ul { padding-left: 1.1rem; margin: 1rem 0; }
+.role-details li { margin-bottom: .7rem; line-height: 1.8; }
+.work-page .tag { font-size: .68rem; }
+.consult { border-bottom: 1px solid var(--line); }
+.consult:last-child { border-bottom: 0; }
+.consult > summary { display: flex; align-items: center; gap: .75rem; cursor: pointer; padding: 1rem 0; list-style: none; }
+.consult > summary::-webkit-details-marker { display: none; }
+.consult-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: .2rem 1rem; flex: 1; min-width: 0; }
+.consult-heading h3 { margin: 0; font-family: var(--font-prose); font-size: 1rem; font-weight: 400; }
+.consult-dates { color: var(--muted); font-size: .7rem; white-space: nowrap; }
+.consult-domain { grid-column: 1 / -1; color: var(--muted); font-size: .74rem; line-height: 1.6; }
+.consult-toggle { color: var(--muted); flex-shrink: 0; font-size: 1.15rem; width: 1rem; text-align: center; transition: transform .15s ease; }
+.consult[open] .consult-toggle { transform: rotate(45deg); }
+.consult > summary:hover h3 { text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--line); }
+.consult-body { padding: 0 1.75rem 1.25rem 0; }
+.consult-body p { margin: 0; font-size: .86rem; line-height: 1.8; }
+.consult-site { display: inline-block; margin-top: .75rem; font-size: .75rem; color: var(--muted); text-decoration: none; }
+.consult-site:hover { color: var(--fg); text-decoration: underline; }
+@media (max-width: 600px) {
+  .consult-heading { grid-template-columns: 1fr; gap: .2rem; }
+  .consult-domain { grid-column: 1; }
+  .consult-body { padding-right: 0; }
+  .role { padding-left: 1.1rem; }
+}
 
 /* ---- Omegion type scale: Lora headings and titles, Inter UI ---- */
 body { font-size: 15px; line-height: 1.75; -webkit-font-smoothing: antialiased; }
@@ -679,3 +703,79 @@ button.feed-pill { font-family: inherit; background: none; cursor: pointer; }
 
 /* ---- Lone next link sits right, like a real next button ---- */
 .article-pagination a.next:only-child { margin-left: auto; }
+
+/* Personal portfolio: quiet navigation and a clear project introduction. */
+.sidebar .logo-letters { font-size: 1.15rem; font-weight: 400; letter-spacing: .04em; }
+.sidebar .site-title { margin-bottom: 1.5rem; }
+.sidebar .bio { font-size: .82rem; line-height: 1.75; }
+.sidebar .social-row { gap: .35rem; margin-top: 1.25rem; }
+.sidebar .sidebar-divider { margin-top: 1.25rem; }
+.sidebar .sidebar-links { gap: .2rem; margin-top: 1.25rem; }
+.sidebar-footer { font-size: .7rem; line-height: 1.7; }
+.sidebar-footer a { text-decoration-color: var(--line); }
+.sidebar-links a.active { box-shadow: inset 2px 0 var(--accent); }
+
+.featured-project-link { display: block; text-decoration: none; }
+.featured-project-meta { color: var(--accent); font-size: .72rem; letter-spacing: .04em; }
+.featured-project-meta span { margin-inline: .4rem; color: var(--muted); }
+.featured-project h2 { font-family: var(--font-prose); font-weight: 400; font-size: clamp(1.6rem, 3vw, 2rem); line-height: 1.25; margin: .75rem 0; max-width: 24ch; }
+.featured-project p { color: var(--muted); font-size: .9rem; line-height: 1.75; margin: 0 0 1.25rem; }
+.featured-project figure { margin: 0; }
+.featured-project img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: .5rem; background: #fff; }
+.featured-project figcaption { font-size: .7rem; color: var(--muted); margin-top: .5rem; }
+.featured-project-cta { display: inline-flex; align-items: center; gap: .5rem; font-size: .8rem; margin-top: 1rem; }
+.featured-project-link:hover .featured-project-cta { color: var(--accent); }
+.featured-project-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; border-radius: .25rem; }
+.project-row { align-items: center; }
+.project-monogram { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; flex-shrink: 0; border: 1px solid var(--line); border-radius: .5rem; background: var(--bg-soft); color: var(--muted); font-family: var(--font-prose); font-size: .95rem; }
+.project-row:hover .project-monogram { color: var(--accent); border-color: var(--accent); }
+.article-intro { margin: 1.25rem 0 0; color: var(--muted); font-size: 1rem; line-height: 1.75; }
+.prose figure { margin: 2rem 0; }
+.prose figure :is(img, video) { display: block; max-width: 100%; height: auto; border-radius: .5rem; margin-inline: auto; }
+.prose figure video { max-height: 32rem; width: auto; }
+.prose figcaption, .prose p:has(> img:only-child) + p:has(> em:only-child) { font-family: var(--font-ui); font-size: .78rem; line-height: 1.6; color: var(--muted); margin-top: .6rem; }
+.prose figcaption { text-align: center; }
+
+@media (max-width: 600px) {
+  .link-row { align-items: flex-start; gap: .75rem; }
+  .link-row > .link-row-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal; }
+  .link-row-meta { padding-top: .1rem; }
+  .project-row { gap: .75rem; }
+  .project-monogram { width: 2.25rem; height: 2.25rem; }
+}
+@media (max-width: 860px) {
+  .sidebar .site-title .logo-letters { font-size: 1.1rem; }
+}
+
+/* Project headers separate the overview from implementation details. */
+.project-eyebrow { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .75rem; }
+.project-header .article-intro { margin-top: .75rem; font-size: .95rem; }
+.project-links { gap: .75rem 1rem; margin-top: 1.25rem; }
+.project-status { padding: .2rem .55rem; border: 1px solid var(--line); border-radius: 4px; color: var(--fg); font-size: .72rem; }
+.project-links a { color: var(--fg); text-underline-offset: 4px; }
+.project-links a:hover { text-decoration: underline; }
+.project-role { margin: .75rem 0 0; color: var(--muted); font-size: .78rem; }
+.project-technologies { margin-top: 1.25rem; font-size: .78rem; color: var(--muted); }
+.project-technologies summary { cursor: pointer; width: fit-content; }
+.project-technologies summary span { margin-left: .35rem; font-variant-numeric: tabular-nums; }
+.project-technologies .tag { font-size: .7rem; }
+.project-technologies summary:hover { color: var(--fg); }
+
+/* Code has one consistent frame, independent of the syntax theme. */
+.code-block { border-radius: .5rem; }
+.code-block-header { background: var(--bg); padding: .5rem 1rem; }
+.code-block-lang { font-size: .65rem; letter-spacing: .08em; }
+.prose .code-block pre { padding: 1.15rem 1.25rem; font-size: .82rem; line-height: 1.7; tab-size: 2; }
+.code-copy { min-height: 30px; padding: .25rem .45rem; font-size: .7rem; }
+.code-copy:hover { background: var(--bg-soft); color: var(--fg); }
+.code-copy svg { width: 15px; height: 15px; }
+.code-copy.done { color: var(--fg); }
+.prose pre:focus-visible, a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+/* Keep original chart colors and labels inside a neutral frame. */
+.prose p > img:only-child { display: block; border: 1px solid var(--line); padding: .5rem; background: var(--bg-soft); border-radius: .5rem; }
+.link-row:hover .link-row-title, .link-row-ext:hover .link-row-title, .tag:hover { color: var(--fg); }
+::selection { background: var(--accent-soft); color: var(--fg); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

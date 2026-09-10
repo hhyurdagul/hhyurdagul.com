@@ -31,7 +31,7 @@
 <body>
 <div class="shell">
   <header class="mobile-header">
-    <a class="mobile-header-title logo-letters" data-split href="{{ get_url(path='/', lang=lang) }}">{{ config.extra.logo_text }}</a>
+    <a class="mobile-header-title logo-letters" href="{{ get_url(path='/', lang=lang) }}">{{ config.extra.logo_text }}</a>
     <button type="button" id="sidebar-toggle" class="hamburger" aria-label="{{ trans(key='menu', lang=lang) }}" aria-expanded="false" aria-controls="sidebar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
     </button>
@@ -42,7 +42,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
     </button>
     <div class="sidebar-top">
-      <h1 class="site-title"><a href="{{ get_url(path='/', lang=lang) }}" class="logo-letters" data-split>{{ config.extra.logo_text }}</a></h1>
+      <h1 class="site-title"><a href="{{ get_url(path='/', lang=lang) }}" class="logo-letters">{{ config.extra.logo_text }}</a></h1>
       <p class="bio">{{ trans(key="bio_1", lang=lang) }}</p>
       <p class="bio">{{ trans(key="bio_2", lang=lang) }}</p>
       <details class="bio-details">
