@@ -4,12 +4,42 @@
 {% block ogtitle %}{{ trans(key="tags", lang=lang) }} · {{ config.title }}{% endblock ogtitle %}
 
 {% block content %}
-<div class="page-header"><h1>{{ trans(key="tags", lang=lang) }}</h1></div>
-<div class="section">
-  <div class="tag-list tag-cloud">
+<div class="space-y-8">
+  <header class="border-b border-surface-light-border dark:border-surface-dark-border pb-6">
+    <div class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-2">Index</div>
+    <h1 class="font-serif text-3xl sm:text-4xl text-zinc-900 dark:text-zinc-50 font-medium tracking-tight">
+      {{ trans(key="tags", lang=lang) }}
+    </h1>
+    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+      Browse articles and projects organized by topic.
+    </p>
+  </header>
+
+  <div class="flex flex-wrap gap-2.5">
     {% for term in terms %}
-    <a class="tag" href="{{ term.permalink }}">{{ term.name }} <span class="tag-count">{{ term.page_count }}</span></a>
+    <a href="{{ term.permalink }}" class="group p-3 rounded-xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card hover:border-accent-terra/50 transition flex items-center gap-2">
+      <span class="font-mono text-sm text-zinc-800 dark:text-zinc-200 group-hover:text-accent-terra transition-colors">#{{ term.name }}</span>
+      <span class="font-mono text-xs text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">{{ term.page_count }}</span>
+    </a>
     {% endfor %}
   </div>
 </div>
 {% endblock content %}
+
+{% block right_rail %}
+<div class="space-y-6">
+  <div>
+    <h4 class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-3">Topic Taxonomy</h4>
+    <div class="p-4 rounded-xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card text-xs space-y-2 text-zinc-600 dark:text-zinc-400">
+      <div class="flex justify-between">
+        <span>Total topics:</span>
+        <span class="font-mono text-zinc-800 dark:text-zinc-200">{{ terms | length }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span>Organization:</span>
+        <span class="font-mono text-zinc-800 dark:text-zinc-200">Hierarchical</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock right_rail %}

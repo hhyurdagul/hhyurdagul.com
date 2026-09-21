@@ -4,85 +4,295 @@
 {% block description %}{{ page.description | default(value=config.description) }}{% endblock description %}
 {% block ogtitle %}{{ page.title }} · {{ config.title }}{% endblock ogtitle %}
 {% block ogdesc %}{{ page.description | default(value=config.description) }}{% endblock ogdesc %}
-{% block ogtype %}article{% endblock ogtype %}
+{% block ogtype %}{% if page.extra.kind | default(value="post") == "post" %}article{% else %}website{% endif %}{% endblock ogtype %}
 
 {% block content %}
 {% set kind = page.extra.kind | default(value="post") %}
-{% set is_article = kind == "post" %}
+{% set is_article = kind == "post" and page.date %}
+{% set is_project = kind == "project" %}
+{% set is_about = kind == "about" %}
 {% set has_toc = page.toc and page.extra.toc | default(value=true) %}
 {% set date_full = trans(key="date_full", lang=lang) %}
-<article class="article{% if has_toc %} with-toc{% endif %}">
-  <header class="article-header{% if kind == "project" %} project-header{% endif %}">
-    {% if kind == "project" %}
-    <div class="project-eyebrow">Selected project</div>
-    <h1>{{ page.extra.short_title | default(value=page.title) }}</h1>
-    <p class="article-intro">{{ page.description }}</p>
-    {% else %}
-    <h1>{{ page.title }}</h1>
-    {% endif %}
-    {% if is_article %}
-    <div class="article-meta">
-      <time datetime="{{ page.date | date(format='%Y-%m-%d') }}">{{ page.date | date(format=date_full) }}</time>
-      <span class="meta-sep">&#183;</span>
-      <span>{{ page.reading_time }} {{ trans(key="min_read", lang=lang) }}</span>
-    </div>
-    {% elif page.extra.repo_url or page.extra.demo_url or page.extra.status or page.extra.role %}
-    <div class="article-meta project-links">
-      {% if page.extra.status %}<span class="project-status">{{ page.extra.status }}</span>{% endif %}
-      {% if page.extra.repo_url %}<a href="{{ page.extra.repo_url }}" target="_blank" rel="noopener">Repository &#8599;</a>{% endif %}
-      {% if page.extra.demo_url %}<a href="{{ page.extra.demo_url }}" target="_blank" rel="noopener">Demo &#8599;</a>{% endif %}
-    </div>
-    {% endif %}
-    {% if kind == "project" and page.extra.role %}<p class="project-role">{{ page.extra.role }}</p>{% endif %}
-    {% if is_article and page.extra.intro %}
-    <p class="article-intro">{{ page.extra.intro }}</p>
-    {% endif %}
-    {% if page.extra.stack %}
-    <details class="project-technologies">
-      <summary>Technologies <span>{{ page.extra.stack | length }}</span></summary>
-      <div class="tag-list">
-        {% for s in page.extra.stack %}<span class="tag">{{ s }}</span>{% endfor %}
+{% set articles_sec = get_section(path="articles/_index.md", lang=lang) %}
+{% set projects_sec = get_section(path="projects/_index.md", lang=lang) %}
+
+<article class="space-y-8">
+  <!-- Article / Project / Page Header -->
+  <header class="border-b border-surface-light-border dark:border-surface-dark-border pb-6">
+    <div class="flex items-center justify-between mb-4">
+      {% if is_article %}
+      <a href="{{ articles_sec.permalink }}" class="text-xs font-mono text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1 transition">
+        &larr; {{ trans(key="all_posts", lang=lang) }}
+      </a>
+      <!-- Font Mode Switcher for Reader -->
+      <div class="flex items-center gap-1 text-xs border border-zinc-200 dark:border-zinc-800 rounded-lg p-0.5 bg-zinc-100/50 dark:bg-zinc-800/50">
+        <button id="fontSerifBtn" onclick="setReadingFont('serif')" class="px-2 py-1 rounded text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-700 font-serif text-xs shadow-xs font-medium">Serif</button>
+        <button id="fontSansBtn" onclick="setReadingFont('sans')" class="px-2 py-1 rounded text-zinc-500 dark:text-zinc-400 font-sans text-xs hover:text-zinc-900 dark:hover:text-zinc-100">Sans</button>
       </div>
-    </details>
+      {% elif is_project %}
+      <a href="{{ projects_sec.permalink }}" class="text-xs font-mono text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1 transition">
+        &larr; {{ trans(key="all_work", lang=lang) }}
+      </a>
+      {% if page.extra.status %}
+      <span class="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
+        {{ page.extra.status }}
+      </span>
+      {% endif %}
+      {% else %}
+      <a href="{{ get_url(path='/', lang=lang) }}" class="text-xs font-mono text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1 transition">
+        &larr; {{ trans(key="home", lang=lang) }}
+      </a>
+      {% endif %}
+    </div>
+
+    {% if is_project %}
+    <div class="text-xs font-mono uppercase tracking-widest text-accent-terra dark:text-amber-400 font-semibold mb-2">
+      Selected Project
+    </div>
+    <h1 class="font-serif text-3xl sm:text-4xl text-zinc-900 dark:text-zinc-50 font-medium tracking-tight leading-tight">
+      {{ page.extra.short_title | default(value=page.title) }}
+    </h1>
+    {% if page.description %}
+    <p class="mt-3 text-base text-zinc-600 dark:text-zinc-400 leading-relaxed">
+      {{ page.description }}
+    </p>
+    {% endif %}
+    {% if page.extra.repo_url or page.extra.demo_url %}
+    <div class="mt-4 flex flex-wrap items-center gap-3 text-xs font-mono">
+      {% if page.extra.repo_url %}
+      <a href="{{ page.extra.repo_url }}" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition flex items-center gap-1">
+        <span>Repository</span> <span>&nearr;</span>
+      </a>
+      {% endif %}
+      {% if page.extra.demo_url %}
+      <a href="{{ page.extra.demo_url }}" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-lg bg-zinc-900 dark:bg-white text-zinc-100 dark:text-zinc-900 transition flex items-center gap-1">
+        <span>Live Demo</span> <span>&nearr;</span>
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% elif is_article %}
+    <h1 class="font-serif text-3xl sm:text-4xl text-zinc-900 dark:text-zinc-50 font-medium tracking-tight leading-tight">
+      {{ page.title }}
+    </h1>
+    <div class="mt-4 flex flex-wrap items-center gap-3 text-xs font-mono text-zinc-500">
+      <span>By {{ config.extra.author }}</span>
+      <span>•</span>
+      <time datetime="{{ page.date | date(format='%Y-%m-%d') }}">{{ page.date | date(format=date_full) }}</time>
+      <span>•</span>
+      <span>{{ page.reading_time }} {{ trans(key="min_read", lang=lang) }} ({{ page.word_count }} words)</span>
+    </div>
+    {% if page.extra.intro %}
+    <p class="mt-4 text-base text-zinc-600 dark:text-zinc-400 leading-relaxed italic border-l-2 border-accent-terra pl-4">
+      {{ page.extra.intro }}
+    </p>
+    {% endif %}
+    {% else %}
+    <h1 class="font-serif text-3xl sm:text-4xl text-zinc-900 dark:text-zinc-50 font-medium tracking-tight leading-tight">
+      {{ page.title }}
+    </h1>
+    {% if page.description %}
+    <p class="mt-3 text-base text-zinc-600 dark:text-zinc-400 leading-relaxed">
+      {{ page.description }}
+    </p>
+    {% endif %}
     {% endif %}
   </header>
-  {% if has_toc %}
-  <div class="article-grid">
-  <div class="rail">
-  <button type="button" id="toc-toggle" class="toc-toggle" aria-label="{{ trans(key='toc', lang=lang) }}" aria-expanded="false" aria-controls="toc">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
-  </button>
-  <nav class="toc" id="toc" aria-label="{{ trans(key='toc', lang=lang) }}">
-    <span class="toc-indicator" aria-hidden="true"></span>
-    <ul>
-    {% for h1 in page.toc %}
-      <li><a href="#{{ h1.id }}" class="toc-link">{{ h1.title }}</a>
-      {% if h1.children %}<ul>{% for h2 in h1.children %}<li><a href="#{{ h2.id }}" class="toc-link">{{ h2.title }}</a></li>{% endfor %}</ul>{% endif %}
-      </li>
-    {% endfor %}
-    </ul>
-  </nav>
+
+  <!-- Body Content -->
+  <div id="essayContentBody" class="reading-font-serif prose">
+    {{ page.content | safe }}
   </div>
-  <div class="prose-col">
-  {% endif %}
-  <div class="prose">{{ page.content | safe }}</div>
-  <div class="article-footer">
+
+  <!-- Article Footer: Tags & Revision -->
+  <footer class="pt-8 border-t border-surface-light-border dark:border-surface-dark-border space-y-6">
     {% if page.taxonomies.tags %}
-    <div class="tag-list">
-      {% for tag in page.taxonomies.tags %}<a class="tag" href="{{ get_taxonomy_url(kind='tags', name=tag, lang=lang) }}">{{ tag }}</a>{% endfor %}
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="text-xs font-mono text-zinc-400 mr-1">Tags:</span>
+      {% for tag in page.taxonomies.tags %}
+      <a href="{{ get_taxonomy_url(kind='tags', name=tag, lang=lang) }}" class="text-xs font-mono px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition">
+        #{{ tag }}
+      </a>
+      {% endfor %}
     </div>
     {% endif %}
-    {% if page.updated %}<div class="article-updated">{{ trans(key="updated", lang=lang) }} <time datetime="{{ page.updated | date(format='%Y-%m-%d') }}">{{ page.updated | date(format=date_full) }}</time></div>{% endif %}
-  </div>
-  {% if is_article %}
-  <nav class="article-pagination">
-    {% if page.lower %}<a class="prev" href="{{ page.lower.permalink }}"><span class="pagination-arrow">&larr;</span><span class="pagination-title">{{ page.lower.title }}</span></a>{% endif %}
-    {% if page.higher %}<a class="next" href="{{ page.higher.permalink }}"><span class="pagination-title">{{ page.higher.title }}</span><span class="pagination-arrow">&rarr;</span></a>{% endif %}
-  </nav>
-  {% endif %}
-  {% if has_toc %}
-  </div>
-  </div>
-  {% endif %}
+
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs font-mono text-zinc-500">
+      <div>
+        {% if page.updated %}
+        <span>{{ trans(key="updated", lang=lang) }} <time datetime="{{ page.updated | date(format='%Y-%m-%d') }}">{{ page.updated | date(format=date_full) }}</time></span>
+        {% else %}
+        <span>Colophon: Typeset in Newsreader & Plus Jakarta Sans.</span>
+        {% endif %}
+      </div>
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="copyCurrentUrl()" class="hover:text-zinc-900 dark:hover:text-zinc-200 underline">
+          Copy citation link
+        </button>
+        {% if is_article %}
+        <span>•</span>
+        <a href="{{ articles_sec.permalink }}" class="hover:text-zinc-900 dark:hover:text-zinc-200 underline">
+          {{ trans(key="all_posts", lang=lang) }}
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if is_article and (page.lower or page.higher) %}
+    <nav class="pt-6 border-t border-surface-light-border dark:border-surface-dark-border grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+      {% if page.lower %}
+      <a href="{{ page.lower.permalink }}" class="p-4 rounded-xl border border-surface-light-border dark:border-surface-dark-border hover:border-zinc-400 dark:hover:border-zinc-600 transition block">
+        <span class="font-mono text-zinc-400 block mb-1">&larr; Older</span>
+        <span class="font-serif text-sm font-medium text-zinc-900 dark:text-zinc-100">{{ page.lower.title }}</span>
+      </a>
+      {% else %}
+      <div></div>
+      {% endif %}
+      {% if page.higher %}
+      <a href="{{ page.higher.permalink }}" class="p-4 rounded-xl border border-surface-light-border dark:border-surface-dark-border hover:border-zinc-400 dark:hover:border-zinc-600 transition block sm:text-right">
+        <span class="font-mono text-zinc-400 block mb-1">Newer &rarr;</span>
+        <span class="font-serif text-sm font-medium text-zinc-900 dark:text-zinc-100">{{ page.higher.title }}</span>
+      </a>
+      {% endif %}
+    </nav>
+    {% endif %}
+  </footer>
 </article>
 {% endblock content %}
+
+{% block right_rail %}
+{% set kind = page.extra.kind | default(value="post") %}
+{% set is_article = kind == "post" and page.date %}
+{% set is_project = kind == "project" %}
+{% set is_about = kind == "about" %}
+{% set has_toc = page.toc and page.extra.toc | default(value=true) %}
+
+{% if is_article %}
+<div class="space-y-8">
+  <!-- Table of Contents -->
+  {% if has_toc %}
+  <div id="rightSidebarTOC">
+    <div class="flex items-center justify-between mb-3">
+      <h4 class="text-xs font-mono uppercase tracking-widest text-zinc-400 flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h10M4 18h7"/></svg>
+        Table of Contents
+      </h4>
+      <span class="text-[10px] font-mono text-zinc-400">{{ page.toc | length }} sections</span>
+    </div>
+    <nav class="space-y-1 text-xs border-l border-zinc-200 dark:border-zinc-800 pl-3">
+      {% for h1 in page.toc %}
+      <a href="#{{ h1.id }}" class="toc-link block py-1 text-zinc-600 dark:text-zinc-400 hover:text-accent-terra dark:hover:text-amber-400 transition-colors">
+        {{ h1.title }}
+      </a>
+      {% if h1.children %}
+        {% for h2 in h1.children %}
+        <a href="#{{ h2.id }}" class="toc-link block py-0.5 pl-3 text-zinc-500 hover:text-accent-terra dark:hover:text-amber-400 transition-colors">
+          {{ h2.title }}
+        </a>
+        {% endfor %}
+      {% endif %}
+      {% endfor %}
+    </nav>
+  </div>
+  {% endif %}
+
+  <!-- Marginal Notes (Populated dynamically from .sidenote-data) -->
+  <div id="sidenotes-container" class="hidden">
+    <div class="flex items-center justify-between mb-3">
+      <h4 class="text-xs font-mono uppercase tracking-widest text-zinc-400 flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
+        Marginal Notes
+      </h4>
+      <span class="text-[10px] font-mono text-zinc-400">Interactive</span>
+    </div>
+    <div id="sidenotes-list" class="space-y-3">
+      <!-- Populated via main.js -->
+    </div>
+  </div>
+
+  <!-- Essay Context Metadata -->
+  <div class="p-4 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-100/50 dark:bg-zinc-900/50 text-xs space-y-2">
+    <div class="font-mono text-[11px] text-zinc-400 uppercase tracking-wider">Essay Metadata</div>
+    <div class="flex justify-between text-zinc-600 dark:text-zinc-400">
+      <span>Reading time:</span>
+      <span class="font-mono font-medium text-zinc-800 dark:text-zinc-200">{{ page.reading_time }} min</span>
+    </div>
+    <div class="flex justify-between text-zinc-600 dark:text-zinc-400">
+      <span>Word count:</span>
+      <span class="font-mono font-medium text-zinc-800 dark:text-zinc-200">{{ page.word_count }}</span>
+    </div>
+    {% if page.date %}
+    <div class="flex justify-between text-zinc-600 dark:text-zinc-400">
+      <span>Published:</span>
+      <span class="font-mono text-zinc-800 dark:text-zinc-200">{{ page.date | date(format="%b %Y") }}</span>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% elif is_project %}
+<!-- Project Context Rail -->
+<div class="space-y-6">
+  {% if page.extra.stack %}
+  <div>
+    <h4 class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-3">Stack & Technologies</h4>
+    <div class="flex flex-wrap gap-1.5">
+      {% for tech in page.extra.stack %}
+      <span class="px-2.5 py-1 text-xs rounded-lg border border-zinc-200 dark:border-zinc-800 font-mono text-zinc-700 dark:text-zinc-300 bg-white dark:bg-surface-dark-card">
+        {{ tech }}
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="p-4 rounded-xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card text-xs space-y-2.5 text-zinc-600 dark:text-zinc-400">
+    <div class="font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1">Project Spec</div>
+    {% if page.extra.status %}
+    <div class="flex justify-between">
+      <span>Status:</span>
+      <span class="font-mono font-medium text-emerald-600 dark:text-emerald-400">{{ page.extra.status }}</span>
+    </div>
+    {% endif %}
+    {% if page.extra.role %}
+    <div class="flex justify-between">
+      <span>Role:</span>
+      <span class="font-mono text-zinc-800 dark:text-zinc-200">{{ page.extra.role }}</span>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<!-- About & Colophon Rail -->
+<div class="space-y-6">
+  <div>
+    <h4 class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-3">Colophon Specs</h4>
+    <div class="p-4 rounded-xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card text-xs space-y-2 text-zinc-600 dark:text-zinc-400">
+      <div class="flex justify-between">
+        <span>Typography:</span>
+        <span class="font-mono text-zinc-800 dark:text-zinc-200">Newsreader & Jakarta</span>
+      </div>
+      <div class="flex justify-between">
+        <span>Palette:</span>
+        <span class="font-mono text-zinc-800 dark:text-zinc-200">Alabaster & Terracotta</span>
+      </div>
+      <div class="flex justify-between">
+        <span>Static SSG:</span>
+        <span class="font-mono text-zinc-800 dark:text-zinc-200">Zola (Rust)</span>
+      </div>
+      <div class="flex justify-between">
+        <span>Tracking:</span>
+        <span class="font-mono text-zinc-800 dark:text-zinc-200">Zero cookies</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-4 rounded-xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card text-xs space-y-2 text-zinc-600 dark:text-zinc-400">
+    <div class="font-mono text-[11px] text-zinc-400 uppercase tracking-wider mb-1">Quick Contact</div>
+    <p class="leading-relaxed">Available for select advisory and machine learning consultations.</p>
+    <a href="{{ config.extra.email }}" class="inline-block mt-1 text-accent-terra dark:text-amber-400 font-mono hover:underline">
+      {{ config.extra.email | replace(from="mailto:", to="") }} &rarr;
+    </a>
+  </div>
+</div>
+{% endif %}
+{% endblock right_rail %}

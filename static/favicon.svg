@@ -1,4 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 463 463" fill="#000000">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 463 463">
+  <style>
+    path {
+      fill: #18181b;
+    }
+    @media (prefers-color-scheme: dark) {
+      path {
+        fill: #ffffff;
+      }
+    }
+  </style>
   <g>
     <path
       d="M151.245,222.446C148.054,237.039,135.036,248,119.5,248c-4.142,0-7.5,3.357-7.5,7.5s3.358,7.5,7.5,7.5
@@ -64,15 +74,4 @@
     >
     </path>
   </g>
-  <style>@media (prefers-color-scheme: light) {
-			:root {
-				filter: none;
-			}
-		}
-
-		@media (prefers-color-scheme: dark) {
-			:root {
-				filter: invert(100%);
-			}
-		}</style>
 </svg>
