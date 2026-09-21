@@ -179,14 +179,30 @@
   }
 
   // 5. Mobile Navigation & Context Drawer Controls
+  var savedScrollY = 0;
+
   function lockScroll(lock) {
     if (lock) {
+      savedScrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+      document.body.style.position = "fixed";
+      document.body.style.top = "-" + savedScrollY + "px";
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
       document.body.style.overflow = "hidden";
-      document.documentElement.style.overflow = "hidden";
     } else {
       if (!window.appState.isMobileNavOpen && !window.appState.isMobileContextOpen) {
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        document.body.style.width = "";
         document.body.style.overflow = "";
-        document.documentElement.style.overflow = "";
+        var html = document.documentElement;
+        var prevBehavior = html.style.scrollBehavior;
+        html.style.scrollBehavior = "auto";
+        window.scrollTo(0, savedScrollY);
+        html.style.scrollBehavior = prevBehavior;
       }
     }
   }
@@ -214,7 +230,7 @@
       }
       lockScroll(true);
       setTimeout(function () {
-        sheet.focus();
+        if (typeof sheet.focus === "function") sheet.focus({ preventScroll: true });
       }, 50);
     } else {
       sheet.classList.remove("is-open");
@@ -225,7 +241,7 @@
         var closeIcon = toggleBtn.querySelector(".icon-close");
         if (menuIcon) menuIcon.classList.remove("hidden");
         if (closeIcon) closeIcon.classList.add("hidden");
-        toggleBtn.focus();
+        if (typeof toggleBtn.focus === "function") toggleBtn.focus({ preventScroll: true });
       }
       lockScroll(false);
     }
@@ -240,6 +256,7 @@
     var backdrop = document.getElementById("mobileContextBackdrop");
     var toggleBtn = document.getElementById("mobileContextToggle");
     var closeBtn = document.getElementById("mobileContextCloseBtn");
+    var chevron = document.getElementById("contextChevron");
     if (!sheet) return;
 
     if (open) {
@@ -247,18 +264,20 @@
       if (backdrop) backdrop.classList.remove("hidden");
       sheet.classList.add("is-open");
       if (toggleBtn) toggleBtn.setAttribute("aria-expanded", "true");
+      if (chevron) chevron.classList.add("rotate-180");
       lockScroll(true);
       setTimeout(function () {
-        if (closeBtn) closeBtn.focus();
-        else sheet.focus();
+        if (closeBtn && typeof closeBtn.focus === "function") closeBtn.focus({ preventScroll: true });
+        else if (typeof sheet.focus === "function") sheet.focus({ preventScroll: true });
       }, 50);
     } else {
       sheet.classList.remove("is-open");
       if (backdrop) backdrop.classList.add("hidden");
       if (toggleBtn) {
         toggleBtn.setAttribute("aria-expanded", "false");
-        toggleBtn.focus();
+        if (typeof toggleBtn.focus === "function") toggleBtn.focus({ preventScroll: true });
       }
+      if (chevron) chevron.classList.remove("rotate-180");
       lockScroll(false);
     }
   };
@@ -390,8 +409,19 @@
     var leftSidebar = document.getElementById("leftSidebar");
     if (leftSidebar) {
       leftSidebar.addEventListener("click", function (e) {
-        if (window.innerWidth < 1024 && e.target.closest("a")) {
+        var anchor = e.target.closest("a[href^='#']");
+        var link = e.target.closest("a");
+        if (window.innerWidth < 1024 && link) {
           window.toggleMobileNav(false);
+          if (anchor) {
+            var targetId = decodeURIComponent(anchor.getAttribute("href").replace(/^#/, ""));
+            var targetEl = document.getElementById(targetId);
+            if (targetEl) {
+              setTimeout(function () {
+                targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+              }, 100);
+            }
+          }
         }
       });
     }
@@ -399,8 +429,16 @@
     var rightSidebar = document.getElementById("rightSidebar");
     if (rightSidebar) {
       rightSidebar.addEventListener("click", function (e) {
-        if (window.innerWidth < 1024 && e.target.closest("a[href^='#']")) {
+        var link = e.target.closest("a[href^='#']");
+        if (window.innerWidth < 1024 && link) {
+          var targetId = decodeURIComponent(link.getAttribute("href").replace(/^#/, ""));
+          var targetEl = document.getElementById(targetId);
           window.toggleMobileContext(false);
+          if (targetEl) {
+            setTimeout(function () {
+              targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 100);
+          }
         }
       });
     }
