@@ -9,123 +9,76 @@
 {% set roles = load_data(path="data/professional_roles.json") %}
 {% set groups = load_data(path="data/consultancies.json") %}
 
-<article class="space-y-10">
-  <!-- Header -->
-  <header class="border-b border-surface-light-border dark:border-surface-dark-border pb-6">
-    <div class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-2">
-      Experience & Advisory
-    </div>
-    <h1 class="font-serif text-3xl sm:text-4xl text-zinc-900 dark:text-zinc-50 font-medium tracking-tight">
-      {{ page.title }}
-    </h1>
-    <div class="mt-3 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl">
-      {{ page.content | safe }}
-    </div>
+<article class="stack-xl">
+  <header class="page-head">
+    <p class="eyebrow">Experience &amp; advisory</p>
+    <h1>{{ page.title }}</h1>
+    <div class="lede">{{ page.content | safe }}</div>
   </header>
 
-  <!-- Professional Roles Section -->
-  <section id="roles" class="space-y-6">
-    <div class="flex items-center justify-between border-b border-surface-light-border dark:border-surface-dark-border pb-2">
-      <h2 class="text-xs font-mono uppercase tracking-widest text-zinc-400">Professional Roles</h2>
-      <span class="text-xs font-mono text-zinc-400">{{ roles | length }} positions</span>
-    </div>
-
-    <div class="space-y-6">
+  <section id="roles" class="block">
+    <header class="block-head">
+      <h2 class="eyebrow">Professional roles</h2>
+      <span>{{ roles | length }} positions</span>
+    </header>
+    <ol class="stack">
       {% for r in roles %}
-      <article class="p-5 rounded-2xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card space-y-3">
-        <div class="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
-          <span class="text-zinc-400">{{ r.dates }}</span>
-          {% if 'Present' in r.dates %}
-          <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">Current</span>
-          {% endif %}
-        </div>
-
-        <div>
-          <h3 class="font-serif text-xl font-medium text-zinc-900 dark:text-zinc-100">{{ r.title }}</h3>
-          <div class="text-xs font-mono text-zinc-500 mt-0.5">
-            <span>{{ r.company }}</span> • <span>{{ r.loc }}</span>
-          </div>
-        </div>
-
-        <p class="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-          {{ r.description }}
+      <li class="card role">
+        <p class="card-meta">
+          <span>{{ r.dates }}</span>
+          {% if 'Present' in r.dates %}<span class="badge">Current</span>{% endif %}
         </p>
-
+        <h3>{{ r.title }}</h3>
+        <p class="meta">{{ r.company }} · {{ r.loc }}</p>
+        <p>{{ r.description }}</p>
         {% if r.highlights or r.tech %}
-        <details class="group pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
-          <summary class="cursor-pointer text-xs font-mono text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition flex items-center justify-between py-1">
-            <span>Highlights &amp; technologies</span>
-            <span class="text-zinc-400 group-open:rotate-180 transition-transform">&darr;</span>
-          </summary>
-          <div class="pt-3 space-y-3">
-            {% if r.highlights %}
-            <ul class="text-xs text-zinc-600 dark:text-zinc-400 space-y-1 list-disc pl-4 leading-relaxed">
-              {% for h in r.highlights %}
-              <li>{{ h }}</li>
-              {% endfor %}
-            </ul>
-            {% endif %}
-            {% if r.tech %}
-            <div class="flex flex-wrap gap-1.5 pt-1">
-              {% for t in r.tech %}
-              <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">{{ t }}</span>
-              {% endfor %}
-            </div>
-            {% endif %}
-          </div>
+        <details>
+          <summary>Highlights &amp; technologies</summary>
+          {% if r.highlights %}
+          <ul class="bullets">
+            {% for h in r.highlights %}<li>{{ h }}</li>{% endfor %}
+          </ul>
+          {% endif %}
+          {% if r.tech %}
+          <ul class="chips">
+            {% for t in r.tech %}<li>{{ t }}</li>{% endfor %}
+          </ul>
+          {% endif %}
         </details>
         {% endif %}
-      </article>
+      </li>
       {% endfor %}
-    </div>
+    </ol>
   </section>
 
-  <!-- Consultancy Engagements -->
   {% for g in groups %}
-  <section id="engagements-{{ loop.index }}" class="space-y-6">
-    <div class="flex items-center justify-between border-b border-surface-light-border dark:border-surface-dark-border pb-2">
-      <h2 class="text-xs font-mono uppercase tracking-widest text-zinc-400">{{ g.label }}</h2>
-      <span class="text-xs font-mono text-zinc-400">{{ g.items | length }} clients</span>
-    </div>
-
-    <div class="space-y-4">
+  <section id="engagements-{{ loop.index }}" class="block">
+    <header class="block-head">
+      <h2 class="eyebrow">{{ g.label }}</h2>
+      <span>{{ g.items | length }} clients</span>
+    </header>
+    <ul class="stack">
       {% for c in g.items %}
-      <details class="group p-5 rounded-2xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card transition-all">
-        <summary class="cursor-pointer list-none flex items-start justify-between">
-          <div>
-            <div class="flex items-center gap-2">
-              <h3 class="font-serif text-lg font-medium text-zinc-900 dark:text-zinc-100 group-hover:text-accent-terra transition-colors">{{ c.company }}</h3>
-              {% if c.url %}
-              <a href="{{ c.url }}" target="_blank" rel="noopener" class="text-xs text-zinc-400 hover:text-accent-terra" onclick="event.stopPropagation()">&nearr;</a>
-              {% endif %}
-            </div>
-            <div class="text-xs font-mono text-zinc-400 mt-1 flex items-center gap-2">
-              <span>{{ c.dates }}</span>
-              <span>•</span>
-              <span>{{ c.domain | slice(end=2) | join(sep=" · ") }}</span>
-            </div>
-          </div>
-          <span class="text-xs font-mono text-zinc-400 group-open:rotate-45 transition-transform text-lg leading-none">+</span>
-        </summary>
-
-        <div class="pt-4 mt-4 border-t border-zinc-100 dark:border-zinc-800/80 text-xs space-y-3">
-          <p class="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-            {{ c.description }}
-          </p>
+      <li>
+        <details class="card engagement">
+          <summary>
+            <span>
+              <h3>{{ c.company }}</h3>
+              <span class="meta">{{ c.dates }} · {{ c.domain | slice(end=2) | join(sep=" · ") }}</span>
+            </span>
+          </summary>
+          <p>{{ c.description }}</p>
           {% if c.tools or c.domain %}
-          <div class="flex flex-wrap gap-1.5 pt-1">
-            {% for t in c.tools %}
-            <span class="font-mono px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">{{ t }}</span>
-            {% endfor %}
-            {% for d in c.domain %}
-            <span class="font-mono px-2 py-0.5 rounded bg-amber-500/10 text-accent-terra dark:text-amber-400">{{ d }}</span>
-            {% endfor %}
-          </div>
+          <ul class="chips">
+            {% for t in c.tools %}<li>{{ t }}</li>{% endfor %}
+            {% for d in c.domain %}<li class="accent">{{ d }}</li>{% endfor %}
+          </ul>
           {% endif %}
-        </div>
-      </details>
+          {% if c.url %}<p><a class="accent-link" href="{{ c.url }}">{{ c.company }} website &nearr;</a></p>{% endif %}
+        </details>
+      </li>
       {% endfor %}
-    </div>
+    </ul>
   </section>
   {% endfor %}
 </article>
@@ -135,36 +88,21 @@
 {% set roles = load_data(path="data/professional_roles.json") %}
 {% set groups = load_data(path="data/consultancies.json") %}
 
-<div class="space-y-6">
-  <!-- Work Index Navigation -->
-  <div>
-    <h4 class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-3">Index Navigation</h4>
-    <nav class="space-y-1.5 text-xs font-mono">
-      <a href="#roles" class="p-2.5 rounded-lg border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card flex items-center justify-between text-zinc-700 dark:text-zinc-300 hover:text-accent-terra transition">
-        <span>Roles</span>
-        <span class="text-zinc-400">{{ roles | length }}</span>
-      </a>
-      {% for g in groups %}
-      <a href="#engagements-{{ loop.index }}" class="p-2.5 rounded-lg border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card flex items-center justify-between text-zinc-700 dark:text-zinc-300 hover:text-accent-terra transition">
-        <span class="truncate pr-2">{{ g.label }}</span>
-        <span class="text-zinc-400 shrink-0">{{ g.items | length }}</span>
-      </a>
-      {% endfor %}
-    </nav>
-  </div>
+<section>
+  <h2 class="eyebrow">On this page</h2>
+  <ul class="links">
+    <li><a href="#roles">Roles <span>{{ roles | length }}</span></a></li>
+    {% for g in groups %}
+    <li><a href="#engagements-{{ loop.index }}">{{ g.label }} <span>{{ g.items | length }}</span></a></li>
+    {% endfor %}
+  </ul>
+</section>
 
-  <!-- Advisory Card -->
-  <div class="p-4 rounded-xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card text-xs space-y-3">
-    <div class="flex items-center gap-2">
-      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-      <span class="font-mono text-[11px] uppercase tracking-wider text-zinc-400">Advisory Engagements</span>
-    </div>
-    <p class="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-      I accept a limited number of technical advisory roles each quarter focusing on evaluation harnesses and MLOps pipelines.
-    </p>
-    <a href="{{ config.extra.email }}" class="block text-center py-2 px-3 rounded-lg bg-zinc-900 dark:bg-white text-zinc-100 dark:text-zinc-900 font-mono text-xs font-medium hover:opacity-90 transition">
-      Inquire via email &rarr;
-    </a>
+<section>
+  <h2 class="eyebrow"><span class="dot"></span>Advisory</h2>
+  <div class="panel">
+    <p>I accept a limited number of technical advisory roles each quarter, focusing on evaluation harnesses and MLOps pipelines.</p>
+    <p><a class="btn primary block" href="{{ config.extra.email }}">Inquire via email &rarr;</a></p>
   </div>
-</div>
+</section>
 {% endblock right_rail %}

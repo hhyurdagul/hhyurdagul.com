@@ -5,10 +5,14 @@ build_search_index = false
 generate_feeds = true
 
 [markdown]
+lazy_async_image = true
 external_links_target_blank = true
 smart_punctuation = true
 
 [markdown.highlighting]
+# Zola emits giallo-light.css / giallo-dark.css from these themes; they are not
+# linked directly. static/css/syntax.css merges them with light-dark() so code
+# follows the page theme without swapping stylesheets.
 style = "class"
 light_theme = "github-light"
 dark_theme = "github-dark"
@@ -20,6 +24,7 @@ linkedin = "https://linkedin.com/in/hhyurdagul"
 email = "mailto:hhyurdagul@gmail.com"
 logo_text = "hhyurdagul"
 og_image = "assets/og.png"
+citation_name = "Yurdagül, H. H."
 
 [languages.en]
 title = "HHYurdagul"
@@ -38,23 +43,19 @@ tags = "Tags"
 theme = "Theme"
 home = "Home"
 menu = "Open menu"
-close_menu = "Close menu"
 toc = "Table of contents"
-copy = "Copy"
-copied = "Copied"
 min_read = "min read"
 updated = "Updated"
 older = "Older"
 newer = "Newer"
 page_of = "Page $CURRENT of $TOTAL"
-language = "Language"
 rss = "RSS"
 atom = "Atom"
 about = "About"
 date_full = "%d %B %Y"
 date_ym = "%b %Y"
 email = "Email"
+role = "ML Engineer & R&D Consultant"
 bio_1 = "Currently leading AI R&D roadmap at Universal Software."
 bio_2 = "Consulting R&D Centers on time-series forecasting, attention networks, and production ML pipelines."
-recent_note = "Recent articles and selected work."
 

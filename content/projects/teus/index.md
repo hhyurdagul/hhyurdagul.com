@@ -8,6 +8,10 @@ tags = ["Deep Learning", "Time Series Forecasting", "Hydrology", "PyTorch", "Pyt
 
 [extra]
 short_title = "Teus"
+featured_title = "Forecasting flash floods before they happen."
+featured_label = "Flood forecasting"
+featured_topic = "Deep learning & hydrology"
+og_image = "assets/d22a114-flood-forecast.png"
 kind = "project"
 status = "Analytics complete · App in development"
 role = "Lead AI / Machine Learning Engineer"
@@ -26,7 +30,7 @@ for operational use.
 **72 h forecast horizon** · **3 regions** · **8 stations (5 Shown)** ·
 **Hydrologist-validated flood events** · **Analytics complete**
 
-![Selected 24-hour flood-event forecast at station D22A114](assets/d22a114-flood-forecast.png)
+{{ figure(src="assets/d22a114-flood-forecast.png", alt="Selected 24-hour flood-event forecast at station D22A114") }}
 
 _Selected validated event, July 4, 2023, D22A114. Discharge rose from
 approximately 5 m³/s to 72 m³/s in four hours. The model matched the peak
@@ -57,7 +61,7 @@ credible enough to inform an operational workflow.
 
 ## The Modeling Problem
 
-![Five years of discharge and rainfall at D22A114, with hydrologist-validated flood events marked in red](assets/d22a114-overview.png)
+{{ figure(src="assets/d22a114-overview.png", alt="Five years of discharge and rainfall at D22A114, with hydrologist-validated flood events marked in red") }}
 
 Flood events occupy roughly 1% of the studied hourly series. That rarity creates
 three evaluation traps:
@@ -139,7 +143,7 @@ Two implementation choices were especially important:
 
 ## Selected 72-Hour Case
 
-![Selected 72-hour forecast of the August 2020 flood event at D22A082](assets/d22a082-h72-flood.png)
+{{ figure(src="assets/d22a082-h72-flood.png", alt="Selected 72-hour forecast of the August 2020 flood event at D22A082") }}
 
 _Selected validated event, August 2020, D22A082. After two quiet days, observed
 discharge rose from approximately 20 to 141 m³/s. The 72-hour forecast
@@ -152,7 +156,7 @@ proof of aggregate system accuracy._
 The system's weakest selected case came from D08A084, a small, flashy basin with
 low baseflow and limited rainfall lead-in.
 
-![Selected D08A084 failure case where the event timing was detected but the peak magnitude was underpredicted](assets/d08a084-hard-event.png)
+{{ figure(src="assets/d08a084-hard-event.png", alt="Selected D08A084 failure case where the event timing was detected but the peak magnitude was underpredicted") }}
 
 _Selected validated event, April 2021. The model identified the timing but
 predicted approximately 5 m³/s against an observed peak near 20 m³/s._
@@ -165,19 +169,7 @@ application work proceeds with the completed analytics.
 
 ## From Analytics to a Human-Approved Product
 
-```mermaid
-flowchart TB
-    RAW["Station discharge + rain gauges"] --> PREP["Continuous hourly data<br/>and basin-weighted rainfall"]
-    PREP --> EVENTS["Hydrologist-validated<br/>flood events"]
-    EVENTS --> BACKTEST["Expanding-window<br/>event backtests"]
-    BACKTEST --> RUNS["Reproducible run artifacts<br/>metrics · plots · models · manifests"]
-    RUNS --> CANDIDATE["Candidate registry<br/>station · horizon · input contract"]
-    CANDIDATE --> REVIEW["Hydrologist review<br/>event behavior + suitability"]
-    REVIEW -->|"approved"| CHAMPION["Serving champion"]
-    REVIEW -->|"rejected"| RUNS
-    CHAMPION --> API["FastAPI forecast service"]
-    API --> APP["Turkish operational application"]
-```
+{{ diagram(name="teus", alt="Teus pipeline: station and rain-gauge data become hydrologist-validated flood events, expanding-window backtests, and reproducible runs; candidates go through hydrologist review before becoming the serving champion behind the FastAPI forecast service and the operational application.") }}
 
 Every run records its dataset fingerprint, parameters, environment, predictions,
 metrics, plots, fitted model, and HTML report. The registry compares technically

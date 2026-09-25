@@ -9,103 +9,53 @@
 {% set date_ym = trans(key="date_ym", lang=lang) %}
 {% set is_projects = section.extra.kind | default(value="") == "projects" %}
 
-<div class="space-y-8">
-  <!-- Section Header -->
-  <header class="border-b border-surface-light-border dark:border-surface-dark-border pb-6">
-    <div class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-2">
-      {% if is_projects %}Archive{% else %}Long-form & Notes{% endif %}
-    </div>
-    <h1 class="font-serif text-3xl sm:text-4xl text-zinc-900 dark:text-zinc-50 font-medium tracking-tight">
-      {{ section.title }}
-    </h1>
-    {% if section.description %}
-    <p class="mt-3 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-xl">
-      {{ section.description }}
-    </p>
-    {% endif %}
+<div class="stack-lg">
+  <header class="page-head">
+    <p class="eyebrow">{% if is_projects %}Archive{% else %}Long-form &amp; notes{% endif %}</p>
+    <h1>{{ section.title }}</h1>
+    {% if section.description %}<p class="lede">{{ section.description }}</p>{% endif %}
   </header>
 
-  <!-- Items List -->
-  <div class="space-y-4">
-    {% if is_projects %}
-    <div class="grid grid-cols-1 gap-4">
-      {% for item in paginator.pages %}
-      <a href="{{ item.permalink }}" class="group p-5 rounded-2xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card transition-all hover:border-zinc-400 dark:hover:border-zinc-600">
-        <div class="flex items-start justify-between">
-          <div>
-            {% if item.extra.status %}
-            <span class="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
-              {{ item.extra.status }}
-            </span>
-            {% endif %}
-            <h2 class="font-serif text-xl font-normal mt-2 text-zinc-900 dark:text-zinc-100 group-hover:text-accent-terra transition-colors">
-              {{ item.extra.short_title | default(value=item.title) }}
-            </h2>
-          </div>
-          <span class="text-xs font-mono text-zinc-400 group-hover:text-accent-terra transition-colors">&rarr;</span>
-        </div>
-        {% if item.description %}
-        <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-          {{ item.description }}
-        </p>
-        {% endif %}
+  {% if is_projects %}
+  <ul class="cards">
+    {% for item in paginator.pages %}
+    <li>
+      <a class="card" href="{{ item.permalink }}">
+        {% if item.extra.status %}<span class="badge">{{ item.extra.status }}</span>{% endif %}
+        <h2>{{ item.extra.short_title | default(value=item.title) }} <span class="arrow" aria-hidden="true">&rarr;</span></h2>
+        {% if item.description %}<p>{{ item.description }}</p>{% endif %}
         {% if item.extra.stack %}
-        <div class="mt-4 flex flex-wrap gap-1.5 text-xs font-mono text-zinc-500">
-          {% for s in item.extra.stack | slice(end=4) %}
-          <span class="px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800">{{ s }}</span>
-          {% endfor %}
-        </div>
+        <ul class="chips">
+          {% for s in item.extra.stack | slice(end=4) %}<li>{{ s }}</li>{% endfor %}
+        </ul>
         {% endif %}
       </a>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="divide-y divide-surface-light-border dark:divide-surface-dark-border">
-      {% for item in paginator.pages %}
-      <a href="{{ item.permalink }}" class="group block py-4 -mx-3 px-3 rounded-xl hover:bg-zinc-100/60 dark:hover:bg-zinc-900/60 transition-colors">
-        <div class="flex items-center gap-3 text-xs font-mono text-zinc-400 mb-1.5">
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <ul class="entries">
+    {% for item in paginator.pages %}
+    <li>
+      <a href="{{ item.permalink }}">
+        <p class="meta">
           <time datetime="{{ item.date | date(format='%Y-%m-%d') }}">{{ item.date | date(format=date_ym) }}</time>
-          <span>•</span>
-          <span class="text-accent-terra dark:text-amber-400 font-medium">{{ item.reading_time }} min</span>
-          {% if item.taxonomies.tags %}
-          <span>•</span>
-          <span>{{ item.taxonomies.tags | first }}</span>
-          {% endif %}
-        </div>
-        <h2 class="font-serif text-xl font-normal text-zinc-900 dark:text-zinc-100 group-hover:text-accent-terra transition-colors">
-          {{ item.title }}
-        </h2>
-        {% if item.description %}
-        <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-          {{ item.description }}
+          <span class="accent">{{ item.reading_time }} {{ trans(key="min_read", lang=lang) }}</span>
+          {% if item.taxonomies.tags %}<span>{{ item.taxonomies.tags | first }}</span>{% endif %}
         </p>
-        {% endif %}
+        <h2>{{ item.title }}</h2>
+        {% if item.description %}<p>{{ item.description }}</p>{% endif %}
       </a>
-      {% endfor %}
-    </div>
-    {% endif %}
-  </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 
-  <!-- Pagination -->
   {% if paginator.number_pagers > 1 %}
-  <nav class="pt-8 border-t border-surface-light-border dark:border-surface-dark-border flex items-center justify-between text-xs font-mono text-zinc-500">
-    {% if paginator.previous %}
-    <a href="{{ paginator.previous }}" class="hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1">
-      &larr; {{ trans(key="newer", lang=lang) }}
-    </a>
-    {% else %}
-    <div></div>
-    {% endif %}
-
+  <nav class="pager" aria-label="Pagination">
+    {% if paginator.previous %}<a href="{{ paginator.previous }}">&larr; {{ trans(key="newer", lang=lang) }}</a>{% else %}<span></span>{% endif %}
     <span>{{ trans(key="page_of", lang=lang) | replace(from="$CURRENT", to=paginator.current_index) | replace(from="$TOTAL", to=paginator.number_pagers) }}</span>
-
-    {% if paginator.next %}
-    <a href="{{ paginator.next }}" class="hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1">
-      {{ trans(key="older", lang=lang) }} &rarr;
-    </a>
-    {% else %}
-    <div></div>
-    {% endif %}
+    {% if paginator.next %}<a href="{{ paginator.next }}">{{ trans(key="older", lang=lang) }} &rarr;</a>{% else %}<span></span>{% endif %}
   </nav>
   {% endif %}
 </div>
@@ -115,54 +65,28 @@
 {% set is_projects = section.extra.kind | default(value="") == "projects" %}
 
 {% if is_projects %}
-<div class="space-y-6">
-  <div>
-    <h4 class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-3">Portfolio Overview</h4>
-    <div class="p-4 rounded-xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card text-xs space-y-2 text-zinc-600 dark:text-zinc-400">
-      <div class="flex justify-between">
-        <span>Selected projects:</span>
-        <span class="font-mono text-zinc-800 dark:text-zinc-200">{{ paginator.total_pages }}</span>
-      </div>
-      <div class="flex justify-between">
-        <span>Focus areas:</span>
-        <span class="font-mono text-zinc-800 dark:text-zinc-200">ML, MLOps, Time-series</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="p-4 rounded-xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card text-xs text-zinc-500 leading-relaxed">
-    <span class="font-semibold text-zinc-800 dark:text-zinc-200">Engineering Philosophy:</span> Every model must have a clear decision it improves, verifiable validation, and reliable production pipelines.
-  </div>
-</div>
+<section>
+  <h2 class="eyebrow">Overview</h2>
+  <dl class="panel kv">
+    <div><dt>Projects</dt><dd>{{ paginator.total_pages }}</dd></div>
+    <div><dt>Focus</dt><dd>ML, MLOps, time-series</dd></div>
+  </dl>
+</section>
+<section>
+  <h2 class="eyebrow">Philosophy</h2>
+  <p class="panel">Every model must have a clear decision it improves, verifiable validation, and reliable production pipelines.</p>
+</section>
 {% else %}
-<div class="space-y-6">
-  <!-- Topic Philosophy -->
-  <div>
-    <h4 class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-3">Publishing Philosophy</h4>
-    <div class="p-4 rounded-xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card text-xs text-zinc-500 leading-relaxed space-y-2">
-      <p>
-        Essays on software craft, machine learning in the real world, and deliberate interface design.
-      </p>
-      <div class="pt-2 border-t border-zinc-100 dark:border-zinc-800 font-mono text-[11px] text-zinc-400">
-        {{ paginator.total_pages }} articles published
-      </div>
-    </div>
-  </div>
-
-  <!-- Subscription & Feeds -->
-  <div>
-    <h4 class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-3">Feeds & Syndication</h4>
-    <div class="space-y-2 text-xs font-mono">
-      <a href="{{ get_url(path='rss.xml', lang=lang) }}" class="p-2.5 rounded-lg border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card flex items-center justify-between hover:text-accent-terra transition">
-        <span>RSS Feed</span>
-        <span>&nearr;</span>
-      </a>
-      <a href="{{ get_url(path='atom.xml', lang=lang) }}" class="p-2.5 rounded-lg border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card flex items-center justify-between hover:text-accent-terra transition">
-        <span>Atom Feed</span>
-        <span>&nearr;</span>
-      </a>
-    </div>
-  </div>
-</div>
+<section>
+  <h2 class="eyebrow">About the writing</h2>
+  <p class="panel">Essays on software craft, machine learning in the real world, and deliberate interface design.</p>
+</section>
+<section>
+  <h2 class="eyebrow">Subscribe</h2>
+  <ul class="links">
+    <li><a href="{{ get_url(path='rss.xml', lang=lang) }}">{{ trans(key="rss", lang=lang) }} feed <span aria-hidden="true">&nearr;</span></a></li>
+    <li><a href="{{ get_url(path='atom.xml', lang=lang) }}">{{ trans(key="atom", lang=lang) }} feed <span aria-hidden="true">&nearr;</span></a></li>
+  </ul>
+</section>
 {% endif %}
 {% endblock right_rail %}

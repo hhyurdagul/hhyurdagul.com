@@ -46,17 +46,7 @@ makes it faster to add or rearrange controls for different use cases. More
 importantly, the modeling layer is now independent of Streamlit, so the same
 workflows can be tested or reused without rendering a page.
 
-```mermaid
-flowchart LR
-    DATA["CSV / XLSX data"] --> UI["Streamlit workspace"]
-    UI --> CONFIG["Typed workflow configuration"]
-    CONFIG --> BACKEND["Framework-independent ML backend"]
-    BACKEND --> PREP["Preprocessing + feature selection"]
-    PREP --> MODEL["Regression or time-series model"]
-    MODEL --> RESULT["Metrics + predictions + processed preview"]
-    MODEL --> BUNDLE["Downloadable versioned model bundle"]
-    BUNDLE --> TEST["Independent test workflow"]
-```
+{{ diagram(name="mlstudio", alt="MLStudio flow: data enters a Streamlit workspace, becomes a typed configuration for a framework-independent backend, is preprocessed and modeled, and produces metrics, predictions, and a versioned model bundle that feeds an independent test workflow.") }}
 
 ## Architecture That Protects the Rewrite
 

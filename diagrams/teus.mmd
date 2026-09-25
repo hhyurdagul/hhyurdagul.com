@@ -1,0 +1,11 @@
+flowchart TB
+    RAW["Station discharge + rain gauges"] --> PREP["Continuous hourly data<br/>and basin-weighted rainfall"]
+    PREP --> EVENTS["Hydrologist-validated<br/>flood events"]
+    EVENTS --> BACKTEST["Expanding-window<br/>event backtests"]
+    BACKTEST --> RUNS["Reproducible run artifacts<br/>metrics · plots · models · manifests"]
+    RUNS --> CANDIDATE["Candidate registry<br/>station · horizon · input contract"]
+    CANDIDATE --> REVIEW["Hydrologist review<br/>event behavior + suitability"]
+    REVIEW -->|"approved"| CHAMPION["Serving champion"]
+    REVIEW -->|"rejected"| RUNS
+    CHAMPION --> API["FastAPI forecast service"]
+    API --> APP["Turkish operational application"]

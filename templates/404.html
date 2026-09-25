@@ -3,29 +3,15 @@
 {% block title %}404 · {{ config.title }}{% endblock title %}
 
 {% block content %}
-<div class="space-y-6 py-12">
-  <div class="text-xs font-mono uppercase tracking-widest text-accent-terra dark:text-amber-400">404 Error</div>
-  <h1 class="font-serif text-3xl sm:text-4xl text-zinc-900 dark:text-zinc-50 font-medium tracking-tight">
-    The requested page does not exist.
-  </h1>
-  <p class="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed max-w-md">
-    The URL may have changed or the document has been moved. You can return to the index or explore recent articles.
+<div class="stack-lg">
+  <header class="page-head">
+    <p class="eyebrow accent">404</p>
+    <h1>The requested page does not exist.</h1>
+    <p class="lede">The URL may have changed or the document has moved. Head back to the index or browse recent articles.</p>
+  </header>
+  <p class="actions">
+    <a class="btn primary" href="{{ get_url(path='/', lang=lang) }}">&larr; {{ trans(key="home", lang=lang) }}</a>
+    <a class="btn" href="{{ get_url(path='articles/', lang=lang) }}">{{ trans(key="writing", lang=lang) }}</a>
   </p>
-  <div class="pt-4">
-    <a href="{{ get_url(path='/', lang=lang) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 dark:bg-white text-zinc-100 dark:text-zinc-900 font-mono text-xs font-medium hover:opacity-90 transition">
-      &larr; Return to {{ trans(key="home", lang=lang) }}
-    </a>
-  </div>
 </div>
 {% endblock content %}
-
-{% block right_rail %}
-<div class="space-y-6">
-  <div>
-    <h4 class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-3">Directory Compass</h4>
-    <div class="p-4 rounded-xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card text-xs space-y-2 text-zinc-600 dark:text-zinc-400">
-      <p>If you were looking for specific writing or project documentation, use the left rail navigation.</p>
-    </div>
-  </div>
-</div>
-{% endblock right_rail %}

@@ -1,153 +1,120 @@
 {% extends "base.html" %}
 
+{% block title %}{{ config.extra.author }} — {{ trans(key="role", lang=lang) }}{% endblock title %}
+{% block ogtitle %}{{ config.extra.author }} — {{ trans(key="role", lang=lang) }}{% endblock ogtitle %}
+
+{% block head_extra %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": {{ config.extra.author | json_encode | safe }},
+  "jobTitle": {{ trans(key="role", lang=lang) | json_encode | safe }},
+  "url": {{ config.base_url | json_encode | safe }},
+  "image": {{ get_url(path=config.extra.og_image) | json_encode | safe }},
+  "sameAs": [{{ config.extra.github | json_encode | safe }}, {{ config.extra.linkedin | json_encode | safe }}]
+}
+</script>
+{% endblock head_extra %}
+
 {% block content %}
 {% set blog = get_section(path="articles/_index.md", lang=lang) %}
 {% set projects = get_section(path="projects/_index.md", lang=lang) %}
-{% set featured = get_page(path="projects/teus/index.md", lang=lang) %}
+{% if section.extra.featured %}{% set featured = get_page(path=section.extra.featured, lang=lang) %}{% endif %}
 {% set date_ym = trans(key="date_ym", lang=lang) %}
 
-<div class="space-y-12">
-  <!-- Notebook Hero Header -->
-  <div>
-    <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-mono bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 mb-6">
-      <span>Personal Notebook & Archive</span>
-      <span class="text-zinc-400">•</span>
-      <span class="text-zinc-500">ML & Systems</span>
-    </div>
-    <h2 class="font-serif text-3xl sm:text-4xl text-zinc-900 dark:text-zinc-50 font-normal tracking-tight leading-[1.25]">
-      {{ trans(key="bio_1", lang=lang) }}
-    </h2>
-    <p class="mt-4 text-zinc-600 dark:text-zinc-400 text-base leading-relaxed">
-      {{ trans(key="bio_2", lang=lang) }}
-    </p>
-  </div>
+<div class="stack-xl">
+  <header class="hero">
+    <p class="pill">Personal Notebook &amp; Archive <span aria-hidden="true">•</span> <span>ML &amp; Systems</span></p>
+    <h1>{{ trans(key="bio_1", lang=lang) }}</h1>
+    <p class="lede">{{ trans(key="bio_2", lang=lang) }}</p>
+  </header>
 
-  <!-- Featured Project Highlight -->
   {% if featured %}
-  <div class="p-6 rounded-2xl border border-surface-light-border dark:border-surface-dark-border bg-surface-light-card dark:bg-surface-dark-card shadow-xs transition-all hover:border-zinc-400 dark:hover:border-zinc-700">
-    <div class="flex items-center justify-between text-xs font-mono text-zinc-400 mb-3">
-      <span class="text-accent-terra dark:text-amber-400 font-semibold tracking-wide uppercase">Featured Work</span>
-      <span>Flood Forecasting</span>
-    </div>
-    <h3 class="font-serif text-xl sm:text-2xl font-normal text-zinc-900 dark:text-zinc-100 hover:text-accent-terra transition-colors">
-      <a href="{{ featured.permalink }}">Forecasting flash floods before they happen.</a>
-    </h3>
-    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-      {{ featured.description }}
+  <article class="card featured">
+    <p class="card-meta">
+      <span class="eyebrow accent">Featured work</span>
+      <span>{{ featured.extra.featured_label | default(value=featured.extra.short_title) }}</span>
     </p>
-    {% if featured.extra and featured.extra.hero_image %}
-    <div class="mt-4 overflow-hidden rounded-xl border border-zinc-100 dark:border-zinc-800">
-      <img src="{{ featured.permalink }}{{ featured.extra.hero_image }}" alt="Teus flood forecast" class="w-full h-auto object-cover">
-    </div>
-    {% endif %}
-    <div class="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs">
-      <span class="font-mono text-zinc-400">Deep Learning & Hydrology</span>
-      <a href="{{ featured.permalink }}" class="font-medium text-accent-terra dark:text-amber-400 hover:underline flex items-center gap-1">
-        Explore project details &rarr;
-      </a>
-    </div>
-  </div>
+    <h2><a href="{{ featured.permalink }}">{{ featured.extra.featured_title | default(value=featured.title) }}</a></h2>
+    <p>{{ featured.description }}</p>
+    <footer>
+      <span>{{ featured.extra.featured_topic | default(value="") }}</span>
+      <a href="{{ featured.permalink }}">Explore project details &rarr;</a>
+    </footer>
+  </article>
   {% endif %}
 
-  <!-- Recent Writing Section -->
-  <div class="space-y-4">
-    <div class="flex items-baseline justify-between border-b border-surface-light-border dark:border-surface-dark-border pb-3">
-      <h3 class="text-xs font-mono uppercase tracking-widest text-zinc-400">{{ trans(key="writing", lang=lang) }}</h3>
-      <a href="{{ blog.permalink }}" class="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 transition">
-        {{ trans(key="all_posts", lang=lang) }} &rarr;
-      </a>
-    </div>
-    <div class="divide-y divide-surface-light-border dark:divide-surface-dark-border">
+  <section class="block">
+    <header class="block-head">
+      <h2 class="eyebrow">{{ trans(key="writing", lang=lang) }}</h2>
+      <a href="{{ blog.permalink }}">{{ trans(key="all_posts", lang=lang) }} &rarr;</a>
+    </header>
+    <ul class="rows">
       {% for post in blog.pages | slice(end=6) %}
-      <a href="{{ post.permalink }}" class="group flex items-baseline justify-between py-3.5 -mx-2 px-2 rounded-lg hover:bg-zinc-100/60 dark:hover:bg-zinc-900/60 transition-colors">
-        <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-accent-terra dark:group-hover:text-amber-400 transition-colors pr-4">
-          {{ post.title }}
-        </span>
-        <span class="text-xs font-mono text-zinc-400 shrink-0">
-          {{ post.date | date(format=date_ym) }}
-        </span>
-      </a>
+      <li>
+        <a href="{{ post.permalink }}">
+          <span>{{ post.title }}</span>
+          <time datetime="{{ post.date | date(format='%Y-%m-%d') }}">{{ post.date | date(format=date_ym) }}</time>
+        </a>
+      </li>
       {% endfor %}
-    </div>
-  </div>
+    </ul>
+  </section>
 
-  <!-- Selected Projects Section -->
-  <div class="space-y-4">
-    <div class="flex items-baseline justify-between border-b border-surface-light-border dark:border-surface-dark-border pb-3">
-      <h3 class="text-xs font-mono uppercase tracking-widest text-zinc-400">{{ trans(key="projects", lang=lang) }}</h3>
-      <a href="{{ projects.permalink }}" class="text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 transition">
-        {{ trans(key="all_work", lang=lang) }} &rarr;
-      </a>
-    </div>
-    <div class="grid grid-cols-1 gap-4">
+  <section class="block">
+    <header class="block-head">
+      <h2 class="eyebrow">{{ trans(key="projects", lang=lang) }}</h2>
+      <a href="{{ projects.permalink }}">{{ trans(key="all_work", lang=lang) }} &rarr;</a>
+    </header>
+    <ul class="cards">
       {% for project in projects.pages | filter(attribute="extra.showcase", value=true) %}
       {% if not featured or project.permalink != featured.permalink %}
-      <a href="{{ project.permalink }}" class="group p-4 rounded-xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card transition-all hover:border-zinc-400 dark:hover:border-zinc-600">
-        <div class="flex items-center justify-between mb-1.5">
-          <h4 class="font-serif text-lg font-medium text-zinc-900 dark:text-zinc-100 group-hover:text-accent-terra transition-colors">
-            {{ project.extra.short_title | default(value=project.title) }}
-          </h4>
-          <span class="text-xs font-mono text-zinc-400 group-hover:text-accent-terra transition-colors">&rarr;</span>
-        </div>
-        <p class="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-          {{ project.extra.card_description | default(value=project.description) }}
-        </p>
-      </a>
+      <li>
+        <a class="card" href="{{ project.permalink }}">
+          <h3>{{ project.extra.short_title | default(value=project.title) }} <span class="arrow" aria-hidden="true">&rarr;</span></h3>
+          <p>{{ project.extra.card_description | default(value=project.description) }}</p>
+        </a>
+      </li>
       {% endif %}
       {% endfor %}
-    </div>
-  </div>
+    </ul>
+  </section>
 </div>
 {% endblock content %}
 
 {% block right_rail %}
-<div class="space-y-8">
-  <!-- "Now" Status Block -->
-  <div>
-    <div class="flex items-center gap-2 mb-3">
-      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-      <h4 class="text-xs font-mono uppercase tracking-widest text-zinc-400">Current Focus (Now)</h4>
-    </div>
-    <div class="p-4 rounded-xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card text-xs space-y-2">
-      <p class="text-zinc-700 dark:text-zinc-300 leading-relaxed">
-        {{ trans(key="bio_1", lang=lang) }}
-      </p>
-      <div class="pt-2 border-t border-zinc-100 dark:border-zinc-800 text-[11px] font-mono text-zinc-400">
-        Time-series & Language Modeling
-      </div>
-    </div>
-  </div>
+<section>
+  <h2 class="eyebrow"><span class="dot"></span>Current focus</h2>
+  <p class="panel">Time-series &amp; language modeling</p>
+</section>
 
-  <!-- Currently Reading Shelf -->
-  <div>
-    <h4 class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-3">On My Desk</h4>
-    <div class="space-y-2 text-xs">
-      <div class="p-2.5 rounded-lg border border-surface-light-border dark:border-surface-dark-border bg-white/70 dark:bg-surface-dark-card/70 flex items-center justify-between">
-        <div>
-          <div class="font-medium text-zinc-800 dark:text-zinc-200">Keeping Neural Networks Simple by Minimizing
-the Description Length of the Weights</div>
-          <div class="text-[11px] text-zinc-400">Geoffrey E. Hinton and Drew van Camp</div>
-        </div>
-        <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">Next Paper</span>
+<section>
+  <h2 class="eyebrow">On my desk</h2>
+  <ul class="shelf">
+    <li>
+      <div>
+        <strong>Keeping Neural Networks Simple by Minimizing the Description Length of the Weights</strong>
+        <span>Geoffrey E. Hinton and Drew van Camp</span>
       </div>
-      <div class="p-2.5 rounded-lg border border-surface-light-border dark:border-surface-dark-border bg-white/70 dark:bg-surface-dark-card/70 flex items-center justify-between">
-        <div>
-          <div class="font-medium text-zinc-800 dark:text-zinc-200">The Principles</div>
-          <div class="text-[11px] text-zinc-400">Ray Dalio</div>
-        </div>
-        <span class="text-[10px] font-mono text-zinc-400">Reading</span>
+      <em class="ok">Next paper</em>
+    </li>
+    <li>
+      <div>
+        <strong>Principles</strong>
+        <span>Ray Dalio</span>
       </div>
-    </div>
-  </div>
+      <em>Reading</em>
+    </li>
+  </ul>
+</section>
 
-  <!-- Elsewhere / Presence -->
-  <div>
-    <h4 class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-3">Elsewhere</h4>
-    <ul class="space-y-1 text-xs font-mono text-zinc-600 dark:text-zinc-400">
-      <li><a href="{{ config.extra.github }}" target="_blank" rel="noopener" class="hover:text-accent-terra dark:hover:text-amber-400 flex items-center justify-between py-1 transition"><span>GitHub</span> <span>&nearr;</span></a></li>
-      <li><a href="{{ config.extra.linkedin }}" target="_blank" rel="noopener" class="hover:text-accent-terra dark:hover:text-amber-400 flex items-center justify-between py-1 transition"><span>LinkedIn</span> <span>&nearr;</span></a></li>
-      <li><a href="{{ config.extra.email }}" class="hover:text-accent-terra dark:hover:text-amber-400 flex items-center justify-between py-1 transition"><span>Email</span> <span>&nearr;</span></a></li>
-    </ul>
-  </div>
-</div>
+<section>
+  <h2 class="eyebrow">Elsewhere</h2>
+  <ul class="links">
+    <li><a href="{{ config.extra.github }}">GitHub <span aria-hidden="true">&nearr;</span></a></li>
+    <li><a href="{{ config.extra.linkedin }}">LinkedIn <span aria-hidden="true">&nearr;</span></a></li>
+    <li><a href="{{ config.extra.email }}">{{ trans(key="email", lang=lang) }} <span aria-hidden="true">&nearr;</span></a></li>
+  </ul>
+</section>
 {% endblock right_rail %}

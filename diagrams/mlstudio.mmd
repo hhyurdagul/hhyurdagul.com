@@ -1,0 +1,9 @@
+flowchart LR
+    DATA["CSV / XLSX data"] --> UI["Streamlit workspace"]
+    UI --> CONFIG["Typed workflow configuration"]
+    CONFIG --> BACKEND["Framework-independent ML backend"]
+    BACKEND --> PREP["Preprocessing + feature selection"]
+    PREP --> MODEL["Regression or time-series model"]
+    MODEL --> RESULT["Metrics + predictions + processed preview"]
+    MODEL --> BUNDLE["Downloadable versioned model bundle"]
+    BUNDLE --> TEST["Independent test workflow"]

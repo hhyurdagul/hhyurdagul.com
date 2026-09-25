@@ -8,6 +8,7 @@ tags = ["AI", "Benchmarks", "LLMs"]
 
 [extra]
 kind = "post"
+og_image = "example-project-card.png"
 +++
 
 Everybody I know who actually works with LLMs hates benchmarks. They're biased,
@@ -122,7 +123,7 @@ answer to the editor and agentic AI. It should just do it automatically.
 
 Let's stay on the topic, so here is the example design of the project card:
 
-![Example Project Card Image](./example-project-card.png)
+{{ figure(src="./example-project-card.png", alt="Example Project Card Image") }}
 
 And here is the code for that example project card:
 
@@ -184,7 +185,7 @@ All the agents are used within [Opencode](https://opencode.ai/).
 
 ### Codex 5.3
 
-![Codex Result](./codex.png)
+{{ figure(src="./codex.png", alt="Codex Result") }}
 
 ```
 {% for e in entries %}
@@ -217,7 +218,7 @@ Empty
 
 ### Minimax M2.5
 
-![Minimax Result](./minimax.png)
+{{ figure(src="./minimax.png", alt="Minimax Result") }}
 
 - It did create perfectly, did go overboard, but I have one more index page that
   I will prompt eventualy to do it, it already have done it, didn't change

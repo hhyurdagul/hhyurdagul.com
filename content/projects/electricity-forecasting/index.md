@@ -8,6 +8,7 @@ tags = ["Time Series Forecasting", "Foundation Models", "TimesFM", "Python", "Po
 
 [extra]
 kind = "project"
+og_image = "assets/dashboard-backtest.png"
 status = "Done"
 role = "Lead AI / Machine Learning Engineer"
 repo_url = "https://github.com/hhyurdagul/epias-demand-forecast"
@@ -51,13 +52,13 @@ backtests, and distributor analysis:
 - **Distributor dashboard:** explore hourly meter multipliers across
   distributors, profile groups, and meter-reading types.
 
-![Complete backtest view showing horizon and month controls, headline metrics, hourly forecasts, the EPİAŞ baseline, observed demand, and scored rows](assets/dashboard-backtest.png)
+{{ figure(src="assets/dashboard-backtest.png", alt="Complete backtest view showing horizon and month controls, headline metrics, hourly forecasts, the EPİAŞ baseline, observed demand, and scored rows") }}
 
 _The complete backtest application view. The metric cards and overlaid series
 make model-versus-baseline performance auditable down to the underlying hourly
 rows._
 
-![Complete distributor analysis view with company, date, profile-group, and meter-type controls alongside time-series and aggregate comparisons](assets/dashboard-distributor.png)
+{{ figure(src="assets/dashboard-distributor.png", alt="Complete distributor analysis view with company, date, profile-group, and meter-type controls alongside time-series and aggregate comparisons") }}
 
 _The full distributor workspace. Energy specialists can move from system-level
 forecasting to operational comparisons across companies and customer profiles
@@ -77,7 +78,7 @@ observed and the EPİAŞ plan that was available at forecast time.
 | 168 h — April 2026               |         **2.59%** |                2.96% |
 | 24 h — public holidays only      |            12.67% |            **4.89%** |
 
-![Daily mean absolute error across the rolling evaluation, with Turkish public-holiday periods highlighted](assets/backtest-daily-mae.png)
+{{ figure(src="assets/backtest-daily-mae.png", alt="Daily mean absolute error across the rolling evaluation, with Turkish public-holiday periods highlighted") }}
 
 _The failure mode is visible rather than hidden: TimesFM's largest errors
 coincide with public holidays, particularly Eid al-Adha._

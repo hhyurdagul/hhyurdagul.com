@@ -45,7 +45,7 @@ changes, and reassignments accumulated, while fields mixed missing values,
 inconsistent types, placeholders, SQL fragments, Turkish domain terminology, and
 product-specific error codes.
 
-![New support tickets per year, with the highest recorded volume in 2025](assets/yearly_volume.svg)
+{{ figure(src="assets/yearly_volume.svg", alt="New support tickets per year, with the highest recorded volume in 2025") }}
 
 My first responsibility was therefore not prompting an LLM. It was building a
 trustworthy knowledge source.
@@ -72,7 +72,7 @@ longer than four weeks, and only 20.6% were resolved within one day. Among
 20,282 tickets with both a planned and actual closing date, 98.5% closed after
 the planned date—evidence that the planning field was not a dependable estimate.
 
-![Distribution of eligible closed tickets by resolution time](assets/resolution_dist.svg)
+{{ figure(src="assets/resolution_dist.svg", alt="Distribution of eligible closed tickets by resolution time") }}
 
 ### Semantic filtering with humans in the loop
 
@@ -89,7 +89,7 @@ individually, then label clusters as useful knowledge or low-value material.
 That review retained **79 corpus-quality clusters** containing **15,404
 tickets**, or 52.9% of the original ticket set.
 
-![Human-reviewed data funnel from raw tickets to the training-grade corpus](assets/data_funnel.svg)
+{{ figure(src="assets/data_funnel.svg", alt="Human-reviewed data funnel from raw tickets to the training-grade corpus") }}
 
 These 79 groups are quality-control clusters. They are separate from the **281
 topic-model clusters** later produced by BERTopic to analyze support themes and
@@ -102,7 +102,7 @@ on the embedding layer. I compared four model families with three downstream
 classifiers on 4,500 labeled tickets, measuring predictive quality alongside
 memory and encoding time.
 
-![Embedding benchmark balancing downstream score, memory use, and encoding time](assets/embedding_benchmark.svg)
+{{ figure(src="assets/embedding_benchmark.svg", alt="Embedding benchmark balancing downstream score, memory use, and encoding time") }}
 
 | Model              |     Memory | Encode time | Mean downstream score |
 | :----------------- | ---------: | ----------: | --------------------: |
@@ -125,18 +125,7 @@ a claim that the model itself improved threefold.
 
 ## The Deployed LLM Workflow
 
-```mermaid
-flowchart LR
-    A["New support ticket"] --> B["Normalized ticket context"]
-    B --> C["EmbeddingGemma retrieval"]
-    C --> D["Relevant solved tickets<br/>and approved solutions"]
-    D --> E["Gemini answer draft"]
-    B --> F["Category and routing suggestions"]
-    E --> G["Support-expert review"]
-    F --> G
-    G -->|"approve or edit"| H["Ticket workflow"]
-    G -->|"reject"| I["Feedback for evaluation"]
-```
+{{ diagram(name="mdsai", alt="MdsAI flow: a new ticket is normalized, relevant solved tickets are retrieved with EmbeddingGemma, Gemini drafts an answer and routing is suggested, and a support expert approves, edits, or rejects it, with rejections feeding evaluation.") }}
 
 The deployed assistant retrieves semantically similar solved tickets and
 supplies their approved solutions as grounded context to Gemini. The resulting

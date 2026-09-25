@@ -1,53 +1,25 @@
 {% extends "base.html" %}
 
-{% block title %}{{ term.name }} · {{ config.title }}{% endblock title %}
-{% block ogtitle %}{{ term.name }} · {{ config.title }}{% endblock ogtitle %}
+{% block title %}#{{ term.name }} · {{ config.title }}{% endblock title %}
+{% block ogtitle %}#{{ term.name }} · {{ config.title }}{% endblock ogtitle %}
 
 {% block content %}
 {% set date_ym = trans(key="date_ym", lang=lang) %}
-
-<div class="space-y-8">
-  <header class="border-b border-surface-light-border dark:border-surface-dark-border pb-6">
-    <div class="flex items-center justify-between mb-2">
-      <a href="{{ get_url(path='tags/', lang=lang) }}" class="text-xs font-mono text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 flex items-center gap-1 transition">
-        &larr; {{ trans(key="tags", lang=lang) }}
-      </a>
-      <span class="text-xs font-mono text-zinc-400">{{ term.pages | length }} entries</span>
-    </div>
-    <h1 class="font-serif text-3xl sm:text-4xl text-zinc-900 dark:text-zinc-50 font-medium tracking-tight">
-      #{{ term.name }}
-    </h1>
+<div class="stack-lg">
+  <header class="page-head">
+    <a class="back" href="{{ get_url(path='tags/', lang=lang) }}">&larr; {{ trans(key="tags", lang=lang) }}</a>
+    <h1>#{{ term.name }}</h1>
+    <p class="lede">{{ term.pages | length }} {% if term.pages | length == 1 %}entry{% else %}entries{% endif %}</p>
   </header>
-
-  <div class="divide-y divide-surface-light-border dark:divide-surface-dark-border">
+  <ul class="rows">
     {% for post in term.pages %}
-    <a href="{{ post.permalink }}" class="group flex items-baseline justify-between py-3.5 -mx-2 px-2 rounded-lg hover:bg-zinc-100/60 dark:hover:bg-zinc-900/60 transition-colors">
-      <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-accent-terra dark:group-hover:text-amber-400 transition-colors pr-4">
-        {{ post.title }}
-      </span>
-      <span class="text-xs font-mono text-zinc-400 shrink-0">
-        {{ post.date | date(format=date_ym) }}
-      </span>
-    </a>
+    <li>
+      <a href="{{ post.permalink }}">
+        <span>{{ post.title }}</span>
+        <time datetime="{{ post.date | date(format='%Y-%m-%d') }}">{{ post.date | date(format=date_ym) }}</time>
+      </a>
+    </li>
     {% endfor %}
-  </div>
+  </ul>
 </div>
 {% endblock content %}
-
-{% block right_rail %}
-<div class="space-y-6">
-  <div>
-    <h4 class="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-3">Topic Filter</h4>
-    <div class="p-4 rounded-xl border border-surface-light-border dark:border-surface-dark-border bg-white dark:bg-surface-dark-card text-xs space-y-2 text-zinc-600 dark:text-zinc-400">
-      <div class="flex justify-between">
-        <span>Active tag:</span>
-        <span class="font-mono text-accent-terra dark:text-amber-400 font-medium">#{{ term.name }}</span>
-      </div>
-      <div class="flex justify-between">
-        <span>Articles count:</span>
-        <span class="font-mono text-zinc-800 dark:text-zinc-200">{{ term.pages | length }}</span>
-      </div>
-    </div>
-  </div>
-</div>
-{% endblock right_rail %}

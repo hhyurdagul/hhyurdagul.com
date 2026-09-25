@@ -47,21 +47,7 @@ those signals survive changes in scale and environment.
 
 ## Research Pipeline
 
-```mermaid
-flowchart LR
-    RAW["Raw image + measured length"] --> SPLIT["Persisted train / validation / test split"]
-    SPLIT --> DETECT["YOLO detection<br/>head · tail · eye · fish"]
-    DETECT --> ALIGN["Head-to-tail rotation<br/>and second detection"]
-    ALIGN --> SEGMENT["SAM mask + blackout image"]
-    ALIGN --> DEPTH["Depth Anything V2<br/>relative-depth features"]
-    RAW --> CONTEXT["Gemini scene context"]
-    SEGMENT --> FEATURES["Geometry and image artifacts"]
-    DEPTH --> FEATURES
-    CONTEXT --> FEATURES
-    FEATURES --> MODELS["Baselines · tabular ML · CNN · embeddings"]
-    MODELS --> PREDICTIONS["Split-aware prediction table"]
-    PREDICTIONS --> APP["Streamlit research explorer"]
-```
+{{ diagram(name="fishometry", alt="Fishometry pipeline: images are split, detected with YOLO, aligned, segmented with SAM and given depth features, combined with Gemini scene context into features for baseline, tabular, CNN, and embedding models, whose predictions feed a Streamlit explorer.") }}
 
 Each stage writes an explicit artifact consumed by the next, making image
 losses, derived features, and experiment outputs inspectable.

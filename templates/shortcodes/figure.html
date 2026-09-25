@@ -1,0 +1,18 @@
+{#- Figure with intrinsic size (no layout shift), lazy loading, and raster
+    images re-encoded to WebP at a sane width. The image links to the original.
+    Usage: {{ figure(src="assets/plot.png", alt="…", caption="…") }} -#}
+{%- set file = src | trim_start_matches(pat="./") -%}
+{%- set path = page.colocated_path ~ file -%}
+{%- set meta = get_image_metadata(path=path) -%}
+{%- if meta.format == "svg" -%}
+  {%- set url = page.permalink ~ file -%}{%- set w = meta.width -%}{%- set h = meta.height -%}
+{%- else -%}
+  {%- set img = resize_image(path=path, width=1400, height=4000, op="fit", format="webp", quality=82) -%}
+  {%- set url = img.url -%}{%- set w = img.width -%}{%- set h = img.height -%}
+{%- endif %}
+<figure class="figure">
+  <a href="{{ page.permalink ~ file }}"><img src="{{ url }}" alt="{{ alt }}" width="{{ w }}" height="{{ h }}" loading="lazy" decoding="async"></a>
+  {%- if caption %}
+  <figcaption>{{ caption | markdown(inline=true) | safe }}</figcaption>
+  {%- endif %}
+</figure>

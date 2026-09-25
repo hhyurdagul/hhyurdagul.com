@@ -1,0 +1,6 @@
+{#- Pre-rendered Mermaid diagram (see diagrams/ and `nix run .#diagrams`),
+    inlined so the site stylesheet can theme it. No client-side JS.
+    Usage: {{ diagram(name="teus", alt="…") }} -#}
+<figure class="diagram" role="img" aria-label="{{ alt }}">
+  {{ load_data(path="diagrams/" ~ name ~ ".svg", format="plain") | safe }}
+</figure>
