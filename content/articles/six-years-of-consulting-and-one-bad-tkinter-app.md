@@ -1,14 +1,15 @@
 +++
-title = "Six Years, Thirty Companies, and One Bad Tkinter App"
-description = "A timeline of six years spent consulting on forecasting and machine learning problems for 30+ companies, while also holding full-time engineering jobs, leading teams, and finishing a master's degree along the way."
+title = "Six Years of Consulting and One Bad Tkinter App"
+description = "Six years of consulting on forecasting and machine learning, alongside engineering jobs, team leadership, and an MSc thesis still in progress."
 date = 2026-06-30
+updated = 2026-10-14
 
 [taxonomies]
 tags = ["Career", "Machine Learning", "Consulting"]
 
 [extra]
 kind = "post"
-intro = "How a forecasting tool grew into six years of consulting for more than 30 companies, alongside engineering jobs, team leadership, and a master’s degree."
+intro = "How a forecasting tool grew into years of consulting, alongside engineering jobs, team leadership, and a master’s thesis still in progress."
 +++
 
 My career began with a surprising collaboration with my professor during the
@@ -24,14 +25,13 @@ workforce that knows what he is dealing with, could tackle and solve those
 problems, build the tools, products, and systems, and secure the grant, and he
 found the one-man army, which is me, of course.
 
-We started in September 2020
+We started in 2020
 with a modest clothing company, Sefamerve, which wanted demand forecasting for
-their products' future sales, which, of course, needs no explanation. By
-December that year we'd added Comdata, one of the well-known call centers, which
+their products' future sales, which, of course, needs no explanation. Those early
+engagements also included Comdata, one of the well-known call centers, which
 wanted to forecast future call volumes to optimize call agents' schedules and
-create a system they could use productively. And by January 2021, an
-international car parts manufacturer, Teknorot, came on with the same problem:
-demand forecasting.
+create a system they could use productively, and an international car parts
+manufacturer, Teknorot, with the same problem: demand forecasting.
 
 After a while, it became clear that the industry needs this; forecasting future
 values for any given data will eventually occur, so instead of coding everything
@@ -60,7 +60,7 @@ series tool and became a giant app that packed a bunch of algorithms together
 with no modularity, separation of concerns, or anything along those lines taken
 into consideration. As I said, I was fresh blood. But we used it well: for every
 client, I had to delete some places on one page, some on others, and maybe add a
-little something to serve more than 30 customers. I always had the thought of
+little something for each new customer. I always had the thought of
 restructuring it, but I was telling myself, we won't get any more customers, of
 course, I was wrong, people had too many problems to solve.
 
@@ -95,13 +95,12 @@ framework I'd never touched myself. Watching someone take the concept and remake
 it cleanly was a good sign that the idea itself, even if my implementation of it
 was a mess, had been sound the whole time.
 
-Two more from this stretch are worth a mention. Unsped Customs Consultancy got
-funded through Tübitak 1511, the same government R&D grant track from the intro,
-off a churn and CLTV model I built for them, which is the kind of validation
-that matters more to me than any accuracy number. And HepsiEmlak, the real
-estate marketplace, had me spend most of my hours writing R&D Center
-registration and Tübitak proposal material rather than shipping models, with
-recommendation and duplicate-photo-detection work happening underneath.
+Two more from this stretch are worth a mention. At Unsped Customs Consultancy,
+the churn and CLTV work also fed into an R&D proposal under Tübitak 1511.
+And HepsiEmlak, the real estate marketplace, had me spend most of my hours
+writing R&D Center registration and Tübitak proposal material rather than
+shipping models, with recommendation and duplicate-photo-detection work
+happening underneath.
 
 ## Teaching Others to Fish
 
@@ -116,8 +115,8 @@ responsible for other people's output instead of just my own. At Nano I taught
 ML/DL fundamentals and guided the team toward building their own MLStudio
 equivalent, except in C#, which proved the idea wasn't tied to my stack at all,
 it was tied to the workflow. Gtech, CukurovaMakine, and JForce rounded out this
-period: three more data scientists mentored into their own forecasting interface
-at Gtech, and straightforward ML/DL courses for engineering teams at the other
+period: three more data scientists mentored into building their own desktop
+MLStudio tool at Gtech, and straightforward ML/DL courses at the other
 two, one eight modules long, the other reaching more than ten engineers.
 
 ## Taking a Real Job While Still Consulting
@@ -142,8 +141,8 @@ mounted on the bins themselves reporting fullness and flagging fire or flood
 events, routed through heuristic algorithms instead of a fixed schedule; and a
 real-time object detector for Enerjisa, the country's largest electricity
 provider, that ran on the phones field workers used to photograph inventory, so
-blurry, duplicate, or empty shots never made it into the database in the first
-place. Around the same time I also built a predictive maintenance classifier for
+blurry, duplicate, or empty shots could be rejected before inventory review.
+Around the same time I also built a predictive maintenance classifier for
 a client's CNC assembly line, LSTM forecasting pipelines for electricity and gas
 consumption under a project called GAM-GAD (short for Geographic Analysis
 Modules and Geographic Analysis Tools), and an LSTM pipeline forecasting future
@@ -153,26 +152,17 @@ water demand for the Istanbul Water Administration.
 
 Universal Yazılım also runs the support software a lot of municipalities use,
 and two of the projects I'm most proud of came out of that side of the business.
-The first is a ticketing classifier that uses TF-IDF and sentiment embeddings to
-route incoming citizen complaints to the right department automatically, now
-running across every municipality the company works with and fully replacing the
-person whose job it used to be to read and route those tickets by hand. The
-second is a support-ticket system for the municipalities themselves — when
-something breaks or needs adding in the software we've deployed to them, or they
-just have a reproducible support question or an event to log, they open a ticket
-here. It was generating fifty to a hundred messages a day, many of them repeats
-of questions already answered, buried in typos and miscategorization. I shipped
-a first version that uses embeddings and clustering to find the underlying
-topics, an LLM to clean the raw text into something legible, and a
-sentence-similarity layer to auto-answer anything already solved before. It cut
-response time by roughly half, and it's still one of the most exhausting and
-most satisfying projects I've shipped.
-
-I'm still on it, too. I've since been handed years more of that same ticket
-history, profiled it properly, and sketched out nine more directions worth
-building on top of version one — category prediction, time-to-resolution, SLA
-risk, routing, duplicate detection, clustering, process mining, response
-suggestion, anomaly detection. Haven't committed to which one's next.
+The first is a ticketing classifier that uses TF-IDF and embeddings to route
+incoming citizen complaints to the right department, used across client
+municipalities. The second is a support-ticket system for the municipalities
+themselves — when something breaks or needs adding in the software we've
+deployed to them, or they have a reproducible support question or an event to
+log, they open a ticket here. Many messages repeated questions already
+answered, buried in typos and miscategorization. I shipped a first version
+using embeddings and clustering to find underlying topics, LLM-assisted text
+cleanup, and sentence similarity to retrieve previously solved cases and
+support answer suggestions. It's still one of the most exhausting and most
+satisfying projects I've worked on.
 
 In January 2024 I was promoted to lead Universal's AI R&D team. Since then I've
 been the technical lead on two Horizon Europe consortium proposals: FloodGuard,
@@ -182,44 +172,51 @@ million euro consortium. Neither was funded in the end, but putting them
 together taught me more about scoping a multinational research project than a
 funded one probably would have.
 
-Around the same time, I picked up a project funded under Tübitak's 1832 program:
-forecasting future river discharge across Turkey. I started with the obvious
+Around the same time, I picked up a project under Tübitak's 1832 program:
+river-discharge forecasting. I started with the obvious
 approaches first, supervised regression models, then autoregressive deep
 learning models, and all of them performed badly. What ended up working was a
-custom seq2seq LSTM with attention built in, which is now running across eight
-regions and sixteen river basins around the country. I'm leading the project
+custom seq2seq LSTM with attention built in, which became the focus of the
+modeling and serving work. I'm leading the project
 together with our hydraulics engineer, which has been its own kind of education,
 explaining to a domain expert why the model is doing what it's doing, and
-learning enough hydrology from him to know which features were worth engineering
-in the first place.
+learning enough hydrology from him to understand the modeling assumptions.
 
-In the middle of all this I also went back to school. I started a master's at
-Çukurova University in August 2023 and finished in February 2026, with a thesis
-on estimating an object's length from a photo without any physical reference
-point in frame, using depth estimation and attention-driven vision models. It's
-a narrower, more academic kind of problem than anything I'd been paid to solve,
-which was exactly the point of doing it.
+In the middle of all this I also went back to school. I started an MSc in
+Computer Engineering at Çukurova University in August 2023, and my thesis is
+still in progress. It studies fish-length estimation from uncalibrated images,
+comparing geometric, relative-depth and learned image features. It's a narrower,
+more academic kind
+of problem than anything I'd been paid to solve, which was exactly the point
+of doing it.
 
 ## Where the Consultancy Work Stands Today
 
 The consultancy side never stopped while all of this was happening, it just kept
-compounding. Four engagements are still active as I'm writing this. Inveon, an
-e-commerce technology company, has me building product search that works off
-titles and descriptions without needing exact matches, a
-mixture-of-experts-style image classifier across more than fifty product
-subcategories, and similarity and recommendation systems that can take an image,
-a description, or a title as input, all shipped through Tkinter, Streamlit, and
-FastAPI. Ikas, an e-commerce SaaS platform, is running the full three-route
+compounding. As of this October update, Moka is my only active consulting client.
+Inveon, an e-commerce technology company, kept me busy from November 2022 to
+September 2026: product search using titles and descriptions without exact
+matches, image classification across more than fifty product subcategories,
+and similarity and recommendation systems accepting images, descriptions, or
+titles, delivered through Streamlit and FastAPI. Later work included
+cancellation/return classification APIs and shipment-to-delivery prediction
+and analysis, including carrier-specific forecasts and comparison with actuals.
+
+Ikas wrapped up at the end of 2025. That engagement used the three-route
 pattern I eventually settled on for app delivery — Tkinter for model-building,
-Streamlit for people who need to use a model without touching code, an API for
-everything that needs to live inside their own systems — all deployed and
-actually in use, which is a long way from the single overloaded Tkinter file I
-was patching by hand for Comdata six years earlier. Moka, a fintech and payments
-company, has me on price prediction, churn, lifetime value, and forecasting,
-deployed on Azure with Docker and Kubernetes, working inside an actual team with
-git pull requests instead of being the only name on the commit log, which still
-feels new after years of working alone. Robokobi, a CRM platform for SMEs, has
-me on financial forecasting using the same Tkinter-plus-Streamlit pattern.
+Streamlit for people using a model without touching code, an API for integration —
+all deployed and in use. One concrete example connected call-volume and
+average-handling-time forecasts to Erlang staffing calculations in FastAPI.
+That's a long way from the single overloaded Tkinter file I was patching by
+hand for Comdata six years earlier.
+
+Moka, a fintech and payments company, still has me on price prediction, churn,
+lifetime value, and forecasting, deployed on Azure with Docker and Kubernetes.
+The serving work includes batch inference with model-specific feature contracts
+and missing-feature checks. Working inside a team with Git pull requests instead
+of being the only name on the commit log still feels new after years of working
+alone. My past Robokobi work, for a CRM platform for SMEs, also covered financial
+forecasting, from Tkinter and Streamlit tools to ONNX Runtime CPU inference.
 
 Smartiks, a software company, was a similarly long-running consultancy: three
 years working with their R&D center, eventually leading a small team of three
@@ -232,8 +229,8 @@ safety. That engagement wrapped up in May 2026.
 
 Underneath those is a long tail of shorter, narrower engagements. Badem is the
 one with the most history — regression and churn/LTV models since 2022 for a
-company serving more than a thousand doctor-customers. Past that, it's a dozen
-more SME, fintech, and energy clients running the same handful of recurring
+company serving doctors and family physicians. Past that, there are more
+SME, fintech, and energy clients with the same handful of recurring
 problems: forecasting, churn, fraud, feasibility. The full roster, with dates
 and tech stacks, is on the [/work](/work) page if you want the long version.
 
@@ -244,3 +241,10 @@ teams, writing European grant consortium proposals, and mentoring other
 engineers into building their own versions of the same idea in languages I don't
 even write. I'd still rewrite that first app from scratch if I had the time. I'm
 not sure I'd change much else.
+
+## October Update: The Rewrite
+
+Since the original version of this essay, I rebuilt [MLStudio](@/projects/mlstudio.md)
+as a Streamlit application with a separate modeling backend, time-aware validation,
+and versioned model bundles. The 30+ client deliveries were desktop variants;
+the web app is the newest generation of the same workflow.

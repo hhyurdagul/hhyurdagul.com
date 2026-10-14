@@ -1,7 +1,7 @@
 +++
 title = "Projects"
-sort_by = "date"
-description = "Selected machine learning projects and consulting engagements."
+sort_by = "weight"
+description = "Selected machine learning systems, applied AI and software projects."
 paginate_by = 10
 paginate_path = "page"
 template = "section.html"

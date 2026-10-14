@@ -1,109 +1,61 @@
 +++
-title = "Electricity Consumption Forecasting for the Turkish Grid"
-description = "A completed forecasting application that benchmarks zero-shot TimesFM forecasts against EPİAŞ's official hourly load-estimation plan."
+title = "Electricity Forecasting — The Turkish Grid"
+description = "Zero-shot TimesFM forecasts benchmarked against EPİAŞ's official hourly demand plan."
 date = 2025-03-20
+updated = 2026-10-14
+weight = 3
 
 [taxonomies]
 tags = ["Time Series Forecasting", "Foundation Models", "TimesFM", "Python", "Polars", "Streamlit", "Energy"]
 
 [extra]
+short_title = "Electricity Forecasting"
 kind = "project"
-og_image = "assets/dashboard-backtest.png"
-status = "Done"
-role = "Lead AI / Machine Learning Engineer"
+og_image = "assets/backtest-daily-mae.png"
+status = "Completed"
+role = "Lead AI / ML Engineer"
 repo_url = "https://github.com/hhyurdagul/epias-demand-forecast"
 stack = ["Python", "Polars", "Streamlit", "TimesFM 2.5", "PyTorch", "Parquet", "Uv"]
+screenshot = "images/projects/electricity-forecasting-running.png"
+screenshot_alt = "Electricity forecasting backtest page comparing TimesFM with the EPİAŞ demand plan."
 +++
 
-I led the AI and data work on this completed forecasting application, working
-with Universal Software's energy team to turn live Turkish electricity-market
-data into reproducible forecasts, rolling backtests, and distributor-level
-analysis.
+Can a pretrained time-series foundation model, with no task-specific training,
+compete with the official hourly demand plan that EPİAŞ publishes for the
+Turkish grid? I built this forecasting and analysis application with Universal
+Software's energy team to find out.
 
-**24 h and 168 h horizons** · **~1,800 scored hours per reported horizon** ·
-**21 distribution companies** · **Status: completed**
+{{ figure(src="/images/projects/electricity-forecasting-running.png", alt="Streamlit backtest page with April 2026 metrics and overlaid actual, TimesFM, and EPİAŞ demand curves", caption="The backtest view for April 2026 at a 24-hour horizon: TimesFM (*predict*) against observed demand and the EPİAŞ plan over 720 scored hours, loaded from cached forecasts.") }}
 
-The central question was deliberately practical: _can a zero-shot time-series
-foundation model compete with the official hourly load-estimation plan published
-by EPİAŞ, without training a custom model or engineering calendar and weather
-features?_
+## What it does
 
-## What I Built
+- Pulls hourly consumption, the EPİAŞ demand plan, and meter data for all 21
+  distribution companies from the EPİAŞ Transparency Platform into Parquet.
+- Runs TimesFM 2.5 zero-shot with a 1,024-hour context window.
+- Backtests 24-hour and 168-hour horizons from rolling forecast origins, using
+  only information available at each forecast time. Results are cached, so
+  repeat analysis is instant.
+- Explores hourly meter multipliers by distributor, profile group, and
+  meter-reading type.
 
-**Data pipeline** — A client for the EPİAŞ Transparency Platform, including CAS
-ticket authentication and incremental updates, that retrieves hourly real-time
-consumption back to 2020, EPİAŞ's published load-estimation plan, and meter data
-for all 21 Turkish distribution companies. The pipeline stores analysis-ready
-Parquet datasets and processes them with Polars.
+{{ figure(src="assets/dashboard-distributor.png", alt="Distributor dashboard comparing hourly meter multipliers for two distribution companies across profile groups and meter-reading types", caption="The distributor dashboard: hourly meter multipliers for two distribution companies, broken down by profile group and meter-reading type.") }}
 
-**Forecasting engine** — TimesFM 2.5 (200M, PyTorch) running zero-shot with a
-1,024-hour context window and quantile heads. Forecasts are generated in rolling
-24-hour windows and support both day-ahead and week-ahead analysis.
+## Results and limits
 
-**Streamlit application** — A single interface for live forecasts, rolling
-backtests, and distributor analysis:
+Rolling backtests over **April–June 2026**, with about **1,800 scored hours per
+horizon**, showed a clear trade-off:
 
-- **Forecast:** compare a generated forecast with observed demand and EPİAŞ's
-  published plan.
-- **Backtest:** evaluate 24-hour and 168-hour horizons over multiple forecast
-  origins with MAE, RMSE, and MAPE. Every backtest uses only information that
-  was available when its forecast would have been issued; cached artifacts make
-  repeated analysis immediate.
-- **Distributor dashboard:** explore hourly meter multipliers across
-  distributors, profile groups, and meter-reading types.
+| 24-hour MAPE | TimesFM | EPİAŞ plan |
+| :--- | ---: | ---: |
+| All reported hours | 3.47% | **3.13%** |
+| Excluding public holidays | **2.39%** | 2.92% |
+| Public holidays only | 12.67% | **4.89%** |
 
-{{ figure(src="assets/dashboard-backtest.png", alt="Complete backtest view showing horizon and month controls, headline metrics, hourly forecasts, the EPİAŞ baseline, observed demand, and scored rows") }}
+{{ figure(src="assets/backtest-daily-mae.png", alt="Daily mean absolute error of TimesFM and the EPİAŞ plan from April to mid-June 2026, with public holidays shaded", caption="Daily MAE across the 24-hour backtest. TimesFM's largest errors fall on public holidays, above all Eid al-Adha.") }}
 
-_The complete backtest application view. The metric cards and overlaid series
-make model-versus-baseline performance auditable down to the underlying hourly
-rows._
-
-{{ figure(src="assets/dashboard-distributor.png", alt="Complete distributor analysis view with company, date, profile-group, and meter-type controls alongside time-series and aggregate comparisons") }}
-
-_The full distributor workspace. Energy specialists can move from system-level
-forecasting to operational comparisons across companies and customer profiles
-without leaving the application._
-
-## Verified Result: Competitive Until the Calendar Changes
-
-Rolling-origin backtests across April–June 2026 used multiple forecast dates at
-both horizons. Each forecast was evaluated against the actual consumption later
-observed and the EPİAŞ plan that was available at forecast time.
-
-| MAPE (lower is better)           | TimesFM zero-shot | EPİAŞ published plan |
-| -------------------------------- | ----------------: | -------------------: |
-| 24 h — all reported hours        |             3.47% |            **3.13%** |
-| 24 h — excluding public holidays |         **2.39%** |                2.92% |
-| 24 h — April 2026                |         **1.89%** |                2.89% |
-| 168 h — April 2026               |         **2.59%** |                2.96% |
-| 24 h — public holidays only      |            12.67% |            **4.89%** |
-
-{{ figure(src="assets/backtest-daily-mae.png", alt="Daily mean absolute error across the rolling evaluation, with Turkish public-holiday periods highlighted") }}
-
-_The failure mode is visible rather than hidden: TimesFM's largest errors
-coincide with public holidays, particularly Eid al-Adha._
-
-The result is useful precisely because it is not a universal win. On ordinary
-days, the zero-shot model beat the EPİAŞ baseline: **2.39% versus 2.92% MAPE**.
-During public holidays, the ranking reversed sharply: **12.67% versus 4.89%**.
-
-That gap is explainable. A purely historical model can learn daily and weekly
-demand rhythms, but it cannot know that a national holiday will abruptly change
-them. At the 168-hour horizon, the effect can also persist after a holiday
-because the depressed demand remains inside the context window.
-
-## Why This Project Matters
-
-- It tests a foundation model against a meaningful operational baseline rather
-  than an artificially weak benchmark.
-- Its rolling evaluation uses multiple issue dates, two horizons, and
-  prediction-time-available information.
-- It joins data ingestion, model inference, reproducible evaluation, and
-  domain-facing analysis in one application.
-- Its main failure produced a concrete conclusion: calendar awareness is the
-  highest-value next modeling improvement, not a larger univariate model.
-
-Earlier experiments included ARIMA, gradient boosting, and custom PyTorch
-models. The completed system reflects the engineering decision that followed:
-use the zero-shot model where it is competitive, measure it honestly against
-EPİAŞ, and make the remaining limitation explicit.
+On ordinary days the zero-shot model beat the official plan. On holidays the
+ranking reversed sharply. That gap is explainable: TimesFM sees only demand
+history, with no holiday calendar or weather, so it cannot anticipate a
+national holiday, and at 168 hours the depressed demand lingers in its context
+window afterwards. The next improvement is calendar awareness, not a bigger
+univariate model.

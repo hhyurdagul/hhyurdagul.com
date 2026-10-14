@@ -21,6 +21,10 @@
     {% for item in paginator.pages %}
     <li>
       <a class="card" href="{{ item.permalink }}">
+        {% if item.extra.screenshot %}
+        {% set preview = resize_image(path=item.extra.screenshot, width=960, op="fit_width", format="webp", quality=82) %}
+        <img class="project-preview" src="{{ preview.url }}" alt="{{ item.extra.screenshot_alt }}" width="{{ preview.width }}" height="{{ preview.height }}" loading="lazy" decoding="async">
+        {% endif %}
         {% if item.extra.status %}<span class="badge">{{ item.extra.status }}</span>{% endif %}
         <h2>{{ item.extra.short_title | default(value=item.title) }} <span class="arrow" aria-hidden="true">&rarr;</span></h2>
         {% if item.description %}<p>{{ item.description }}</p>{% endif %}
@@ -69,12 +73,12 @@
   <h2 class="eyebrow">Overview</h2>
   <dl class="panel kv">
     <div><dt>Projects</dt><dd>{{ paginator.total_pages }}</dd></div>
-    <div><dt>Focus</dt><dd>ML, MLOps, time-series</dd></div>
+    <div><dt>Focus</dt><dd>ML systems &amp; software</dd></div>
   </dl>
 </section>
 <section>
   <h2 class="eyebrow">Philosophy</h2>
-  <p class="panel">Every model must have a clear decision it improves, verifiable validation, and reliable production pipelines.</p>
+  <p class="panel">Every model needs a decision it improves, evidence anyone can inspect, and limits stated up front.</p>
 </section>
 {% else %}
 <section>

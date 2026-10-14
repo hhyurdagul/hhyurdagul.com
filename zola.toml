@@ -56,6 +56,6 @@ date_full = "%d %B %Y"
 date_ym = "%b %Y"
 email = "Email"
 role = "ML Engineer & R&D Consultant"
-bio_1 = "Currently leading AI R&D roadmap at Universal Software."
-bio_2 = "Consulting R&D Centers on time-series forecasting, attention networks, and production ML pipelines."
+bio_1 = "Leading AI R&D at Universal Software: forecasting, support intelligence, and mentoring engineers."
+bio_2 = "Consulting for Moka on fintech models and serving pipelines; completing an MSc thesis in Computer Engineering."
 

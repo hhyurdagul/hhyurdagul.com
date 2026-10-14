@@ -1,7 +1,9 @@
 +++
-title = "MLStudio — From a 30-Company Desktop Tool to a Web ML Platform"
-description = "A deployed Streamlit platform for training, validating, packaging, and testing regression and neural time-series models, rebuilt from a proven Tkinter product."
+title = "MLStudio — Train and Compare Models"
+description = "A web app for training, validating, and reusing regression and time-series models without model-specific code."
 date = 2026-07-07
+updated = 2026-10-14
+weight = 4
 
 [taxonomies]
 tags = ["Machine Learning", "MLOps", "Streamlit", "Time Series Forecasting", "Python", "Product Engineering"]
@@ -9,138 +11,52 @@ tags = ["Machine Learning", "MLOps", "Streamlit", "Time Series Forecasting", "Py
 [extra]
 short_title = "MLStudio"
 monogram = "ML"
-card_description = "A desktop ML tool used by 30+ companies, rebuilt as a web platform."
+card_description = "A desktop ML tool used by 30+ companies, rebuilt as a web app with a separate modeling backend."
 kind = "project"
 status = "Deployed"
-role = "Lead AI / Machine Learning Engineer"
+role = "Creator and lead engineer"
 repo_url = "https://github.com/hhyurdagul/MLStudio"
 showcase = true
-stack = ["Python", "Streamlit", "Polars", "scikit-learn", "PyTorch", "XGBoost", "CatBoost", "Pixi", "joblib"]
+stack = ["Python", "Streamlit", "Polars", "scikit-learn", "PyTorch", "XGBoost", "CatBoost"]
+screenshot = "images/projects/mlstudio-running.png"
+screenshot_alt = "MLStudio regression workspace with validation metrics and a prediction chart."
 +++
 
-I created MLStudio to make practical machine-learning workflows usable without
-model-specific code. Its original Tkinter version grew out of real customer
-requirements and was deployed to more than 30 companies. I was the sole engineer
-behind its modernization into the current deployed Streamlit application,
-supported by two testers and retaining full technical ownership of the product.
+MLStudio lets people train, validate, and reuse regression and time-series
+models through a guided interface instead of model-specific code. Its original
+Tkinter version grew out of my consulting work and was used by **30+
+companies**. I led its rebuild into the deployed Streamlit application, with two
+testers.
 
-**30+ predecessor deployments** · **Separate backend and UI** · **14 supervised
-and time-series model choices** · **Current Streamlit version deployed**
+{{ figure(src="/images/projects/mlstudio-running.png", alt="MLStudio supervised workspace with a synthetic energy dataset, an 80/20 split, validation metrics, and predicted-versus-actual values", caption="The supervised workspace on 240 synthetic energy-use rows: a linear regression on an 80/20 split, with validation metrics and predicted-versus-actual values.") }}
 
-The rewrite was not a cosmetic interface change. It was a product-engineering
-decision: preserve the trusted modeling workflows, separate them from the UI,
-and make customer-specific customization and deployment easier than it was in a
-packaged desktop application.
+## What it does
 
-## From Desktop Product to Web Platform
+- **Supervised models:** train, validate with random, ordered, or
+  cross-validation splits (optionally with grid search and feature selection),
+  or test a saved model on new data. Regressors include Random Forest, Gradient
+  Boosting, SVR, XGBoost, CatBoost, and voting ensembles.
+- **Neural time series:** MLP, CNN, RNN, GRU, LSTM, Bi-LSTM, and ConvLSTM
+  models over lag windows chosen by index or by autocorrelation.
+- **Metrics:** R², MAE, RMSE, and MAPE wherever labels are available.
+- **Model bundles:** export a fitted model with its preprocessing and feature
+  requirements, then reuse it on new data.
 
-The Tkinter application proved the need. Companies could train and compare
-models through a guided interface, but each deployment made the desktop
-architecture's limits clearer: UI logic and modeling behavior were harder to
-evolve independently, environment differences complicated delivery, and
-customer-specific changes increased maintenance cost.
+## Why the rewrite
 
-The Streamlit replacement keeps the workflow familiar while changing the system
-boundary. A browser-based interface is easier to deploy centrally, and Streamlit
-makes it faster to add or rearrange controls for different use cases. More
-importantly, the modeling layer is now independent of Streamlit, so the same
-workflows can be tested or reused without rendering a page.
+In the desktop version, interface and modeling code were one class, so every
+client-specific change risked the models. The rewrite's main change is a
+boundary: the modeling backend has no Streamlit dependency, and an architecture
+test fails if one appears. The interface can change without moving model logic
+into page code, and bundles carry preprocessing, feature requirements, and
+model state, so prediction runs exactly the steps training did.
 
-{{ diagram(name="mlstudio", alt="MLStudio flow: data enters a Streamlit workspace, becomes a typed configuration for a framework-independent backend, is preprocessed and modeled, and produces metrics, predictions, and a versioned model bundle that feeds an independent test workflow.") }}
+## Evaluation and limits
 
-## Architecture That Protects the Rewrite
+Ordered data uses time-aware splits and folds, and recursive forecasts feed
+predictions back into the model instead of peeking at actual future values.
+MAPE skips zero targets, where it is undefined.
 
-MLStudio has two explicit layers:
-
-- `mlstudio/backend/` owns data validation, preprocessing, estimator
-  definitions, feature selection, evaluation, artifact serialization, and
-  train/validate/predict workflows. It has no Streamlit dependency.
-- `mlstudio/frontend/` gathers user choices, constructs typed configurations,
-  invokes one backend workflow, and renders the returned result.
-
-The entry point only starts the application. An architecture test parses every
-backend module and fails if it imports Streamlit or the frontend package. That
-small constraint prevents the new application from slowly collapsing back into
-the tightly coupled structure it replaced.
-
-The current repository contains approximately 5,860 lines of Python and defines
-49 automated checks covering data validation, model registration, artifact round
-trips, feature selection, time-aware splits, recursive forecasting, lag
-selection, and architectural boundaries.
-
-## Supervised Modeling Workspace
-
-The supervised workspace supports three distinct jobs rather than hiding them
-behind one ambiguous button:
-
-- **Training:** fit a preprocessing-and-model pipeline on selected rows,
-  optionally score a separate test dataset, inspect processed features, and
-  download the fitted bundle.
-- **Validation:** use a random split, ordered last split, or cross-validation;
-  optionally run grid search and feature selection; then inspect metrics and
-  out-of-sample predictions.
-- **Testing:** upload a trusted MLStudio bundle and new data, validate the
-  required feature contract, generate predictions, and calculate metrics only
-  when the saved target column is present.
-
-Numeric, categorical, string, and boolean features can share one dataset. The
-saved artifact keeps preprocessing and regression together so training-time
-transformations are reused during prediction. Current regressors include Random
-Forest, Gradient Boosting, Support Vector Regression, Extreme Learning Machine,
-XGBoost, CatBoost, and Voting Regression.
-
-## Neural Time-Series Workspace
-
-Time series are handled as ordered data, not as ordinary shuffled regression.
-The PyTorch workspace trains MLP, CNN, RNN, GRU, LSTM, Bi-LSTM, and ConvLSTM
-models over lagged windows from one numeric target series.
-
-Users can inspect autocorrelation diagnostics and select every available lag,
-explicit indices, the strongest absolute ACF values, or all lags above a
-threshold. Layer sizes, activations, learning rate, epochs, batch size, and
-target scaling are configurable. An optional second dataset provides a recursive
-backtest: predictions are fed back into the model rather than replaced with the
-actual future values.
-
-Saved `.pt` bundles include the target, training history, lag contract,
-architecture, scaling configuration, and model state. A bundle can forecast an
-arbitrary future horizon or compare that horizon with an optional actual-target
-dataset.
-
-## Evaluation and Safety Decisions
-
-MLStudio calculates R², MAE, RMSE, and MAPE when labels are available. MAPE
-excludes rows whose actual target is zero and is not reported when every actual
-value is zero, avoiding a metric that would otherwise be undefined.
-
-Ordered lookback workflows reject random row selection. Their cross-validation
-and grid-search paths use time-series folds, and recursive validation resets
-prediction history correctly between evaluations. These restrictions reduce
-convenient but misleading evaluation choices.
-
-Model bundles use Python serialization, so the application explicitly treats
-them as trusted artifacts: users should not upload bundles from unknown sources,
-and producers and consumers must use compatible dependency versions.
-
-## Current Boundaries
-
-The platform does not yet implement missing-value imputation; uploaded data must
-satisfy the selected workflow's input contract. Cross-environment model
-compatibility also depends on Python and library versions. The current public
-environment also exposes two Voting Regressor test failures caused by a nested
-MLP layer-size value being reapplied as a string; the other 47 checks pass.
-These are visible engineering constraints rather than details hidden behind the
-interface.
-
-## What This Project Demonstrates
-
-- **Product evolution informed by use:** the rewrite follows deployment
-  experience from more than 30 companies rather than a hypothetical UI exercise.
-- **Architecture as a migration outcome:** the new frontend can change without
-  forcing model logic into page code.
-- **Evaluation discipline:** ordered splits and recursive forecasts prevent
-  time-series features from becoming accidental leakage.
-- **Reproducible handoff:** preprocessing, model state, feature contracts, and
-  forecast history travel with downloadable artifacts.
-- **Engineering beyond the model:** tests, validation, packaging, deployment,
-  and user-facing constraints are part of the ML product.
+Missing-value imputation is not implemented yet. Bundles use Python
+serialization, so load only trusted files built with compatible library
+versions.

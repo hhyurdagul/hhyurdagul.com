@@ -770,6 +770,19 @@ button { font: inherit; color: inherit; cursor: pointer; }
   & .badge { justify-self: start; }
   & .chips { margin-top: 0.5rem; }
 
+  & .project-preview {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 24rem;
+    justify-self: center;
+    margin-inline: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 0.5rem;
+  }
+
   & .card-meta {
     display: flex;
     flex-wrap: wrap;
@@ -968,6 +981,7 @@ details[open] > summary::after { rotate: 180deg; }
 /* ------------------------------------------------------------------ prose */
 
 .prose {
+  min-width: 0;
   color: var(--prose);
   font: 400 1.15rem/1.8 var(--font-serif);
   letter-spacing: -0.005em;
@@ -1082,6 +1096,13 @@ details[open] > summary::after { rotate: 180deg; }
 .figure {
   & a { display: block; }
   & img { width: 100%; }
+}
+
+.project-page .figure img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 24rem;
 }
 
 /* Pre-rendered Mermaid diagrams (`diagram` shortcode). Mermaid's own styles

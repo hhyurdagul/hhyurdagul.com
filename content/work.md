@@ -1,10 +1,10 @@
 +++
 title = "Work"
-description = "Professional roles and the full consultancy roster: thirty companies, dates, and tech stacks."
+description = "Professional roles and consulting engagements in forecasting, applied ML, mentoring, and R&D proposals, with dates and tech stacks."
 template = "work.html"
 
 [extra]
 kind = "page"
 +++
 
-Six years, thirty companies, and a throughline from one overgrown Tkinter file to leading teams and European grant proposals. Below are my professional roles and the full consultancy roster with dates and tech stacks.
+Since 2020, my work has grown from an overgrown Tkinter forecasting tool into model-serving systems, team leadership, mentoring, and European research proposals. I lead AI R&D at Universal Software; Moka is my only active consulting client. Below are my professional roles and past and current engagements, with dates and tech stacks.

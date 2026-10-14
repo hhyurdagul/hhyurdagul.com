@@ -13,6 +13,12 @@
 <meta property="og:image:width" content="{{ og_meta.width }}">
 <meta property="og:image:height" content="{{ og_meta.height }}">
 <meta property="og:image:alt" content="{{ page.title }}">
+{% elif page.extra.screenshot %}
+{% set og_meta = get_image_metadata(path=page.extra.screenshot) %}
+<meta property="og:image" content="{{ get_url(path=page.extra.screenshot) }}">
+<meta property="og:image:width" content="{{ og_meta.width }}">
+<meta property="og:image:height" content="{{ og_meta.height }}">
+<meta property="og:image:alt" content="{{ page.extra.screenshot_alt | default(value=page.title) }}">
 {% else %}
 {{ super() }}
 {% endif %}
@@ -48,7 +54,7 @@
 {% set articles_sec = get_section(path="articles/_index.md", lang=lang) %}
 {% set projects_sec = get_section(path="projects/_index.md", lang=lang) %}
 
-<article class="stack-lg">
+<article class="stack-lg{% if is_project %} project-page{% endif %}">
   <header class="page-head">
     {% if is_article %}
     <a class="back" href="{{ articles_sec.permalink }}">&larr; {{ trans(key="all_posts", lang=lang) }}</a>
@@ -170,6 +176,7 @@
       {% if page.extra.status %}<div><dt>Status</dt><dd class="ok">{{ page.extra.status }}</dd></div>{% endif %}
       {% if page.extra.role %}<div><dt>Role</dt><dd>{{ page.extra.role }}</dd></div>{% endif %}
       {% if page.date %}<div><dt>Written up</dt><dd>{{ page.date | date(format="%b %Y") }}</dd></div>{% endif %}
+      {% if page.updated %}<div><dt>Updated</dt><dd>{{ page.updated | date(format="%b %Y") }}</dd></div>{% endif %}
       {% if page.extra.repo_url %}<div><dt>Source</dt><dd><a href="{{ page.extra.repo_url }}">GitHub &nearr;</a></dd></div>{% endif %}
     </dl>
   </section>

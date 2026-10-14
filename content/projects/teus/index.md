@@ -1,200 +1,83 @@
 +++
-title = "Teus — Forecasting Flash Floods Before They Happen"
-description = "A hydrologist-validated deep learning system that forecasts river discharge up to 72 hours ahead using sensor history and external meteorologist-produced rainfall forecasts."
+title = "Teus — River and Flood Forecasting"
+description = "Hourly river-discharge forecasting, evaluated on the rare flood events that average scores hide."
 date = 2024-09-21
+updated = 2026-10-14
+weight = 1
 
 [taxonomies]
 tags = ["Deep Learning", "Time Series Forecasting", "Hydrology", "PyTorch", "Python"]
 
 [extra]
 short_title = "Teus"
-featured_title = "Forecasting flash floods before they happen."
+featured_title = "Forecasting rivers. Studying the floods."
 featured_label = "Flood forecasting"
 featured_topic = "Deep learning & hydrology"
+featured_image = "projects/teus/assets/d22a114-flood-forecast.png"
 og_image = "assets/d22a114-flood-forecast.png"
 kind = "project"
-status = "Analytics complete · App in development"
-role = "Lead AI / Machine Learning Engineer"
+status = "Research & model serving"
+role = "Co-lead, ML engineering"
 repo_url = "https://github.com/hhyurdagul/Teus"
 showcase = true
-stack = ["Python", "PyTorch", "scikit-learn", "Polars", "FastAPI"]
+stack = ["Python", "PyTorch", "scikit-learn", "Polars", "FastAPI", "NeuralForecast"]
+screenshot = "images/projects/teus-running.png"
+screenshot_alt = "Teus run report for a Ridge baseline with per-event metrics and error charts."
 +++
 
-I led Teus's R&D and analytics from raw station data through event-based
-evaluation and model-serving design. The analytics phase is complete; the
-project is now with the software team for application development. I continue to
-coordinate the technical handoff with the hydrologists who validate flood
-definitions, station behavior, rainfall weighting, and every model considered
-for operational use.
+Teus forecasts hourly river discharge and evaluates every model on the rare
+flood events that average scores hide. It is a TÜBİTAK 1832 R&D project that I
+co-lead with a hydraulic engineer; I own the data, modeling, evaluation, and
+serving work.
 
-**72 h forecast horizon** · **3 regions** · **8 stations (5 Shown)** ·
-**Hydrologist-validated flood events** · **Analytics complete**
+{{ figure(src="assets/d22a114-flood-forecast.png", alt="24-hour seq2seq forecast closely tracking observed discharge as station D22A114 rises from about 5 to 72 cubic metres per second", caption="Station D22A114, July 2023: a 24-hour seq2seq forecast (orange) against observed discharge (blue) as the river rose from about 5 to 72 m³/s in four hours. A selected event, forecast with observed rainfall as input. Labels are Turkish: *Debi* = discharge, *Tarih* = date.") }}
 
-{{ figure(src="assets/d22a114-flood-forecast.png", alt="Selected 24-hour flood-event forecast at station D22A114") }}
+## The problem
 
-_Selected validated event, July 4, 2023, D22A114. Discharge rose from
-approximately 5 m³/s to 72 m³/s in four hours. The model matched the peak
-magnitude closely and reached it within an hour; this event's R² was 0.95 and
-flood-window error was approximately 10%._
+{{ figure(src="assets/d22a114-overview.png", alt="Five years of hourly discharge and rainfall at station D22A114, with a handful of flood events marked in red", caption="Five years at D22A114: discharge (dark blue), rainfall (light blue, inverted), and flood events (red). The events that matter are a tiny share of the record.") }}
 
-> The charts retain their original Turkish dashboard labels because the system's
-> users and data are Turkish: **Debi** = discharge, **Yağış** = rainfall,
-> **Taşkın** = flood, **Değer** = value, **Tarih** = date.
+Floods are a small fraction of each station's hourly record, which creates
+three traps:
 
-## Why Early Warning Matters
+- A model that repeats normal conditions scores well on the full series and
+  still misses every flood.
+- Flashy basins go from baseflow to peak within hours, so discharge history
+  alone gives little warning; rainfall has to be an input.
+- Ordinary MAPE explodes near zero flow. Teus reports **thresholded MAPE**,
+  scored only on hours above a station's discharge-quantile threshold.
 
-Flood forecasting is not an abstract benchmark. The World Meteorological
-Organization reports that weather-, climate-, and water-related disasters caused
-more than two million deaths and US$4.3 trillion in economic losses between 1970
-and 2021; countries with limited-to-moderate early-warning coverage have a
-disaster-mortality ratio nearly six times higher than countries with substantial
-coverage.
-[WMO: Weather forecasts and early warnings](https://public.wmo.int/site/science-action/weather-forecasts-and-early-warnings)
+## What it does
 
-Türkiye has recent evidence of that risk. AFAD reported **82 deaths** after the
-August 2021 floods in Bartın, Kastamonu, and Sinop.
-[AFAD: Western Black Sea flood report](https://www.afad.gov.tr/bartin-kastamonu-ve-sinopta-meydana-gelen-yagislar-hakkinda---1-9-1800)
+- Compares classical and neural models, from Ridge baselines to a seq2seq LSTM
+  with attention, on discharge and basin-weighted rainfall.
+- Scores peak-event windows with expanding-window backtests, separately from
+  ordinary flow.
+- Writes every run's predictions, metrics, plots, fitted model, and manifest to
+  an inspectable report.
+- Serves checkpoints that pass loading and input-contract checks through a
+  FastAPI forecast service.
 
-Teus is designed as decision support within that human system: a model can
-surface an early signal, but hydrologists decide whether its behavior is
-credible enough to inform an operational workflow.
+Historical experiments covered **24–72-hour horizons**. The current generation
+targets **1–12-hour forecasts across eight stations**.
 
-## The Modeling Problem
+{{ figure(src="/images/projects/teus-running.png", alt="Teus run report for a Ridge baseline: run settings, a per-event metrics table, and RMSE and thresholded-MAPE charts", caption="A run report for a Ridge baseline: 168 hours of history, a 72-hour horizon, three event backtests. Every run produces one, so weak baselines stay as visible as strong models.") }}
 
-{{ figure(src="assets/d22a114-overview.png", alt="Five years of discharge and rainfall at D22A114, with hydrologist-validated flood events marked in red") }}
+{{ diagram(name="teus", alt="Teus pipeline: station discharge and rain gauges become hourly data with basin-weighted rainfall, threshold-selected peak-event windows, expanding-window backtests, and reproducible run artifacts; registered candidates pass checkpoint validation to become the serving champion behind the FastAPI forecast service.") }}
 
-Flood events occupy roughly 1% of the studied hourly series. That rarity creates
-three evaluation traps:
+## Results and limits
 
-- A model that repeats normal river conditions can score well over the full
-  series while missing the events that matter.
-- Flashy basins can move from low baseflow to a severe peak within hours, so
-  discharge history alone provides little warning.
-- Random train/test splits leak event structure through time, while
-  normalization over the full series leaks future information.
+Selected events show both sides of the model. At D22A114 it matched a sharp
+peak closely. At D08A084, a small and flashy basin, it caught the timing but
+not the magnitude:
 
-Ordinary MAPE is also misleading when discharge approaches zero: small absolute
-errors become extreme percentages and dominate the average. Teus therefore uses
-**flood-window MAPE** only during hours where discharge exceeds a
-station-specific, hydrologist-validated event threshold. This preserves an
-interpretable percentage error for the high-flow period without allowing quiet
-months to overwhelm the result.
+{{ figure(src="assets/d08a084-hard-event.png", alt="Forecast at station D08A084 that rises at the right time but peaks near 5 cubic metres per second against an observed peak near 20", caption="Station D08A084, April 2021: the right timing, but about 5 m³/s predicted against an observed peak near 20 m³/s.") }}
 
-The hydrology team defines and validates station-specific floods against
-official government values and domain knowledge. The evaluation does not infer
-operational floods from a generic statistical cutoff.
+These are conditional experiments. Historical runs use observed future
+rainfall rather than archived weather forecasts, and flood thresholds are
+computed on the full series. **No station yet passes the strict high-flow
+gate**: at least 24 distinct targets, P99-event MAPE under 10%, and finite,
+non-negative predictions. The evaluation interval has also been reused for
+diagnostics, so the next accuracy claim needs a fresh, locked holdout.
 
-## Evaluation That Matches Deployment
-
-I built the backtest protocol before comparing architectures:
-
-1. Hydrologists validate flood events and station thresholds using official
-   values.
-2. Non-overlapping event windows are evaluated in time order with an expanding
-   training window.
-3. Every forecast is produced by a model that has not seen the event's future;
-   normalization is fitted on training rows only and boundaries are purged.
-4. Models are scored with flood-window MAE and MAPE, plus a six-hour peak-window
-   MAPE that isolates the most operationally important period.
-
-Rainfall is a first-class input. Basin gauges are weighted using contributions
-supplied through hydrological studies, while the decoder receives a **three-day
-external rainfall forecast produced by meteorologists**. That forecast is
-available when Teus issues its discharge prediction—it is not subsequently
-observed rainfall introduced during evaluation.
-
-## A Controlled Architecture Comparison
-
-The reported experiment compared five strategies under the same event windows,
-features, and 24-hour and 72-hour horizons:
-
-| Model                           | Forecast strategy                                                                                             |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| **Seq2Seq encoder–decoder RNN** | Encodes 168 hours of history, then generates the horizon while conditioning on the external rainfall forecast |
-| MIMO LSTM / MIMO MLP            | Predicts every horizon step in one operation                                                                  |
-| Autoregressive LSTM / MLP       | Predicts one step, feeds it back, and repeats                                                                 |
-
-The table below contains **selected validated-event case studies**, each
-compared with the strongest baseline on that same event. It illustrates
-behavior; it is not presented as aggregate performance across every event.
-
-| Station | Selected-event Seq2Seq flood MAPE | Same-event strongest baseline |
-| ------- | --------------------------------: | ----------------------------: |
-| D22A114 |                          **8.8%** |                         86.4% |
-| D13A074 |                          **8.2%** |                         38.5% |
-| D08A115 |                         **22.5%** |                         65.2% |
-| D22A082 |                         **22.5%** |                         53.7% |
-| D08A084 |                         **34.7%** |                         88.8% |
-
-The selected cases expose a consistent architectural difference. MIMO models
-tended to smooth sharp peaks, while autoregressive models accumulated error
-across long horizons. Seq2Seq could generate onset, peak, and recession while
-conditioning each future step on the meteorologist's rainfall sequence.
-
-Two implementation choices were especially important:
-
-- **Scheduled sampling:** the decoder gradually trains on its own outputs
-  instead of seeing only ground-truth histories, reducing drift over 72
-  generated steps.
-- **Forecast rainfall in the decoder:** the architecture matches the operational
-  information flow—past river and rainfall observations establish the basin
-  state, then an available rainfall forecast informs the generated discharge
-  path.
-
-## Selected 72-Hour Case
-
-{{ figure(src="assets/d22a082-h72-flood.png", alt="Selected 72-hour forecast of the August 2020 flood event at D22A082") }}
-
-_Selected validated event, August 2020, D22A082. After two quiet days, observed
-discharge rose from approximately 20 to 141 m³/s. The 72-hour forecast
-identified the event day and recession shape but overshot the peak at
-approximately 177 m³/s. That is useful evidence for hydrologist review, not
-proof of aggregate system accuracy._
-
-## Failure Analysis
-
-The system's weakest selected case came from D08A084, a small, flashy basin with
-low baseflow and limited rainfall lead-in.
-
-{{ figure(src="assets/d08a084-hard-event.png", alt="Selected D08A084 failure case where the event timing was detected but the peak magnitude was underpredicted") }}
-
-_Selected validated event, April 2021. The model identified the timing but
-predicted approximately 5 m³/s against an observed peak near 20 m³/s._
-
-The failure is technically informative: relative error becomes unstable near
-zero, the basin has few historical events, and the available inputs do not fully
-represent antecedent soil moisture. These findings motivated research into
-pooled multi-station training and richer basin-state covariates, while the
-application work proceeds with the completed analytics.
-
-## From Analytics to a Human-Approved Product
-
-{{ diagram(name="teus", alt="Teus pipeline: station and rain-gauge data become hydrologist-validated flood events, expanding-window backtests, and reproducible runs; candidates go through hydrologist review before becoming the serving champion behind the FastAPI forecast service and the operational application.") }}
-
-Every run records its dataset fingerprint, parameters, environment, predictions,
-metrics, plots, fitted model, and HTML report. The registry compares technically
-valid candidates per station, horizon, and input contract. Rain-dependent
-candidates are eligible only when the external rainfall forecast is supplied.
-
-Technical validation does not deploy a model. It creates a candidate.
-Hydrologists review its event behavior and operational suitability, and only an
-explicitly approved checkpoint can become the serving champion. The FastAPI
-layer discovers approved models at runtime and keeps the last working champion
-available if a candidate is rejected or fails validation.
-
-## What This Project Demonstrates
-
-- **Evaluation design determines whether a rare-event model is useful.**
-  Event-based, time-ordered backtests prevent normal hours from hiding flood
-  misses.
-- **Inputs and architecture must reflect the real forecasting process.** The
-  decoder consumes a meteorologist-produced rainfall forecast that is genuinely
-  available at inference time.
-- **Selected successes and failures belong together.** Both are necessary for
-  hydrologists to judge where a model is credible.
-- **Human approval is a system boundary.** Model ranking supports domain
-  experts; it does not replace their operational authority.
-- **Research artifacts must survive the software handoff.** Reproducible runs,
-  explicit input contracts, and approved checkpoints allow the application team
-  to build on completed analytics without turning a notebook result into an
-  opaque service.
+Checkpoint serving works. An operational warning system still needs domain
+review and authorized use.

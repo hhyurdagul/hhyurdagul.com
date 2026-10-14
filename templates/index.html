@@ -32,6 +32,11 @@
 
   {% if featured %}
   <article class="card featured">
+    {% set featured_image = featured.extra.featured_image | default(value=featured.extra.screenshot) %}
+    {% if featured_image %}
+    {% set preview = resize_image(path=featured_image, width=960, op="fit_width", format="webp", quality=82) %}
+    <a href="{{ featured.permalink }}" tabindex="-1" aria-hidden="true"><img class="project-preview" src="{{ preview.url }}" alt="" width="{{ preview.width }}" height="{{ preview.height }}" decoding="async"></a>
+    {% endif %}
     <p class="card-meta">
       <span class="eyebrow accent">Featured work</span>
       <span>{{ featured.extra.featured_label | default(value=featured.extra.short_title) }}</span>
@@ -72,6 +77,10 @@
       {% if not featured or project.permalink != featured.permalink %}
       <li>
         <a class="card" href="{{ project.permalink }}">
+          {% if project.extra.screenshot %}
+          {% set preview = resize_image(path=project.extra.screenshot, width=960, op="fit_width", format="webp", quality=82) %}
+          <img class="project-preview" src="{{ preview.url }}" alt="{{ project.extra.screenshot_alt }}" width="{{ preview.width }}" height="{{ preview.height }}" loading="lazy" decoding="async">
+          {% endif %}
           <h3>{{ project.extra.short_title | default(value=project.title) }} <span class="arrow" aria-hidden="true">&rarr;</span></h3>
           <p>{{ project.extra.card_description | default(value=project.description) }}</p>
         </a>

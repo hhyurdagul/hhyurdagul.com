@@ -4,9 +4,9 @@
     "items": [
       {
         "company": "Inveon",
-        "dates": "Nov 2022 - Ongoing",
+        "dates": "Nov 2022 - Sep 2026",
         "url": "https://inveon.com/",
-        "description": "Built search, image classification, and similarity recommendation systems. Developed product search on titles and description metadata without exact match requirements, and a mixture-of-experts style image classifier across 50+ subcategories. Deployed interactive Streamlit platforms and FastAPI backends.",
+        "description": "Built semantic product search, image classification across 50+ subcategories, and multimodal similarity/recommendation systems, deployed through Streamlit and FastAPI. Later work included cancellation/return classification APIs and shipment-to-delivery prediction and analysis, with carrier-specific forecasts and comparisons against actual delivery times.",
         "tools": [
           "Python",
           "FastAPI",
@@ -18,14 +18,16 @@
           "Image Classification",
           "Deep Learning",
           "Semantic Search",
-          "Recommender Systems"
+          "Recommender Systems",
+          "Cancellation/Return Classification",
+          "Delivery Analytics"
         ]
       },
       {
         "company": "Moka",
         "dates": "Feb 2023 - Ongoing",
         "url": "https://www.mokaunited.com/",
-        "description": "Developed fintech/payment ML tools including price/quote prediction, churn prediction, lifetime value analysis, and financial forecasting apps. Designed production pipelines deployed on Azure using Docker and Kubernetes, working with collaborative git pull request workflows.",
+        "description": "Develop price/quote prediction, churn and lifetime-value models, and financial forecasting for fintech/payment workflows. Built batch inference APIs with model-specific feature contracts and missing-feature checks, plus wallet, distributor, and POS forecasting endpoints. Deploy apps on Azure with Docker and Kubernetes, working through team Git pull requests.",
         "tools": [
           "Python",
           "FastAPI",
@@ -42,9 +44,9 @@
       },
       {
         "company": "Ikas",
-        "dates": "Sep 2024 - Ongoing",
+        "dates": "Sep 2024 - Dec 2025",
         "url": "https://ikas.com/",
-        "description": "Created demand, revenue, and call-center forecasting systems integrated directly into their e-commerce SaaS. Deployed desktop Tkinter MLStudio apps and Streamlit business apps backed by inference APIs.",
+        "description": "Built demand, revenue, and call-center forecasting, delivered through deployed Tkinter MLStudio apps, Streamlit tools, and inference APIs. Connected call-volume and average-handling-time forecasts to Erlang staffing calculations in FastAPI, returning agent requirements, service-level estimates, and queue/utilisation measures.",
         "tools": [
           "Python",
           "Tkinter",
@@ -55,7 +57,8 @@
         "domain": [
           "Time-Series Forecasting",
           "Revenue Prediction",
-          "Demand Forecasting"
+          "Demand Forecasting",
+          "Call-Center Staffing / Erlang"
         ]
       },
       {
@@ -81,7 +84,7 @@
       {
         "company": "Badem",
         "dates": "Apr 2022 - Jun 2025",
-        "description": "Constructed concrete strength regression applications, patient churn models, lifetime value estimations, and customer segmentation reports. Shipped multiple Tkinter MLStudio applications and Streamlit dashboard tools.",
+        "description": "Built concrete-strength regression applications, doctor/customer churn models, lifetime-value estimates, and segmentation reports. Delivered Tkinter MLStudio applications and Streamlit tools.",
         "tools": [
           "Python",
           "Tkinter",
@@ -100,7 +103,7 @@
         "company": "Albert Solino",
         "dates": "May 2021 - Jan 2023",
         "url": "https://www.albertsolino.com/",
-        "description": "Conducted BERT-based HR candidate identification feasibility, created a customer database-connected churn/LTV tool, email segmentation pipelines, and mentored mid-level developers on building a Flask MLStudio application.",
+        "description": "Studied BERT-based HR candidate identification, built a database-connected churn/LTV tool and customer/email segmentation pipelines, and mentored two mid-level engineers who built a server-rendered Flask MLStudio application.",
         "tools": [
           "Python",
           "Sentence-Transformers",
@@ -117,9 +120,9 @@
       },
       {
         "company": "Smartiks",
-        "dates": "Jan 2023 - May 2026",
+        "dates": "2023 - May 2026",
         "url": "https://www.smartiks.com.tr/",
-        "description": "Served as Senior ML consultant at the R&D center. Built Basal Metabolic Rate (BMR) prediction models for health sector clients, e-commerce campaign-centric customer clustering (K-Means, DBSCAN, CLARA), and drone-based bird detection algorithms, while leading technical proposal processes for ITEA projects.",
+        "description": "Served as Senior ML consultant at the R&D center, eventually leading a team of three. Led technical writing and scoping for ITEA consortium proposals alongside BMR prediction for health clients, campaign-oriented customer clustering (K-Means, DBSCAN, CLARA), and drone-based bird detection.",
         "tools": [
           "Python",
           "TensorFlow",
@@ -191,14 +194,15 @@
       },
       {
         "company": "Robokobi",
-        "dates": "Jan 2026 - Ongoing",
+        "dates": "Jan 2026 · Completed",
         "url": "https://www.robosme.com/",
-        "description": "Built financial forecasting workflows for CRM and SME business-management software, utilizing Tkinter and Streamlit.",
+        "description": "Built financial forecasting workflows for CRM and SME business-management software with Tkinter and Streamlit tools. Implemented ONNX Runtime CPU inference with saved model configuration, scaling, differencing, and recursive forecast reconstruction.",
         "tools": [
           "Python",
           "Tkinter",
           "Streamlit",
-          "Keras"
+          "Keras",
+          "ONNX Runtime"
         ],
         "domain": [
           "Financial Forecasting",
@@ -227,7 +231,7 @@
         "company": "Unsped",
         "dates": "Sep 2021 - Oct 2022",
         "url": "https://www.unsped.com.tr/",
-        "description": "Engineered import/export logistics analytics, customer churn classification, and CLTV regression, successfully securing TÜBİTAK 1511 grant funding.",
+        "description": "Built import/export logistics analytics, customer churn classification, and CLTV regression, alongside R&D proposal work under TÜBİTAK 1511.",
         "tools": [
           "Python",
           "Pandas",
@@ -239,7 +243,7 @@
         "domain": [
           "Logistics Analytics",
           "Churn/CLTV Modeling",
-          "TÜBİTAK 1511 Grant"
+          "TÜBİTAK 1511 Proposal"
         ]
       },
       {
@@ -260,7 +264,7 @@
       },
       {
         "company": "Teknorot",
-        "dates": "Jan 2021 - Dec 2021",
+        "dates": "May 2020 - Dec 2021",
         "url": "https://www.teknorot.com/",
         "description": "Built automotive export demand forecasting engines for steering and suspension spare parts. Shipped a custom Tkinter MLStudio application managing 10-20 distinct model configurations.",
         "tools": [
@@ -276,7 +280,7 @@
       },
       {
         "company": "Comdata",
-        "dates": "Dec 2020 - Dec 2021",
+        "dates": "May 2020 - Dec 2021",
         "url": "https://www.comdata.com/",
         "description": "Pioneered call-center call volume and handling time forecasting pipelines. Implemented an autoencoder-based anomaly detection workflow to scrub historical training data.",
         "tools": [
@@ -293,7 +297,7 @@
       },
       {
         "company": "SefaMerve",
-        "dates": "Sep 2020 - Dec 2021",
+        "dates": "May 2020 - Dec 2021",
         "url": "https://www.sefamerve.com/",
         "description": "Developed a retail demand forecasting system for new products using CNN-based image similarity matching to historical product data, mapping forecasts based on style resemblance.",
         "tools": [
@@ -325,9 +329,9 @@
       },
       {
         "company": "Gtech",
-        "dates": "Feb 2021 - Sep 2021",
+        "dates": "May 2020 - Sep 2021",
         "url": "https://gtech.com.tr/",
-        "description": "Mentored three mid-level data scientists on machine learning, leading the development of a desktop MLStudio forecasting workbench.",
+        "description": "Mentored three mid-level data scientists in machine learning and software engineering; they built a desktop MLStudio tool for their company as the outcome of that work.",
         "tools": [
           "Python",
           "MLStudio"
@@ -386,7 +390,7 @@
     "items": [
       {
         "company": "Ayasof",
-        "dates": "Jan 2022 - Jan 2023",
+        "dates": "2022 - Jan 2023",
         "description": "Generated demand and sales forecasting pipeline reports for retail operations.",
         "tools": [
           "Python",
@@ -413,7 +417,7 @@
         "company": "JForce",
         "dates": "Apr 2022 - Oct 2023",
         "url": "https://jforce.com.tr/",
-        "description": "Conducted demand forecasting feasibility analysis for restaurant supply chains, alongside training courses for engineers.",
+        "description": "Conducted demand forecasting feasibility analysis for restaurant operations and delivered ML/DL training to more than ten engineers.",
         "tools": [
           "Python"
         ],
