@@ -2,6 +2,8 @@
 
 {% block title %}{{ config.extra.author }} — {{ trans(key="role", lang=lang) }}{% endblock title %}
 {% block ogtitle %}{{ config.extra.author }} — {{ trans(key="role", lang=lang) }}{% endblock ogtitle %}
+{% block description %}{{ section.description }}{% endblock description %}
+{% block ogdesc %}{{ section.description }}{% endblock ogdesc %}
 
 {% block head_extra %}
 <script type="application/ld+json">
@@ -28,6 +30,11 @@
     <p class="pill">Personal Notebook &amp; Archive <span aria-hidden="true">•</span> <span>ML &amp; Systems</span></p>
     <h1>{{ trans(key="bio_1", lang=lang) }}</h1>
     <p class="lede">{{ trans(key="bio_2", lang=lang) }}</p>
+    <p class="actions">
+      <a class="btn primary" href="{{ work_page.permalink }}">{{ trans(key="work", lang=lang) }} &rarr;</a>
+      <a class="btn" href="{{ cv_page.permalink }}">{{ trans(key="cv", lang=lang) }} &rarr;</a>
+      <a class="btn" href="{{ config.extra.email }}">Contact &nearr;</a>
+    </p>
   </header>
 
   {% if featured %}
@@ -52,23 +59,6 @@
 
   <section class="block">
     <header class="block-head">
-      <h2 class="eyebrow">{{ trans(key="writing", lang=lang) }}</h2>
-      <a href="{{ blog.permalink }}">{{ trans(key="all_posts", lang=lang) }} &rarr;</a>
-    </header>
-    <ul class="rows">
-      {% for post in blog.pages | slice(end=6) %}
-      <li>
-        <a href="{{ post.permalink }}">
-          <span>{{ post.title }}</span>
-          <time datetime="{{ post.date | date(format='%Y-%m-%d') }}">{{ post.date | date(format=date_ym) }}</time>
-        </a>
-      </li>
-      {% endfor %}
-    </ul>
-  </section>
-
-  <section class="block">
-    <header class="block-head">
       <h2 class="eyebrow">{{ trans(key="projects", lang=lang) }}</h2>
       <a href="{{ projects.permalink }}">{{ trans(key="all_work", lang=lang) }} &rarr;</a>
     </header>
@@ -86,6 +76,22 @@
         </a>
       </li>
       {% endif %}
+      {% endfor %}
+    </ul>
+  </section>
+  <section class="block">
+    <header class="block-head">
+      <h2 class="eyebrow">{{ trans(key="writing", lang=lang) }}</h2>
+      <a href="{{ blog.permalink }}">{{ trans(key="all_posts", lang=lang) }} &rarr;</a>
+    </header>
+    <ul class="rows">
+      {% for post in blog.pages | slice(end=6) %}
+      <li>
+        <a href="{{ post.permalink }}">
+          <span>{{ post.title }}</span>
+          <time datetime="{{ post.date | date(format='%Y-%m-%d') }}">{{ post.date | date(format=date_ym) }}</time>
+        </a>
+      </li>
       {% endfor %}
     </ul>
   </section>

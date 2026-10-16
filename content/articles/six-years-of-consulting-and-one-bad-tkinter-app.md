@@ -2,7 +2,7 @@
 title = "Six Years of Consulting and One Bad Tkinter App"
 description = "Six years of consulting on forecasting and machine learning, alongside engineering jobs, team leadership, and an MSc thesis still in progress."
 date = 2026-06-30
-updated = 2026-10-14
+updated = 2026-10-15
 
 [taxonomies]
 tags = ["Career", "Machine Learning", "Consulting"]
@@ -227,8 +227,8 @@ handful of smaller deliverables — a Basal Metabolic Rate model for a health
 client, e-commerce customer segmentation, a bird-detection model for drone
 safety. That engagement wrapped up in May 2026.
 
-Underneath those is a long tail of shorter, narrower engagements. Badem is the
-one with the most history — regression and churn/LTV models since 2022 for a
+Underneath those is a long tail of shorter, narrower engagements. During the
+Apr 2022–Jun 2025 Badem engagement, I built regression and churn/LTV models for a
 company serving doctors and family physicians. Past that, there are more
 SME, fintech, and energy clients with the same handful of recurring
 problems: forecasting, churn, fraud, feasibility. The full roster, with dates
@@ -239,12 +239,13 @@ that I started out as one person patching a single overgrown Tkinter file by
 hand for every new client, and somewhere along the way that turned into leading
 teams, writing European grant consortium proposals, and mentoring other
 engineers into building their own versions of the same idea in languages I don't
-even write. I'd still rewrite that first app from scratch if I had the time. I'm
-not sure I'd change much else.
+even write.
 
 ## October Update: The Rewrite
 
-Since the original version of this essay, I rebuilt [MLStudio](@/projects/mlstudio.md)
-as a Streamlit application with a separate modeling backend, time-aware validation,
-and versioned model bundles. The 30+ client deliveries were desktop variants;
-the web app is the newest generation of the same workflow.
+My conclusion about the original desktop app was that I'd rewrite it from
+scratch. I later rebuilt [MLStudio](@/projects/mlstudio.md) in Streamlit/PyTorch,
+with a separate modeling backend, time-aware validation, and versioned model
+bundles. The desktop workbench was used across 30+ organizations and cut time
+to a first validated model from 10 working days to 2; the web app is the newest
+generation of that workflow.

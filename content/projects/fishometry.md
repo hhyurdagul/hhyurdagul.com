@@ -3,7 +3,7 @@ title = "Fishometry — Fish Length From a Photo"
 description = "MSc thesis research on estimating fish length from a single photo, without a ruler, reference object, or camera calibration."
 date = 2026-01-13
 updated = 2026-10-14
-weight = 2
+weight = 3
 
 [taxonomies]
 tags = ["Computer Vision", "Deep Learning", "Monocular Measurement", "Image Segmentation", "PyTorch", "Python"]

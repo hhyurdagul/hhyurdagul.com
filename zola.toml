@@ -27,8 +27,8 @@ og_image = "assets/og.png"
 citation_name = "Yurdagül, H. H."
 
 [languages.en]
-title = "HHYurdagul"
-description = "Personal website of Hasan Hüseyin Yurdagül — ML Engineer & R&D Consultant."
+title = "Hasan Hüseyin Yurdagül"
+description = "Personal website of Hasan Hüseyin Yurdagül — Senior ML Engineer · Applied AI."
 taxonomies = [{ name = "tags", feed = true }]
 generate_feeds = true
 feed_filenames = ["atom.xml", "rss.xml"]
@@ -36,6 +36,7 @@ feed_filenames = ["atom.xml", "rss.xml"]
 [translations]
 writing = "Writing"
 work = "Work"
+cv = "CV"
 projects = "Projects"
 all_posts = "All posts"
 all_work = "All projects"
@@ -55,7 +56,7 @@ about = "About"
 date_full = "%d %B %Y"
 date_ym = "%b %Y"
 email = "Email"
-role = "ML Engineer & R&D Consultant"
+role = "Senior ML Engineer · Applied AI"
 bio_1 = "Leading AI R&D at Universal Software: forecasting, support intelligence, and mentoring engineers."
 bio_2 = "Consulting for Moka on fintech models and serving pipelines; completing an MSc thesis in Computer Engineering."
 

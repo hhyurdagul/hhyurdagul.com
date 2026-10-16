@@ -1,6 +1,6 @@
 +++
 title = "Home"
-description = "Machine learning engineer and consultant. Notes on ML systems, MLOps, and shipping models to production."
+description = "Senior ML Engineer and hands-on Technical Lead: forecasting, applied AI and model-serving systems."
 template = "index.html"
 
 [extra]

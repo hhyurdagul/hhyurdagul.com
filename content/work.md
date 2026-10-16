@@ -1,10 +1,10 @@
 +++
 title = "Work"
-description = "Professional roles and consulting engagements in forecasting, applied ML, mentoring, and R&D proposals, with dates and tech stacks."
+description = "Senior ML Engineer and hands-on Technical Lead: professional roles and consulting work in forecasting, applied AI, and model-serving systems."
 template = "work.html"
 
 [extra]
 kind = "page"
 +++
 
-Since 2020, my work has grown from an overgrown Tkinter forecasting tool into model-serving systems, team leadership, mentoring, and European research proposals. I lead AI R&D at Universal Software; Moka is my only active consulting client. Below are my professional roles and past and current engagements, with dates and tech stacks.
+Since September 2020, my independent consulting work has grown from a desktop forecasting workbench into model-serving systems, team leadership, and mentoring, alongside my engineering roles. I'm a Senior ML Engineer and hands-on Technical Lead leading AI R&D at Universal Software; Moka is my only active consulting client. Below are my professional roles and past and current engagements, with dates and tech stacks. For a concise overview, see my [CV](@/cv.md).

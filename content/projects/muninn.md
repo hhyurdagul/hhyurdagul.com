@@ -2,7 +2,7 @@
 title = "Muninn — An Agent for Markdown Notes"
 description = "A Rust LLM agent that searches and edits a Markdown vault from the terminal, or as an MCP server for coding agents."
 date = 2026-10-14
-weight = 5
+weight = 4
 
 [taxonomies]
 tags = ["Rust", "LLM", "MCP", "Developer Tools", "Software Engineering"]

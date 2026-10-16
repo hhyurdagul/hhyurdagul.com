@@ -2,8 +2,8 @@
 title = "MLStudio — Train and Compare Models"
 description = "A web app for training, validating, and reusing regression and time-series models without model-specific code."
 date = 2026-07-07
-updated = 2026-10-14
-weight = 4
+updated = 2026-10-15
+weight = 6
 
 [taxonomies]
 tags = ["Machine Learning", "MLOps", "Streamlit", "Time Series Forecasting", "Python", "Product Engineering"]
@@ -11,7 +11,7 @@ tags = ["Machine Learning", "MLOps", "Streamlit", "Time Series Forecasting", "Py
 [extra]
 short_title = "MLStudio"
 monogram = "ML"
-card_description = "A desktop ML tool used by 30+ companies, rebuilt as a web app with a separate modeling backend."
+card_description = "A desktop forecasting workbench used across 30+ organizations, cutting time to a first validated model from 10 working days to 2; rebuilt in Streamlit/PyTorch."
 kind = "project"
 status = "Deployed"
 role = "Creator and lead engineer"
@@ -24,9 +24,11 @@ screenshot_alt = "MLStudio regression workspace with validation metrics and a pr
 
 MLStudio lets people train, validate, and reuse regression and time-series
 models through a guided interface instead of model-specific code. Its original
-Tkinter version grew out of my consulting work and was used by **30+
-companies**. I led its rebuild into the deployed Streamlit application, with two
-testers.
+Tkinter workbench grew out of my consulting work and was used across **30+
+organizations**, cutting time to a first validated model from **10 working
+days to 2**. I later rewrote it in Streamlit/PyTorch, separating the modeling
+backend from the interface and adding time-aware validation and versioned model
+bundles. Both figures refer to the desktop workbench.
 
 {{ figure(src="/images/projects/mlstudio-running.png", alt="MLStudio supervised workspace with a synthetic energy dataset, an 80/20 split, validation metrics, and predicted-versus-actual values", caption="The supervised workspace on 240 synthetic energy-use rows: a linear regression on an 80/20 split, with validation metrics and predicted-versus-actual values.") }}
 

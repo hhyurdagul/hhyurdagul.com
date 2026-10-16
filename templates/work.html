@@ -55,7 +55,7 @@
   <section id="engagements-{{ loop.index }}" class="block">
     <header class="block-head">
       <h2 class="eyebrow">{{ g.label }}</h2>
-      <span>{{ g.items | length }} clients</span>
+      <span>{{ g.items | length }} {{ g.unit | default(value="clients") }}</span>
     </header>
     <ul class="stack">
       {% for c in g.items %}
@@ -74,7 +74,8 @@
             {% for d in c.domain %}<li class="accent">{{ d }}</li>{% endfor %}
           </ul>
           {% endif %}
-          {% if c.url %}<p><a class="accent-link" href="{{ c.url }}">{{ c.company }} website &nearr;</a></p>{% endif %}
+          {% if c.url | default(value="") %}<p><a class="accent-link" href="{{ c.url }}">{{ c.company }} website &nearr;</a></p>{% endif %}
+          {% if c.project_url | default(value="") %}<p><a class="accent-link" href="{{ get_url(path=c.project_url) }}">Project details &rarr;</a></p>{% endif %}
         </details>
       </li>
       {% endfor %}

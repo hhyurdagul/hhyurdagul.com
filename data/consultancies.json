@@ -6,7 +6,7 @@
         "company": "Inveon",
         "dates": "Nov 2022 - Sep 2026",
         "url": "https://inveon.com/",
-        "description": "Built semantic product search, image classification across 50+ subcategories, and multimodal similarity/recommendation systems, deployed through Streamlit and FastAPI. Later work included cancellation/return classification APIs and shipment-to-delivery prediction and analysis, with carrier-specific forecasts and comparisons against actual delivery times.",
+        "description": "Built semantic product search and a mixture-of-experts classifier reaching 91% top-1 accuracy across 50+ subcategories, in production since 2023. Also delivered multimodal similarity/recommendation systems, order cancellation/return prediction APIs, and shipment-to-delivery analytics with carrier-specific forecasts and comparisons against actual delivery times.",
         "tools": [
           "Python",
           "FastAPI",
@@ -27,12 +27,13 @@
         "company": "Moka",
         "dates": "Feb 2023 - Ongoing",
         "url": "https://www.mokaunited.com/",
-        "description": "Develop price/quote prediction, churn and lifetime-value models, and financial forecasting for fintech/payment workflows. Built batch inference APIs with model-specific feature contracts and missing-feature checks, plus wallet, distributor, and POS forecasting endpoints. Deploy apps on Azure with Docker and Kubernetes, working through team Git pull requests.",
+        "description": "Build churn/lifetime-value scoring, price-quote prediction, and financial forecasting behind FastAPI with validated feature contracts, on Azure, Docker, and Kubernetes. The merchant-churn model reached 0.93 F1 / 0.95 ROC-AUC in nested cross-validation. Serving work includes batch inference with missing-feature checks and wallet, distributor, and POS forecasting endpoints.",
         "tools": [
           "Python",
           "FastAPI",
           "Streamlit",
           "Docker",
+          "Kubernetes",
           "Azure",
           "Git"
         ],
@@ -46,7 +47,8 @@
         "company": "Ikas",
         "dates": "Sep 2024 - Dec 2025",
         "url": "https://ikas.com/",
-        "description": "Built demand, revenue, and call-center forecasting, delivered through deployed Tkinter MLStudio apps, Streamlit tools, and inference APIs. Connected call-volume and average-handling-time forecasts to Erlang staffing calculations in FastAPI, returning agent requirements, service-level estimates, and queue/utilisation measures.",
+        "project_url": "/projects/ikas/",
+        "description": "Built call-center planning APIs that turn call-volume and handling-time forecasts into Erlang-based staffing requirements, alongside demand and revenue forecasting services. Delivered Tkinter MLStudio apps, Streamlit tools, and FastAPI inference endpoints returning agent requirements, service-level estimates, and queue/utilisation measures.",
         "tools": [
           "Python",
           "Tkinter",
@@ -122,7 +124,7 @@
         "company": "Smartiks",
         "dates": "2023 - May 2026",
         "url": "https://www.smartiks.com.tr/",
-        "description": "Served as Senior ML consultant at the R&D center, eventually leading a team of three. Led technical writing and scoping for ITEA consortium proposals alongside BMR prediction for health clients, campaign-oriented customer clustering (K-Means, DBSCAN, CLARA), and drone-based bird detection.",
+        "description": "Led a three-person AI/R&D team on predictive modeling, segmentation, and drone-based bird detection, and wrote the technical parts of ITEA consortium proposals. Modeling work included BMR prediction for health clients and campaign-oriented customer clustering with K-Means, DBSCAN, and CLARA.",
         "tools": [
           "Python",
           "TensorFlow",
@@ -281,7 +283,6 @@
       {
         "company": "Comdata",
         "dates": "May 2020 - Dec 2021",
-        "url": "https://www.comdata.com/",
         "description": "Pioneered call-center call volume and handling time forecasting pipelines. Implemented an autoencoder-based anomaly detection workflow to scrub historical training data.",
         "tools": [
           "Python",
@@ -498,6 +499,20 @@
           "Fraud Detection",
           "Risk Classification"
         ]
+      }
+    ]
+  },
+  {
+    "label": "Reusable consulting tools",
+    "unit": "tools",
+    "items": [
+      {
+        "company": "MLStudio",
+        "dates": "Desktop lineage · Streamlit/PyTorch rewrite",
+        "project_url": "/projects/mlstudio/",
+        "description": "Built a reusable desktop forecasting workbench used across 30+ organizations, cutting time to a first validated model from 10 working days to 2. Later rewrote it in Streamlit/PyTorch with time-aware validation and versioned model bundles.",
+        "tools": ["Python", "Tkinter", "Streamlit", "PyTorch", "Polars", "scikit-learn"],
+        "domain": ["Forecasting Workbench", "Model Validation"]
       }
     ]
   }

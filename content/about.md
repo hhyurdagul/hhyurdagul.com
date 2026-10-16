@@ -1,12 +1,12 @@
 +++
 title = "About"
-description = "ML Engineer and R&D Consultant. What I do, how I work, and how to reach me."
+description = "Senior ML Engineer and hands-on Technical Lead working on forecasting, retrieval and applied AI."
 
 [extra]
 kind = "about"
 +++
 
-I'm Hasan Hüseyin Yurdagül, an ML Engineer and R&D Consultant. I design and ship machine learning systems where wrong predictions have real costs — model development, evaluation, and MLOps, from pilot to production.
+I'm Hasan Hüseyin Yurdagül, a Senior ML Engineer and hands-on Technical Lead working on forecasting, retrieval and applied AI. I design and ship machine learning systems where wrong predictions have real costs — model development, evaluation, and MLOps, from pilot to production.
 
 I'm currently leading the AI R&D roadmap at Universal Software, mentoring engineers and working on forecasting and support intelligence. Alongside that role, I consult for Moka on fintech models and their serving pipelines.
 
@@ -18,8 +18,9 @@ That has meant connecting call-volume forecasts to Erlang staffing calculations 
 
 ## Background
 
-- BSc in Computer Engineering, Çukurova University; now completing my MSc thesis in Computer Engineering there.
-- My thesis, [Fishometry](@/projects/fishometry.md), estimates fish length from a single uncalibrated photo, comparing geometric, relative-depth, and learned image features.
+- BSc in Computer Engineering (English-medium), Çukurova University, Sep 2016–Aug 2021.
+- MSc in Computer Engineering, Çukurova University, Aug 2023–Present · thesis in progress.
+- Thesis: *AI-Driven Object Size Prediction in Visual Data Without Depth Information and Reference Points*. [Fishometry](@/projects/fishometry.md) estimates fish length from a single uncalibrated photo, comparing geometric, relative-depth, and learned image features.
 - Applied work across forecasting, computer vision, recommenders, and NLP/LLM systems, including serving and model handoff.
 - I write up what I learn in [articles](@/articles/_index.md).
 

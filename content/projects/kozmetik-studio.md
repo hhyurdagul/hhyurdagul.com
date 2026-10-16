@@ -2,7 +2,7 @@
 title = "Kozmetik Stüdyo — A Local Editorial Workspace"
 description = "A local-first Rust desktop app that keeps product research, articles, and images connected without mixing them."
 date = 2026-10-14
-weight = 6
+weight = 8
 
 [taxonomies]
 tags = ["Rust", "Desktop Applications", "SQLite", "Software Engineering"]

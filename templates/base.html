@@ -59,12 +59,13 @@
 <body>
   {#- Active section, for aria-current in the nav. #}
   {% set_global sec = "" %}
-  {% if section and section.extra.kind %}{% set_global sec = section.extra.kind %}{% elif page and page.components %}{% if "articles" in page.components %}{% set_global sec = "posts" %}{% elif "projects" in page.components %}{% set_global sec = "projects" %}{% elif "about" in page.components %}{% set_global sec = "about" %}{% elif "work" in page.components %}{% set_global sec = "career" %}{% endif %}{% endif %}
+  {% if section and section.extra.kind %}{% set_global sec = section.extra.kind %}{% elif page and page.components %}{% if "articles" in page.components %}{% set_global sec = "posts" %}{% elif "projects" in page.components %}{% set_global sec = "projects" %}{% elif "about" in page.components %}{% set_global sec = "about" %}{% elif "work" in page.components %}{% set_global sec = "career" %}{% elif "cv" in page.components %}{% set_global sec = "cv" %}{% endif %}{% endif %}
   {% set is_home = section and section.path == "/" %}
   {% set articles_sec = get_section(path="articles/_index.md", lang=lang) %}
   {% set projects_sec = get_section(path="projects/_index.md", lang=lang) %}
   {% set about_page = get_page(path="about.md", lang=lang) %}
   {% set work_page = get_page(path="work.md", lang=lang) %}
+  {% set cv_page = get_page(path="cv.md", lang=lang) %}
 
   <a class="skip-link" href="#content">Skip to content</a>
 
@@ -110,6 +111,10 @@
           <a href="{{ work_page.permalink }}"{% if sec == 'career' %} aria-current="page"{% endif %}>
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M9 13h6M9 17h6"/></svg>
             {{ trans(key="work", lang=lang) }}
+          </a>
+          <a href="{{ cv_page.permalink }}"{% if sec == 'cv' %} aria-current="page"{% endif %}>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M9 13h6M9 17h6"/></svg>
+            {{ trans(key="cv", lang=lang) }}
           </a>
           <a href="{{ about_page.permalink }}"{% if sec == 'about' %} aria-current="page"{% endif %}>
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zm-4 7a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z"/></svg>

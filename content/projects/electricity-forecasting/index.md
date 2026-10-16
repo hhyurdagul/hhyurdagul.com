@@ -3,7 +3,7 @@ title = "Electricity Forecasting — The Turkish Grid"
 description = "Zero-shot TimesFM forecasts benchmarked against EPİAŞ's official hourly demand plan."
 date = 2025-03-20
 updated = 2026-10-14
-weight = 3
+weight = 7
 
 [taxonomies]
 tags = ["Time Series Forecasting", "Foundation Models", "TimesFM", "Python", "Polars", "Streamlit", "Energy"]
