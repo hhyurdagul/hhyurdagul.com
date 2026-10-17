@@ -5,23 +5,24 @@ date = 2026-10-15
 weight = 2
 
 [taxonomies]
-tags = ["Machine Learning", "NLP", "LLM", "RAG", "Topic Modeling", "Python"]
+tags = ["Machine Learning", "NLP", "LLM", "RAG", "Fine-tuning", "Topic Modeling", "Python"]
 
 [extra]
 short_title = "MdsAI"
 monogram = "AI"
-card_description = "Support history turned into retrieved evidence and human-reviewed answer drafts for 60+ municipalities."
+card_description = "Support history turned into retrieved evidence and human-reviewed answer drafts for 84 municipalities."
 kind = "project"
 status = "Deployed · Active R&D"
 role = "Technical lead, AI R&D"
 showcase = true
-stack = ["Python", "Polars", "EmbeddingGemma", "Sentence Transformers", "UMAP + HDBSCAN", "BERTopic", "LightGBM / XGBoost", "scikit-learn", "Gemini API"]
+stack = ["Python", "Polars", "EmbeddingGemma", "Sentence Transformers", "UMAP + HDBSCAN", "BERTopic", "LightGBM / XGBoost", "scikit-learn", "Gemma 4 / Qwen (LoRA fine-tuned)", "vLLM"]
 screenshot = "images/projects/mdsai-retrieval.png"
 screenshot_alt = "Recall@1 and Recall@5 for four retrieval methods on 151 real support questions with 2,000 distractor tickets."
 +++
 
-MdsAI is the AI layer of Universal Software's municipal software support desk,
-which serves more than 60 municipalities. A new ticket arrives; the platform
+MdsAI is the AI layer of Universal Software's support desk for FlexCity, the
+company's city-management platform, which runs in 84 municipalities: 14
+metropolitan and 70 district municipalities. A new ticket arrives; the platform
 retrieves solved tickets that look like it, drafts an answer with an LLM from
 their approved solutions, and suggests where the ticket should go. A support
 expert reviews, edits, accepts, or rejects every draft before it reaches a
@@ -146,18 +147,36 @@ right evidence reaches the drafting step, not how good the final answers are.
 
 ## The workflow
 
-{{ diagram(name="mdsai", alt="MdsAI flow: a new ticket is normalized, relevant solved tickets are retrieved, Gemini drafts an answer and routing is suggested, and a support expert approves, edits, or rejects it, with rejections feeding evaluation.") }}
+{{ diagram(name="mdsai", alt="MdsAI flow: a new ticket is normalized, relevant solved tickets are retrieved, a fine-tuned model served on-premises drafts an answer and routing is suggested, and a support expert approves, edits, or rejects it, with rejections feeding evaluation.") }}
 
 The assistant retrieves similar solved tickets and passes their approved
-solutions to Gemini as context. The draft appears in the support workflow next
-to the cases it was built from, and an expert stays responsible for the answer.
-The LLM speeds the expert up; it does not answer customers on its own.
+solutions as context to a language model running on Universal's own servers.
+The draft appears in the support workflow next to the cases it was built from,
+and an expert stays responsible for the answer. The LLM speeds the expert up;
+it does not answer customers on its own.
+
+### Models on our own servers
+
+Municipal support tickets carry citizen and institution data, so the drafting
+models run on-premises. I fine-tuned Gemma 4 (12B and 27B) and Qwen models of
+similar size on the desk's Turkish support language, its module names, error
+codes, and the way people actually write tickets, and serve them with vLLM so
+many tickets are drafted in parallel. A draft comes back in under a minute, no
+ticket leaves the building, and the cost per ticket is close to zero because
+there is no per-token bill.
+
+Routing is moving the same way. Ticket categories and assignments are often
+wrong because people file tickets in a hurry, and the current fix is an
+embedding model plus a classifier. I am replacing it with decision models such
+as Jev, Laya, and Clef: instead of generating text, they read the ticket and
+return a calibrated probability for each queue or category the desk defines,
+so a low-confidence ticket can go to a person instead of the wrong team.
 
 | State                  | Capability                                                                                                    |
 | :--------------------- | :------------------------------------------------------------------------------------------------------------ |
-| **Deployed**           | Retrieval of solved cases, evidence-backed answer drafts, routing suggestions, expert approval in the workflow |
+| **Deployed**           | Retrieval of solved cases, evidence-backed answer drafts from fine-tuned Gemma 4 / Qwen models served on-premises with vLLM, routing suggestions, expert approval in the workflow |
 | **Measured research**  | Corpus filtering, embedding benchmark, taxonomy redesign, retrieval benchmark, 281-cluster topic analysis       |
-| **Active development** | Assignee and resolution-time models, SLA-risk signals, anomaly detection, trend reporting                      |
+| **Active development** | Decision models (Jev, Laya, Clef) for auto-routing and for correcting misfiled ticket categories, replacing the embedding-plus-classifier models; assignee and resolution-time models, SLA-risk signals, anomaly detection, trend reporting |
 
 ## What I took from it
 
@@ -169,5 +188,8 @@ The LLM speeds the expert up; it does not answer customers on its own.
 - **Simple retrieval can win.** On this text, product scoping and character
   n-grams beat a general-purpose dense model; the benchmark, not intuition,
   decided that.
+- **Owning the model fits the public sector.** Fine-tuned open models on our
+  own servers keep citizen data in house and bring the cost of a draft close
+  to zero.
 - **A label space can be the bottleneck.** Redesigning 194 categories into
   seven gave the team a prediction task it could act on.

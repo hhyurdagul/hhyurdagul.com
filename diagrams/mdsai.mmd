@@ -2,7 +2,7 @@ flowchart LR
     A["New support ticket"] --> B["Normalized ticket context"]
     B --> C["EmbeddingGemma retrieval"]
     C --> D["Relevant solved tickets<br/>and approved solutions"]
-    D --> E["Gemini answer draft"]
+    D --> E["Fine-tuned Gemma / Qwen draft<br/>(vLLM, on-premises)"]
     B --> F["Category and routing suggestions"]
     E --> G["Support-expert review"]
     F --> G

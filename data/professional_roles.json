@@ -6,7 +6,7 @@
     "loc": "Istanbul-based · Remote",
     "description": "Lead the hands-on AI R&D roadmap, architecture reviews, delivery planning, and stakeholder coordination; mentor up to 5 engineers building ML products for municipalities, ministries, and utilities.",
     "highlights": [
-      "Architected MdsAI, a human-in-the-loop support intelligence platform for 60+ municipalities over 132K support events / 29K tickets. Evidence retrieval reached 97% Recall@5 offline; answer drafts and automated routing helped cut median first-response time by 50%.",
+      "Architected MdsAI, a human-in-the-loop support intelligence platform for 84 municipalities over 132K support events / 29K tickets. Evidence retrieval reached 97% Recall@5 offline; on-premises answer drafts from fine-tuned Gemma 4 / Qwen models served with vLLM, plus automated routing, helped cut median first-response time by 50%.",
       "Co-lead a TÜBİTAK 1832 national R&D grant with hydraulic engineers; designed attention-based seq2seq river-discharge forecasting with event-based backtests and FastAPI serving for 8 gauging stations (Teus).",
       "Led the technical work on Horizon Europe consortium proposals for flood and fire prediction, translating domain requirements into research plans and system designs."
     ],
