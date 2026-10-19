@@ -10,29 +10,33 @@ tags = ["Machine Learning", "NLP", "LLM", "RAG", "Fine-tuning", "Topic Modeling"
 [extra]
 short_title = "MdsAI"
 monogram = "AI"
-card_description = "Support history turned into retrieved evidence and human-reviewed answer drafts for 84 municipalities."
+card_description = "Support history turned into human-reviewed answer drafts for a desk serving 60+ municipalities: median first reply from 15.9 h to 2.4 h."
 kind = "project"
 status = "Deployed · Active R&D"
 role = "Technical lead, AI R&D"
 showcase = true
-stack = ["Python", "Polars", "EmbeddingGemma", "Sentence Transformers", "UMAP + HDBSCAN", "BERTopic", "LightGBM / XGBoost", "scikit-learn", "Gemma 4 / Qwen (LoRA fine-tuned)", "vLLM"]
+stack = ["Python", "Polars", "EmbeddingGemma", "Sentence Transformers", "UMAP + HDBSCAN", "BERTopic", "LightGBM / XGBoost", "scikit-learn", "Gemma / Qwen 3 (LoRA, QLoRA)", "vLLM"]
 screenshot = "images/projects/mdsai-retrieval.png"
 screenshot_alt = "Recall@1 and Recall@5 for four retrieval methods on 151 real support questions with 2,000 distractor tickets."
 +++
 
 MdsAI is the AI layer of Universal Software's support desk for FlexCity, the
-company's city-management platform, which runs in 84 municipalities: 14
-metropolitan and 70 district municipalities. A new ticket arrives; the platform
-retrieves solved tickets that look like it, drafts an answer with an LLM from
-their approved solutions, and suggests where the ticket should go. A support
-expert reviews, edits, accepts, or rejects every draft before it reaches a
-customer.
+company's city-management platform, which runs in 60+ municipalities. When a new
+ticket arrives and a similar solved ticket exists (68% of new tickets), the
+platform retrieves those cases and drafts a cited answer with an LLM from their
+approved solutions. When nothing similar exists, it cleans up the text, corrects
+the category and routes the ticket to the right person. A support expert
+reviews, edits, accepts, or rejects every draft before it reaches a customer.
 
 I lead the AI and data work: corpus preparation, retrieval and model research,
 evaluation, and the integration with the ticket workflow, working with support
 experts on what useful behavior looks like and with software engineers on where
-it lives. Since the assistant went into the workflow, median first-response
-time has fallen by half.
+it lives. After rollout, the median time to a first written reply fell from 15.9
+hours (26,160 tickets, 2022–2025) to 2.4 hours (9,800 tickets, January–June
+2026). 61% of drafts go out with light or no edits, which saves the desk an
+estimated 1.5 full-time staff, and tickets re-routed after their first
+assignment fell from 24% to 9%. This is a before/after comparison, not a
+controlled experiment.
 
 ## The problem
 
@@ -116,7 +120,8 @@ labels, including near-duplicates and classes with fewer than ten examples;
 predicting them gave about 0.14 macro-F1. Support experts consolidated them
 into seven operational groups, on which the model reached 0.46 macro-F1 and
 0.67 accuracy. Those are different prediction tasks, so the result argues for
-redesigning the taxonomy rather than showing a threefold better model.
+redesigning the taxonomy rather than showing a threefold better model. In the
+live desk, tickets re-routed after their first assignment fell from 24% to 9%.
 
 ## Measuring retrieval on real questions
 
@@ -158,12 +163,13 @@ it does not answer customers on its own.
 ### Models on our own servers
 
 Municipal support tickets carry citizen and institution data, so the drafting
-models run on-premises. I fine-tuned Gemma 4 (12B and 27B) and Qwen models of
-similar size on the desk's Turkish support language, its module names, error
-codes, and the way people actually write tickets, and serve them with vLLM so
-many tickets are drafted in parallel. A draft comes back in under a minute, no
-ticket leaves the building, and the cost per ticket is close to zero because
-there is no per-token bill.
+models run on-premises. I fine-tuned dense 7–12B open models from the Gemma and
+Qwen 3 families with LoRA and QLoRA on the desk's Turkish support language, its
+module names, error codes, and the way people actually write tickets, and
+compared them with a 27B model used as-is as a Turkish-language baseline. They
+are served with vLLM on company GPUs, so many tickets are drafted in parallel:
+a cited draft takes from 10 seconds to a few minutes, drafting runs in-house,
+and there is no per-token API bill.
 
 Routing is moving the same way. Ticket categories and assignments are often
 wrong because people file tickets in a hurry, and the current fix is an
@@ -174,7 +180,7 @@ so a low-confidence ticket can go to a person instead of the wrong team.
 
 | State                  | Capability                                                                                                    |
 | :--------------------- | :------------------------------------------------------------------------------------------------------------ |
-| **Deployed**           | Retrieval of solved cases, evidence-backed answer drafts from fine-tuned Gemma 4 / Qwen models served on-premises with vLLM, routing suggestions, expert approval in the workflow |
+| **Deployed**           | Retrieval of solved cases, evidence-backed answer drafts from LoRA/QLoRA fine-tuned Gemma / Qwen 3 models served on-premises with vLLM, routing suggestions, expert approval in the workflow |
 | **Measured research**  | Corpus filtering, embedding benchmark, taxonomy redesign, retrieval benchmark, 281-cluster topic analysis       |
 | **Active development** | Decision models (Jev, Laya, Clef) for auto-routing and for correcting misfiled ticket categories, replacing the embedding-plus-classifier models; assignee and resolution-time models, SLA-risk signals, anomaly detection, trend reporting |
 
@@ -188,8 +194,7 @@ so a low-confidence ticket can go to a person instead of the wrong team.
 - **Simple retrieval can win.** On this text, product scoping and character
   n-grams beat a general-purpose dense model; the benchmark, not intuition,
   decided that.
-- **Owning the model fits the public sector.** Fine-tuned open models on our
-  own servers keep citizen data in house and bring the cost of a draft close
-  to zero.
+- **Owning the model fits the public sector.** Fine-tuned open models on
+  company GPUs keep drafting in-house with no per-token API bill.
 - **A label space can be the bottleneck.** Redesigning 194 categories into
   seven gave the team a prediction task it could act on.

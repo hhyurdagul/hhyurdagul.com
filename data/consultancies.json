@@ -6,7 +6,7 @@
         "company": "Inveon",
         "dates": "Nov 2022 - Sep 2026",
         "url": "https://inveon.com/",
-        "description": "Built semantic product search and a mixture-of-experts classifier reaching 91% top-1 accuracy across 50+ subcategories, in production since 2023. Also delivered multimodal similarity/recommendation systems, order cancellation/return prediction APIs, and shipment-to-delivery analytics with carrier-specific forecasts and comparisons against actual delivery times.",
+        "description": "Built semantic product search that cut zero-result searches by 35% across 12 stores, and a product classifier that auto-categorizes 20K products a month over 50+ subcategories, in production since 2023. Also delivered multimodal similarity/recommendation systems, order cancellation/return prediction APIs (IEEE ISAS 2025 paper: F1 up to 0.96 on 10K real orders), and shipment-to-delivery analytics with carrier-specific forecasts and comparisons against actual delivery times.",
         "tools": [
           "Python",
           "FastAPI",
@@ -27,13 +27,12 @@
         "company": "Moka",
         "dates": "Feb 2023 - Ongoing",
         "url": "https://www.mokaunited.com/",
-        "description": "Build churn/lifetime-value scoring, price-quote prediction, and financial forecasting behind FastAPI with validated feature contracts, on Azure, Docker, and Kubernetes. The merchant-churn model reached 0.93 F1 / 0.95 ROC-AUC in nested cross-validation. Serving work includes batch inference with missing-feature checks and wallet, distributor, and POS forecasting endpoints.",
+        "description": "Build churn/lifetime-value scoring, price-quote prediction, and financial forecasting behind FastAPI with validated feature contracts, packaged with Docker and deployed on Azure, serving 40K calls a month. Merchant-churn scores drive monthly retention campaigns (18% lower churn in targeted merchants), price-quote prediction cut quote turnaround from 2 days to minutes, and revenue forecasting runs at 5.2% MAPE. The price-quote and revenue work is the basis of two IEEE conference papers (ISAS 2025, ISMSIT 2025). Serving work includes batch inference with missing-feature checks and wallet, distributor, and POS forecasting endpoints.",
         "tools": [
           "Python",
           "FastAPI",
           "Streamlit",
           "Docker",
-          "Kubernetes",
           "Azure",
           "Git"
         ],
@@ -48,7 +47,7 @@
         "dates": "Sep 2024 - Dec 2025",
         "url": "https://ikas.com/",
         "project_url": "/projects/ikas/",
-        "description": "Built call-center planning APIs that turn call-volume and handling-time forecasts into Erlang-based staffing requirements, alongside demand and revenue forecasting services. Delivered Tkinter MLStudio apps, Streamlit tools, and FastAPI inference endpoints returning agent requirements, service-level estimates, and queue/utilisation measures.",
+        "description": "Built call-center planning APIs that turn call-volume and handling-time forecasts into Erlang-based staffing requirements, keeping service level above 80/20 on 95% of days, alongside demand and revenue forecasting services. Delivered Tkinter MLStudio apps, Streamlit tools, and FastAPI inference endpoints returning agent requirements, service-level estimates, and queue/utilisation measures.",
         "tools": [
           "Python",
           "Tkinter",

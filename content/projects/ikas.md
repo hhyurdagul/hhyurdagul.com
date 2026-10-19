@@ -41,8 +41,9 @@ only matching hours go into the staffing calculation.
 
 For each hour, the service returns the forecast call count and handling time
 alongside the required agents, telephone lines, modeled service level,
-utilization, queue measures, and average speed of answer. The forecast and its
-operational interpretation stay in the same row.
+utilization, queue measures, and average speed of answer, keeping service level
+above 80/20 on 95% of days. The forecast and its operational interpretation
+stay in the same row.
 
 ## Staffing against a service-level target
 
