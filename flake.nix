@@ -20,10 +20,25 @@
       # the site's CSS themes (light/dark). Kept out of the dev shell because
       # mermaid-cli pulls in a headless Chromium.
       apps = forAllSystems (pkgs: {
+        # `nix run .#og-cards` → social-preview cards for the site and every
+        # article (static/assets/og.png, static/og/<slug>.png).
+        og-cards = {
+          type = "app";
+          program = toString (pkgs.writeShellScript "og-cards" ''
+            set -euo pipefail
+            export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
+            export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=true
+            exec ${pkgs.python3.withPackages (ps: [ ps.playwright ])}/bin/python3 scripts/og-cards.py
+          '');
+        };
+
         diagrams = {
           type = "app";
           program = toString (pkgs.writeShellScript "render-diagrams" ''
             set -euo pipefail
+            # Measure labels with the site's interface font (Inter), so the
+            # layout fits the text the browser actually draws.
+            export FONTCONFIG_FILE=${pkgs.makeFontsConf { fontDirectories = [ pkgs.inter ]; }}
             cd diagrams
             for src in *.mmd; do
               name="''${src%.mmd}"

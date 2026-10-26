@@ -2,7 +2,7 @@
   "theme": "base",
   "htmlLabels": false,
   "themeVariables": {
-    "fontFamily": "Plus Jakarta Sans, system-ui, sans-serif",
+    "fontFamily": "Inter, system-ui, sans-serif",
     "fontSize": "14px"
   },
   "flowchart": {

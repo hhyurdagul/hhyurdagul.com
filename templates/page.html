@@ -7,7 +7,15 @@
 {% block ogtype %}{% if page.extra.kind | default(value="post") == "post" %}article{% else %}website{% endif %}{% endblock ogtype %}
 
 {% block ogimage %}
-{% if page.extra.og_image %}
+{#- Articles share their own title card (static/og/<slug>.png, made by
+    `nix run .#og-cards`) when one exists. #}
+{% set title_card = get_image_metadata(path="og/" ~ page.slug ~ ".png", allow_missing=true) %}
+{% if title_card and page.extra.kind | default(value="post") == "post" %}
+<meta property="og:image" content="{{ get_url(path='og/' ~ page.slug ~ '.png') }}">
+<meta property="og:image:width" content="{{ title_card.width }}">
+<meta property="og:image:height" content="{{ title_card.height }}">
+<meta property="og:image:alt" content="{{ page.title }}">
+{% elif page.extra.og_image %}
 {% set og_meta = get_image_metadata(path=page.colocated_path ~ page.extra.og_image) %}
 <meta property="og:image" content="{{ page.permalink ~ page.extra.og_image }}">
 <meta property="og:image:width" content="{{ og_meta.width }}">

@@ -89,6 +89,19 @@ paths, client records or credentials.
   ones. No footnotes; nothing jumps to the bottom of the page.
 - `{{ diagram(name="teus", alt="…") }}` — inlines `diagrams/teus.svg`.
 
+## Social cards
+
+Shared links use a 1200×630 card in the site's own type and colours: the site
+card (`static/assets/og.png`) and one per article (`static/og/<slug>.png`,
+picked up automatically by `templates/page.html`). After adding or renaming an
+article, re-render them:
+
+```sh
+nix run .#og-cards
+```
+
+Projects share their screenshot instead.
+
 ## Diagrams
 
 Mermaid sources live in `diagrams/*.mmd`. After editing one, re-render:
@@ -98,3 +111,4 @@ nix run .#diagrams
 ```
 
 This writes style-free SVGs next to the sources; the site CSS themes them.
+Labels are measured with Inter, the font the site draws them in.
