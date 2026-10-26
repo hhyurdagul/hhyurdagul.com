@@ -1,0 +1,32 @@
+{#- Rows shared by the page header (partials/directory.html). #}
+{% macro project_row(item) %}
+<li><a class="row" href="{{ item.permalink }}"><span class="row-main">{{ item.extra.short_title | default(value=item.title) }}</span>{% if item.extra.status %}<span class="row-aside">{{ item.extra.status }}</span>{% endif %}</a></li>
+{% endmacro project_row %}
+
+{% macro article_row(item) %}
+<li><a class="row" href="{{ item.permalink }}"><span class="row-main">{{ item.title }}</span><time class="row-aside" datetime="{{ item.date | date(format='%Y-%m-%d') }}">{{ item.date | date(format="%b %Y") }}</time></a></li>
+{% endmacro article_row %}
+
+{#- A short project card: the screenshot as a window on a small mat, then
+    the name and status, and optionally a two-line summary. Screenshots differ
+    wildly in shape (0.5 to 3:1): tall ones hang from the top and run off the
+    bottom edge, wide ones float centred, so every card reads the same. #}
+{% macro card(project, summary=true) %}
+{% set src = project.extra.screenshot | default(value="") %}
+{% if project.extra.card_description %}{% set text = project.extra.card_description %}{% else %}{% set text = project.description %}{% endif %}
+<li>
+  <a class="card" href="{{ project.permalink }}">
+    {% if src %}
+    {% set meta = get_image_metadata(path=src) %}
+    {% set preview = resize_image(path=src, width=720, op="fit_width", format="webp", quality=82) %}
+    <span class="card-frame {% if meta.width / meta.height > 1.7 %}is-wide{% else %}is-tall{% endif %}">
+      <img src="{{ preview.url }}" alt="{{ project.extra.screenshot_alt | default(value='') }}" width="{{ preview.width }}" height="{{ preview.height }}" loading="lazy" decoding="async">
+    </span>
+    {% else %}
+    <span class="card-frame is-text" aria-hidden="true"><span class="card-mark">{{ project.extra.short_title | default(value=project.title) }}</span></span>
+    {% endif %}
+    <span class="card-title"><span class="card-name">{{ project.extra.short_title | default(value=project.title) }}</span>{% if project.extra.status %}<span class="card-status">{{ project.extra.status }}</span>{% endif %}</span>
+    {% if summary %}<span class="card-summary">{{ text }}</span>{% endif %}
+  </a>
+</li>
+{% endmacro card %}

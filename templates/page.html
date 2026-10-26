@@ -2,7 +2,7 @@
 
 {% block title %}{{ page.title }} · {{ config.title }}{% endblock title %}
 {% block description %}{{ page.description | default(value=config.description) }}{% endblock description %}
-{% block ogtitle %}{{ page.title }}{% endblock ogtitle %}
+{% block ogtitle %}{% if page.extra.kind | default(value="") == "cv" %}{{ config.extra.author }} — CV{% else %}{{ page.title }}{% endif %}{% endblock ogtitle %}
 {% block ogdesc %}{{ page.description | default(value=config.description) }}{% endblock ogdesc %}
 {% block ogtype %}{% if page.extra.kind | default(value="post") == "post" %}article{% else %}website{% endif %}{% endblock ogtype %}
 
@@ -54,43 +54,31 @@
 {% set articles_sec = get_section(path="articles/_index.md", lang=lang) %}
 {% set projects_sec = get_section(path="projects/_index.md", lang=lang) %}
 
-<article class="stack-lg{% if is_project %} project-page{% endif %}">
-  <header class="page-head">
-    {% if is_article %}
-    <a class="back" href="{{ articles_sec.permalink }}">&larr; {{ trans(key="all_posts", lang=lang) }}</a>
-    <h1>{{ page.title }}</h1>
-    <p class="byline">
-      <span>By {{ config.extra.author }}</span>
-      <time datetime="{{ page.date | date(format='%Y-%m-%d') }}">{{ page.date | date(format=date_full) }}</time>
-      <span>{{ page.reading_time }} {{ trans(key="min_read", lang=lang) }}</span>
-    </p>
-    {% if page.extra.intro %}<p class="intro">{{ page.extra.intro }}</p>{% endif %}
-
-    {% elif is_project %}
-    <a class="back" href="{{ projects_sec.permalink }}">&larr; {{ trans(key="all_work", lang=lang) }}</a>
-    <p class="eyebrow accent">Selected project</p>
-    <h1>{{ page.extra.short_title | default(value=page.title) }}</h1>
-    {% if page.extra.status %}<p><span class="badge">{{ page.extra.status }}</span></p>{% endif %}
-    {% if page.description %}<p class="lede">{{ page.description }}</p>{% endif %}
-    {% if page.extra.repo_url or page.extra.demo_url %}
-    <p class="actions">
-      {% if page.extra.repo_url %}<a class="btn" href="{{ page.extra.repo_url }}">Repository <span aria-hidden="true">&nearr;</span></a>{% endif %}
-      {% if page.extra.demo_url %}<a class="btn primary" href="{{ page.extra.demo_url }}">Live demo <span aria-hidden="true">&nearr;</span></a>{% endif %}
-    </p>
-    {% endif %}
-
-    {% else %}
-    <a class="back" href="{{ get_url(path='/', lang=lang) }}">&larr; {{ trans(key="home", lang=lang) }}</a>
-    <h1>{{ page.title }}</h1>
-    {% if page.description %}<p class="lede">{{ page.description }}</p>{% endif %}
-    {% endif %}
-  </header>
-
+<article class="stack-lg{% if is_project %} project-page{% elif is_article %} post{% endif %}">
   <div class="prose">
     {{ page.content | safe }}
   </div>
 
-  {% if is_article or page.taxonomies.tags %}
+  {% if is_project %}
+  {#- Project facts close the page; the write-up itself comes first. #}
+  <footer class="page-foot">
+    <dl class="rows facts">
+      {% if page.extra.status %}<div class="row"><dt>Status</dt><dd>{{ page.extra.status }}</dd></div>{% endif %}
+      {% if page.extra.role %}<div class="row"><dt>Role</dt><dd>{{ page.extra.role }}</dd></div>{% endif %}
+      {% if page.extra.stack %}<div class="row"><dt>Stack</dt><dd>{{ page.extra.stack | join(sep=", ") }}</dd></div>{% endif %}
+      {% if page.date %}<div class="row"><dt>Written up</dt><dd><time datetime="{{ page.date | date(format='%Y-%m-%d') }}">{{ page.date | date(format="%b %Y") }}</time>{% if page.updated %}, updated <time datetime="{{ page.updated | date(format='%Y-%m-%d') }}">{{ page.updated | date(format="%b %Y") }}</time>{% endif %}</dd></div>{% endif %}
+      {% if page.extra.repo_url %}<div class="row"><dt>Source</dt><dd><a href="{{ page.extra.repo_url }}">{{ page.extra.repo_url | replace(from="https://", to="") }}</a></dd></div>{% endif %}
+      {% if page.extra.demo_url %}<div class="row"><dt>Demo</dt><dd><a href="{{ page.extra.demo_url }}">{{ page.extra.demo_url | replace(from="https://", to="") }}</a></dd></div>{% endif %}
+    </dl>
+    {% if page.taxonomies.tags %}
+    <ul class="chips" aria-label="{{ trans(key='tags', lang=lang) }}">
+      {% for tag in page.taxonomies.tags %}
+      <li><a href="{{ get_taxonomy_url(kind='tags', name=tag, lang=lang) }}">#{{ tag }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </footer>
+  {% elif is_article or page.taxonomies.tags %}
   <footer class="page-foot">
     {% if page.taxonomies.tags %}
     <ul class="chips" aria-label="{{ trans(key='tags', lang=lang) }}">
@@ -127,76 +115,3 @@
 </article>
 {% endblock content %}
 
-{% block right_rail %}
-{% set kind = page.extra.kind | default(value="post") %}
-{% set is_article = kind == "post" and page.date %}
-{% set is_project = kind == "project" %}
-{% set has_toc = page.toc and page.extra.toc | default(value=true) %}
-
-{% if is_article %}
-  {% if has_toc %}
-  <section>
-    <h2 class="eyebrow">{{ trans(key="toc", lang=lang) }}</h2>
-    <nav class="toc" aria-label="{{ trans(key='toc', lang=lang) }}">
-      <ol>
-        {% for h in page.toc %}
-        <li>
-          <a href="#{{ h.id }}">{{ h.title }}</a>
-          {% if h.children %}
-          <ol>
-            {% for c in h.children %}<li><a href="#{{ c.id }}">{{ c.title }}</a></li>{% endfor %}
-          </ol>
-          {% endif %}
-        </li>
-        {% endfor %}
-      </ol>
-    </nav>
-  </section>
-  {% endif %}
-  <section>
-    <h2 class="eyebrow">Subscribe</h2>
-    <ul class="links">
-      <li><a href="{{ get_url(path='rss.xml', lang=lang) }}">{{ trans(key="rss", lang=lang) }} feed <span aria-hidden="true">&nearr;</span></a></li>
-      <li><a href="{{ get_url(path='atom.xml', lang=lang) }}">{{ trans(key="atom", lang=lang) }} feed <span aria-hidden="true">&nearr;</span></a></li>
-    </ul>
-  </section>
-
-{% elif is_project %}
-  {% if page.extra.stack %}
-  <section>
-    <h2 class="eyebrow">Stack</h2>
-    <ul class="chips">
-      {% for tech in page.extra.stack %}<li>{{ tech }}</li>{% endfor %}
-    </ul>
-  </section>
-  {% endif %}
-  <section>
-    <h2 class="eyebrow">Project</h2>
-    <dl class="panel kv">
-      {% if page.extra.status %}<div><dt>Status</dt><dd class="ok">{{ page.extra.status }}</dd></div>{% endif %}
-      {% if page.extra.role %}<div><dt>Role</dt><dd>{{ page.extra.role }}</dd></div>{% endif %}
-      {% if page.date %}<div><dt>Written up</dt><dd>{{ page.date | date(format="%b %Y") }}</dd></div>{% endif %}
-      {% if page.updated %}<div><dt>Updated</dt><dd>{{ page.updated | date(format="%b %Y") }}</dd></div>{% endif %}
-      {% if page.extra.repo_url %}<div><dt>Source</dt><dd><a href="{{ page.extra.repo_url }}">GitHub &nearr;</a></dd></div>{% endif %}
-    </dl>
-  </section>
-
-{% else %}
-  <section>
-    <h2 class="eyebrow">Colophon</h2>
-    <dl class="panel kv">
-      <div><dt>Type</dt><dd>Newsreader, Plus Jakarta Sans, JetBrains Mono</dd></div>
-      <div><dt>Built with</dt><dd>Zola, hand-written CSS</dd></div>
-      <div><dt>JavaScript</dt><dd>One tiny inline script for the theme toggle</dd></div>
-      <div><dt>Tracking</dt><dd>None. No cookies, no third-party requests</dd></div>
-    </dl>
-  </section>
-  <section>
-    <h2 class="eyebrow">Contact</h2>
-    <div class="panel">
-      <p>Available for select advisory and machine learning consultations.</p>
-      <p><a class="accent-link" href="{{ config.extra.email }}">{{ config.extra.email | replace(from="mailto:", to="") }} &rarr;</a></p>
-    </div>
-  </section>
-{% endif %}
-{% endblock right_rail %}

@@ -1,0 +1,100 @@
+{#- The header of the current location: a path that climbs back out, the
+    title and a short summary.
+    Home is this header alone. No navigation bar. #}
+{% set home_url = get_url(path='/', lang=lang) %}
+{% set tags_url = get_url(path='tags/', lang=lang, trailing_slash=true) %}
+<nav class="path" aria-label="You are here">
+  <ol>
+    <li><a href="{{ home_url }}"{% if is_home %} aria-current="page"{% endif %}>{{ config.extra.logo_text }}</a></li>
+    {% if is_home %}
+    {% elif page and sec == "projects" %}
+    <li><a href="{{ projects_sec.permalink }}">projects</a></li>
+    <li><a href="{{ page.permalink }}" aria-current="page">{{ page.slug }}</a></li>
+    {% elif page and sec == "posts" %}
+    <li><a href="{{ articles_sec.permalink }}">writing</a></li>
+    <li><a href="{{ page.permalink }}" aria-current="page">{{ page.slug }}</a></li>
+    {% elif page %}
+    <li><a href="{{ page.permalink }}" aria-current="page">{{ page.slug }}</a></li>
+    {% elif section and sec == "projects" %}
+    <li><a href="{{ projects_sec.permalink }}" aria-current="page">projects</a></li>
+    {% elif section and sec == "posts" %}
+    <li><a href="{{ articles_sec.permalink }}" aria-current="page">writing</a></li>
+    {% elif term %}
+    <li><a href="{{ tags_url }}">topics</a></li>
+    <li><a href="{{ term.permalink }}" aria-current="page">{{ term.slug }}</a></li>
+    {% elif taxonomy %}
+    <li><a href="{{ tags_url }}" aria-current="page">topics</a></li>
+    {% else %}
+    <li><span aria-current="page">not-found</span></li>
+    {% endif %}
+  </ol>
+</nav>
+
+{% if page and sec == "projects" %}
+  <h1 class="sheet-title">{{ page.extra.short_title | default(value=page.title) }}</h1>
+  {% if page.description %}<p class="sheet-lede">{{ page.description }}</p>{% endif %}
+
+{% elif page and sec == "posts" %}
+  <h1 class="sheet-title">{{ page.title }}</h1>
+  <p class="sheet-meta"><time datetime="{{ page.date | date(format='%Y-%m-%d') }}">{{ page.date | date(format=trans(key="date_full", lang=lang)) }}</time> · {{ page.reading_time }} {{ trans(key="min_read", lang=lang) }}</p>
+
+{% elif page and sec == "cv" %}
+  <h1 class="sheet-title">{{ config.extra.author }}</h1>
+  <p class="sheet-lede">{{ page.extra.subtitle }}</p>
+  <div class="sheet-text">
+    <p>{{ page.extra.location }}</p>
+    <p><a href="{{ config.extra.email }}">{{ config.extra.email | replace(from="mailto:", to="") }}</a> · <a href="{{ config.extra.github }}">GitHub</a> · <a href="{{ config.extra.linkedin }}">LinkedIn</a></p>
+    <p><a href="{{ get_url(path=page.extra.pdf) }}">Download the PDF</a> · updated {{ page.extra.updated }}</p>
+  </div>
+
+{% elif page %}
+  <h1 class="sheet-title">{{ page.title }}</h1>
+  {% if page.description %}<p class="sheet-lede">{{ page.description }}</p>{% endif %}
+
+{% elif section and sec == "projects" %}
+  <h1 class="sheet-title">{{ projects_sec.title }}</h1>
+
+{% elif section and sec == "posts" %}
+  <h1 class="sheet-title">{{ articles_sec.title }}</h1>
+
+
+{% elif sec == "tags" %}
+  <h1 class="sheet-title">{{ location_title }}</h1>
+  {% if term %}
+  <p class="sheet-lede">{{ term.pages | length }} {% if term.pages | length == 1 %}entry{% else %}entries{% endif %} on this topic.</p>
+  {% else %}
+  <p class="sheet-lede">Articles and projects by topic.</p>
+  {% endif %}
+
+{% elif is_home %}
+  {% if section.extra.featured %}{% set featured = get_page(path=section.extra.featured, lang=lang) %}{% endif %}
+  <h1 class="sheet-title">{{ config.extra.author }}</h1>
+  <p class="sheet-lede">{{ section.description }}</p>
+  <div class="sheet-text">
+    <p>{{ trans(key="bio_1", lang=lang) }} {{ trans(key="bio_2", lang=lang) }}</p>
+    <p>The whole story is in my <a href="{{ cv_page.permalink }}">CV</a>. Reach me at <a href="{{ config.extra.email }}">{{ config.extra.email | replace(from="mailto:", to="") }}</a>, or on <a href="{{ config.extra.github }}">GitHub</a> and <a href="{{ config.extra.linkedin }}">LinkedIn</a>.</p>
+  </div>
+  <section class="sheet-section">
+    <h2><a href="{{ projects_sec.permalink }}" aria-label="All projects"><span>Projects</span><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-5-5 5 5-5 5"/></svg></a></h2>
+    {#- A strip that starts on the text edge and runs off to the right. #}
+    <ul class="card-strip">
+      {% if featured %}{{ dir::card(project=featured, summary=false) }}{% endif %}
+      {% for item in projects_sec.pages | filter(attribute="extra.showcase", value=true) %}
+      {% if not featured or item.permalink != featured.permalink %}{{ dir::card(project=item, summary=false) }}{% endif %}
+      {% endfor %}
+    </ul>
+  </section>
+  <section class="sheet-section">
+    <h2><a href="{{ articles_sec.permalink }}" aria-label="All writing"><span>Writing</span><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-5-5 5 5-5 5"/></svg></a></h2>
+    <ul class="rows">
+      {% for item in articles_sec.pages | slice(end=5) %}{{ dir::article_row(item=item) }}{% endfor %}
+    </ul>
+  </section>
+
+{% else %}
+  <h1 class="sheet-title">Not found</h1>
+  <p class="sheet-lede">This page does not exist. The URL may have changed.</p>
+  <div class="sheet-text">
+    <p>Start again from the <a href="{{ home_url }}">home page</a>, or look through the <a href="{{ projects_sec.permalink }}">projects</a> and <a href="{{ articles_sec.permalink }}">writing</a>.</p>
+  </div>
+{% endif %}

@@ -1,25 +1,13 @@
 {% extends "base.html" %}
+{% import "macros/directory.html" as dir %}
 
 {% block title %}#{{ term.name }} · {{ config.title }}{% endblock title %}
 {% block ogtitle %}#{{ term.name }} · {{ config.title }}{% endblock ogtitle %}
 
 {% block content %}
-{% set date_ym = trans(key="date_ym", lang=lang) %}
-<div class="stack-lg">
-  <header class="page-head">
-    <a class="back" href="{{ get_url(path='tags/', lang=lang) }}">&larr; {{ trans(key="tags", lang=lang) }}</a>
-    <h1>#{{ term.name }}</h1>
-    <p class="lede">{{ term.pages | length }} {% if term.pages | length == 1 %}entry{% else %}entries{% endif %}</p>
-  </header>
-  <ul class="rows">
-    {% for post in term.pages %}
-    <li>
-      <a href="{{ post.permalink }}">
-        <span>{{ post.title }}</span>
-        <time datetime="{{ post.date | date(format='%Y-%m-%d') }}">{{ post.date | date(format=date_ym) }}</time>
-      </a>
-    </li>
-    {% endfor %}
-  </ul>
-</div>
+<ul class="rows">
+  {% for post in term.pages %}
+  {% if post.extra.kind | default(value="post") == "project" %}{{ dir::project_row(item=post) }}{% else %}{{ dir::article_row(item=post) }}{% endif %}
+  {% endfor %}
+</ul>
 {% endblock content %}

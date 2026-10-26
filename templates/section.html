@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "macros/directory.html" as dir %}
 
 {% block title %}{{ section.title }} · {{ config.title }}{% endblock title %}
 {% block description %}{{ section.description | default(value=config.description) }}{% endblock description %}
@@ -9,88 +10,23 @@
 {% set date_ym = trans(key="date_ym", lang=lang) %}
 {% set is_projects = section.extra.kind | default(value="") == "projects" %}
 
-<div class="stack-lg">
-  <header class="page-head">
-    <p class="eyebrow">{% if is_projects %}Archive{% else %}Long-form &amp; notes{% endif %}</p>
-    <h1>{{ section.title }}</h1>
-    {% if section.description %}<p class="lede">{{ section.description }}</p>{% endif %}
-  </header>
-
-  {% if is_projects %}
-  <ul class="cards">
-    {% for item in paginator.pages %}
-    <li>
-      <a class="card" href="{{ item.permalink }}">
-        {% if item.extra.screenshot %}
-        {% set preview = resize_image(path=item.extra.screenshot, width=960, op="fit_width", format="webp", quality=82) %}
-        <img class="project-preview" src="{{ preview.url }}" alt="{{ item.extra.screenshot_alt }}" width="{{ preview.width }}" height="{{ preview.height }}" loading="lazy" decoding="async">
-        {% endif %}
-        {% if item.extra.status %}<span class="badge">{{ item.extra.status }}</span>{% endif %}
-        <h2>{{ item.extra.short_title | default(value=item.title) }} <span class="arrow" aria-hidden="true">&rarr;</span></h2>
-        {% if item.description %}<p>{{ item.description }}</p>{% endif %}
-        {% if item.extra.stack %}
-        <ul class="chips">
-          {% for s in item.extra.stack | slice(end=4) %}<li>{{ s }}</li>{% endfor %}
-        </ul>
-        {% endif %}
-      </a>
-    </li>
-    {% endfor %}
-  </ul>
-  {% else %}
-  <ul class="entries">
-    {% for item in paginator.pages %}
-    <li>
-      <a href="{{ item.permalink }}">
-        <p class="meta">
-          <time datetime="{{ item.date | date(format='%Y-%m-%d') }}">{{ item.date | date(format=date_ym) }}</time>
-          <span class="accent">{{ item.reading_time }} {{ trans(key="min_read", lang=lang) }}</span>
-          {% if item.taxonomies.tags %}<span>{{ item.taxonomies.tags | first }}</span>{% endif %}
-        </p>
-        <h2>{{ item.title }}</h2>
-        {% if item.description %}<p>{{ item.description }}</p>{% endif %}
-      </a>
-    </li>
-    {% endfor %}
-  </ul>
-  {% endif %}
-
-  {% if paginator.number_pagers > 1 %}
-  <nav class="pager" aria-label="Pagination">
-    {% if paginator.previous %}<a href="{{ paginator.previous }}">&larr; {{ trans(key="newer", lang=lang) }}</a>{% else %}<span></span>{% endif %}
-    <span>{{ trans(key="page_of", lang=lang) | replace(from="$CURRENT", to=paginator.current_index) | replace(from="$TOTAL", to=paginator.number_pagers) }}</span>
-    {% if paginator.next %}<a href="{{ paginator.next }}">{{ trans(key="older", lang=lang) }} &rarr;</a>{% else %}<span></span>{% endif %}
-  </nav>
-  {% endif %}
-</div>
-{% endblock content %}
-
-{% block right_rail %}
-{% set is_projects = section.extra.kind | default(value="") == "projects" %}
-
 {% if is_projects %}
-<section>
-  <h2 class="eyebrow">Overview</h2>
-  <dl class="panel kv">
-    <div><dt>Projects</dt><dd>{{ paginator.total_pages }}</dd></div>
-    <div><dt>Focus</dt><dd>ML systems &amp; software</dd></div>
-  </dl>
-</section>
-<section>
-  <h2 class="eyebrow">Philosophy</h2>
-  <p class="panel">Every model needs a decision it improves, evidence anyone can inspect, and limits stated up front.</p>
-</section>
+<h2 class="visually-hidden">All projects</h2>
+<ul class="card-grid">
+  {% for item in paginator.pages %}{{ dir::card(project=item) }}{% endfor %}
+</ul>
 {% else %}
-<section>
-  <h2 class="eyebrow">About the writing</h2>
-  <p class="panel">Essays on software craft, machine learning in the real world, and deliberate interface design.</p>
-</section>
-<section>
-  <h2 class="eyebrow">Subscribe</h2>
-  <ul class="links">
-    <li><a href="{{ get_url(path='rss.xml', lang=lang) }}">{{ trans(key="rss", lang=lang) }} feed <span aria-hidden="true">&nearr;</span></a></li>
-    <li><a href="{{ get_url(path='atom.xml', lang=lang) }}">{{ trans(key="atom", lang=lang) }} feed <span aria-hidden="true">&nearr;</span></a></li>
-  </ul>
-</section>
+<h2 class="visually-hidden">All articles</h2>
+<ul class="rows">
+  {% for item in paginator.pages %}{{ dir::article_row(item=item) }}{% endfor %}
+</ul>
 {% endif %}
-{% endblock right_rail %}
+
+{% if paginator.number_pagers > 1 %}
+<nav class="pager" aria-label="Pagination">
+  {% if paginator.previous %}<a href="{{ paginator.previous }}">&larr; {{ trans(key="newer", lang=lang) }}</a>{% else %}<span></span>{% endif %}
+  <span>{{ trans(key="page_of", lang=lang) | replace(from="$CURRENT", to=paginator.current_index) | replace(from="$TOTAL", to=paginator.number_pagers) }}</span>
+  {% if paginator.next %}<a href="{{ paginator.next }}">{{ trans(key="older", lang=lang) }} &rarr;</a>{% else %}<span></span>{% endif %}
+</nav>
+{% endif %}
+{% endblock content %}

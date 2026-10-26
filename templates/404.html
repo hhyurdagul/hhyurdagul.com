@@ -1,17 +1,8 @@
 {% extends "base.html" %}
 
 {% block title %}404 · {{ config.title }}{% endblock title %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock robots %}
 
 {% block content %}
-<div class="stack-lg">
-  <header class="page-head">
-    <p class="eyebrow accent">404</p>
-    <h1>The requested page does not exist.</h1>
-    <p class="lede">The URL may have changed or the document has moved. Head back to the index or browse recent articles.</p>
-  </header>
-  <p class="actions">
-    <a class="btn primary" href="{{ get_url(path='/', lang=lang) }}">&larr; {{ trans(key="home", lang=lang) }}</a>
-    <a class="btn" href="{{ get_url(path='articles/', lang=lang) }}">{{ trans(key="writing", lang=lang) }}</a>
-  </p>
-</div>
+<p class="empty">Nothing lives at this address.</p>
 {% endblock content %}

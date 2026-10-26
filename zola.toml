@@ -17,6 +17,11 @@ style = "class"
 light_theme = "github-light"
 dark_theme = "github-dark"
 
+[link_checker]
+# DergiPark (the journal host behind these DOIs) answers automated requests
+# with 503; the links work in a browser.
+skip_prefixes = ["https://doi.org/10.47495/"]
+
 [extra]
 author = "Hasan Hüseyin Yurdagül"
 github = "https://github.com/hhyurdagul"
@@ -34,28 +39,15 @@ generate_feeds = true
 feed_filenames = ["atom.xml", "rss.xml"]
 
 [translations]
-writing = "Writing"
-work = "Work"
-cv = "CV"
-projects = "Projects"
-all_posts = "All posts"
-all_work = "All projects"
 tags = "Tags"
-theme = "Theme"
-home = "Home"
-menu = "Open menu"
-toc = "Table of contents"
 min_read = "min read"
 updated = "Updated"
 older = "Older"
 newer = "Newer"
 page_of = "Page $CURRENT of $TOTAL"
 rss = "RSS"
-atom = "Atom"
-about = "About"
 date_full = "%d %B %Y"
 date_ym = "%b %Y"
-email = "Email"
 role = "Senior ML Engineer · Applied AI"
 bio_1 = "Leading AI R&D at Universal Software: forecasting, support intelligence, and mentoring engineers."
 bio_2 = "Consulting for Moka on fintech models and serving pipelines; completing an MSc thesis in Computer Engineering."

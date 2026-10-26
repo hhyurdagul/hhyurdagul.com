@@ -1,19 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}{{ trans(key="tags", lang=lang) }} · {{ config.title }}{% endblock title %}
-{% block ogtitle %}{{ trans(key="tags", lang=lang) }} · {{ config.title }}{% endblock ogtitle %}
+{% block title %}Topics · {{ config.title }}{% endblock title %}
+{% block ogtitle %}Topics · {{ config.title }}{% endblock ogtitle %}
 
 {% block content %}
-<div class="stack-lg">
-  <header class="page-head">
-    <p class="eyebrow">Index</p>
-    <h1>{{ trans(key="tags", lang=lang) }}</h1>
-    <p class="lede">Articles and projects by topic.</p>
-  </header>
-  <ul class="chips large">
-    {% for term in terms %}
-    <li><a href="{{ term.permalink }}">#{{ term.name }} <span>{{ term.page_count }}</span></a></li>
-    {% endfor %}
-  </ul>
+{% set date_ym = trans(key="date_ym", lang=lang) %}
+<div class="stack-xl">
+  {% for term in terms %}
+  <section class="block" aria-labelledby="topic-{{ term.slug }}">
+    <header class="block-head">
+      <h2 id="topic-{{ term.slug }}"><a href="{{ term.permalink }}">{{ term.name }}</a></h2>
+      <span>{{ term.page_count }}</span>
+    </header>
+    <ul class="list">
+      {% for post in term.pages %}
+      <li><a href="{{ post.permalink }}"><span>{{ post.extra.short_title | default(value=post.title) }}</span>{% if post.date %}<time datetime="{{ post.date | date(format='%Y-%m-%d') }}">{{ post.date | date(format=date_ym) }}</time>{% endif %}</a></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endfor %}
 </div>
 {% endblock content %}

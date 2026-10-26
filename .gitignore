@@ -2,3 +2,7 @@
 static/giallo-light.css
 static/giallo-dark.css
 static/processed_images/
+
+# Design research and inspiration notes: kept locally, not published.
+design-research/
+hasan-inspiration-choices.json

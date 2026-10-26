@@ -1,0 +1,30 @@
+{#- Every consulting engagement from data/consultancies.json, folded into one
+    disclosure on the CV; each client opens to its description and stack. -#}
+{%- set groups = load_data(path="data/consultancies.json") -%}
+{%- set_global total = 0 -%}
+{%- for g in groups %}{% set n = g.items | length %}{% set_global total = total + n %}{% endfor -%}
+<details class="engagements">
+  <summary><span>All consulting engagements</span><span class="count">{{ total }}</span></summary>
+  {%- for g in groups %}
+  <section class="engagement-group">
+    <h4 class="engagement-label">{{ g.label }}</h4>
+    <ul>
+      {%- for c in g.items %}
+      <li>
+        <details class="engagement">
+          <summary><span class="name">{{ c.company }}</span><span class="when">{{ c.dates }}</span></summary>
+          <div class="engagement-body">
+            <p>{{ c.description }}</p>
+            {%- if c.tools or c.domain %}
+            <p class="cv-meta">{{ c.domain | concat(with=c.tools | default(value=[])) | join(sep=" · ") }}</p>
+            {%- endif %}
+            {%- if c.url | default(value="") %}<p><a href="{{ c.url }}">{{ c.company }} website</a></p>{% endif %}
+            {%- if c.project_url | default(value="") %}<p><a href="{{ get_url(path=c.project_url) }}">Project details</a></p>{% endif %}
+          </div>
+        </details>
+      </li>
+      {%- endfor %}
+    </ul>
+  </section>
+  {%- endfor %}
+</details>

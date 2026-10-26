@@ -14,122 +14,13 @@
   "jobTitle": {{ trans(key="role", lang=lang) | json_encode | safe }},
   "url": {{ config.base_url | json_encode | safe }},
   "image": {{ get_url(path=config.extra.og_image) | json_encode | safe }},
+  "worksFor": { "@type": "Organization", "name": "Universal Software" },
+  "alumniOf": { "@type": "CollegeOrUniversity", "name": "Çukurova University" },
   "sameAs": [{{ config.extra.github | json_encode | safe }}, {{ config.extra.linkedin | json_encode | safe }}]
 }
 </script>
 {% endblock head_extra %}
 
-{% block content %}
-{% set blog = get_section(path="articles/_index.md", lang=lang) %}
-{% set projects = get_section(path="projects/_index.md", lang=lang) %}
-{% if section.extra.featured %}{% set featured = get_page(path=section.extra.featured, lang=lang) %}{% endif %}
-{% set date_ym = trans(key="date_ym", lang=lang) %}
-
-<div class="stack-xl">
-  <header class="hero">
-    <p class="pill">Personal Notebook &amp; Archive <span aria-hidden="true">•</span> <span>ML &amp; Systems</span></p>
-    <h1>{{ trans(key="bio_1", lang=lang) }}</h1>
-    <p class="lede">{{ trans(key="bio_2", lang=lang) }}</p>
-    <p class="actions">
-      <a class="btn primary" href="{{ work_page.permalink }}">{{ trans(key="work", lang=lang) }} &rarr;</a>
-      <a class="btn" href="{{ cv_page.permalink }}">{{ trans(key="cv", lang=lang) }} &rarr;</a>
-      <a class="btn" href="{{ config.extra.email }}">Contact &nearr;</a>
-    </p>
-  </header>
-
-  {% if featured %}
-  <article class="card featured">
-    {% set featured_image = featured.extra.featured_image | default(value=featured.extra.screenshot) %}
-    {% if featured_image %}
-    {% set preview = resize_image(path=featured_image, width=960, op="fit_width", format="webp", quality=82) %}
-    <a href="{{ featured.permalink }}" tabindex="-1" aria-hidden="true"><img class="project-preview" src="{{ preview.url }}" alt="" width="{{ preview.width }}" height="{{ preview.height }}" decoding="async"></a>
-    {% endif %}
-    <p class="card-meta">
-      <span class="eyebrow accent">Featured work</span>
-      <span>{{ featured.extra.featured_label | default(value=featured.extra.short_title) }}</span>
-    </p>
-    <h2><a href="{{ featured.permalink }}">{{ featured.extra.featured_title | default(value=featured.title) }}</a></h2>
-    <p>{{ featured.description }}</p>
-    <footer>
-      <span>{{ featured.extra.featured_topic | default(value="") }}</span>
-      <a href="{{ featured.permalink }}">Explore project details &rarr;</a>
-    </footer>
-  </article>
-  {% endif %}
-
-  <section class="block">
-    <header class="block-head">
-      <h2 class="eyebrow">{{ trans(key="projects", lang=lang) }}</h2>
-      <a href="{{ projects.permalink }}">{{ trans(key="all_work", lang=lang) }} &rarr;</a>
-    </header>
-    <ul class="cards">
-      {% for project in projects.pages | filter(attribute="extra.showcase", value=true) %}
-      {% if not featured or project.permalink != featured.permalink %}
-      <li>
-        <a class="card" href="{{ project.permalink }}">
-          {% if project.extra.screenshot %}
-          {% set preview = resize_image(path=project.extra.screenshot, width=960, op="fit_width", format="webp", quality=82) %}
-          <img class="project-preview" src="{{ preview.url }}" alt="{{ project.extra.screenshot_alt }}" width="{{ preview.width }}" height="{{ preview.height }}" loading="lazy" decoding="async">
-          {% endif %}
-          <h3>{{ project.extra.short_title | default(value=project.title) }} <span class="arrow" aria-hidden="true">&rarr;</span></h3>
-          <p>{{ project.extra.card_description | default(value=project.description) }}</p>
-        </a>
-      </li>
-      {% endif %}
-      {% endfor %}
-    </ul>
-  </section>
-  <section class="block">
-    <header class="block-head">
-      <h2 class="eyebrow">{{ trans(key="writing", lang=lang) }}</h2>
-      <a href="{{ blog.permalink }}">{{ trans(key="all_posts", lang=lang) }} &rarr;</a>
-    </header>
-    <ul class="rows">
-      {% for post in blog.pages | slice(end=6) %}
-      <li>
-        <a href="{{ post.permalink }}">
-          <span>{{ post.title }}</span>
-          <time datetime="{{ post.date | date(format='%Y-%m-%d') }}">{{ post.date | date(format=date_ym) }}</time>
-        </a>
-      </li>
-      {% endfor %}
-    </ul>
-  </section>
-</div>
-{% endblock content %}
-
-{% block right_rail %}
-<section>
-  <h2 class="eyebrow"><span class="dot"></span>Current focus</h2>
-  <p class="panel">Time-series &amp; language modeling</p>
-</section>
-
-<section>
-  <h2 class="eyebrow">On my desk</h2>
-  <ul class="shelf">
-    <li>
-      <div>
-        <strong>Keeping Neural Networks Simple by Minimizing the Description Length of the Weights</strong>
-        <span>Geoffrey E. Hinton and Drew van Camp</span>
-      </div>
-      <em class="ok">Next paper</em>
-    </li>
-    <li>
-      <div>
-        <strong>Principles</strong>
-        <span>Ray Dalio</span>
-      </div>
-      <em>Reading</em>
-    </li>
-  </ul>
-</section>
-
-<section>
-  <h2 class="eyebrow">Elsewhere</h2>
-  <ul class="links">
-    <li><a href="{{ config.extra.github }}">GitHub <span aria-hidden="true">&nearr;</span></a></li>
-    <li><a href="{{ config.extra.linkedin }}">LinkedIn <span aria-hidden="true">&nearr;</span></a></li>
-    <li><a href="{{ config.extra.email }}">{{ trans(key="email", lang=lang) }} <span aria-hidden="true">&nearr;</span></a></li>
-  </ul>
-</section>
-{% endblock right_rail %}
+{#- Home is the page header alone: introduction, projects and writing. The
+    reader stays empty and hidden. -#}
+{% block content %}{% endblock content %}
