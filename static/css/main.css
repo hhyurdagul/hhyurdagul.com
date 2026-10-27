@@ -2,7 +2,7 @@
  *
  * The left sheet is the header of the current location (path, title, index);
  * the window scrolls the right-hand content. One paper background, hairline
- * rows, no panels. Tokens follow the OS unless a saved theme pins the scheme.
+ * rows, no panels. Parchment and Nocturne follow the OS or a saved mode.
  */
 
 /* ------------------------------------------------------------------ fonts */
@@ -93,24 +93,22 @@
 :root {
   color-scheme: light dark;
 
-  /* Cobalt on stone. Light: clean grey-white paper, near-black ink, deep
-     cobalt. Dark: near-black, bright grey-white text, soft cobalt. The greys
-     step down firmly (text → secondary → muted) so hierarchy reads at a
-     glance; colour is kept for links, hover and focus. */
-  --bg: light-dark(#F6F7F8, #0D0E10);
-  --surface: light-dark(#ECEEF1, #16181B);
-  --surface-2: light-dark(#E3E6EA, #1F2226);
-  --mat: light-dark(#EAEDF0, #15171A);
-  --border: light-dark(#DCE0E5, #24272C);
-  --border-strong: light-dark(#B9C0C9, #3D424A);
-  --text: light-dark(#0E1013, #F2F4F6);
-  --text-2: light-dark(#474C54, #B6BCC5);
-  --muted: light-dark(#6B717A, #8C939D);
-  --prose: light-dark(#1B1E22, #DEE2E7);
-  --accent: light-dark(#1E3FA0, #A9BDF6);
-  --accent-soft: light-dark(#E1E7F6, #1A2236);
-  --code-bg: light-dark(#ECEEF1, #16181B);
-  --selection: light-dark(#D3DCF4, #263250);
+  /* Parchment by day, Nocturne by night. Warm neutrals with a blue accent;
+     intermediate tones preserve the same hierarchy in both schemes. */
+  --bg: light-dark(#F7F2E8, #141312);
+  --text: light-dark(#292524, #EEEAE2);
+  --surface: color-mix(in srgb, var(--bg), var(--text) 5%);
+  --surface-2: color-mix(in srgb, var(--bg), var(--text) 9%);
+  --mat: var(--surface);
+  --border: color-mix(in srgb, var(--bg), var(--text) 15%);
+  --border-strong: color-mix(in srgb, var(--bg), var(--text) 30%);
+  --text-2: color-mix(in srgb, var(--text) 92%, var(--bg));
+  --muted: color-mix(in srgb, var(--text) 85%, var(--bg));
+  --prose: var(--text);
+  --accent: light-dark(#285B8F, #8AAFE0);
+  --accent-soft: color-mix(in srgb, var(--bg), var(--accent) 12%);
+  --code-bg: var(--surface);
+  --selection: color-mix(in srgb, var(--bg), var(--accent) 25%);
   --window-shadow: light-dark(rgb(15 25 45 / 0.18), rgb(0 0 0 / 0.65));
 
   --font-serif: "Source Serif 4", "Iowan Old Style", Georgia, serif;
@@ -345,11 +343,6 @@ body[data-section="home"] {
 /* Page changes cross-fade where the browser supports view transitions. */
 ::view-transition-group(root) {
   animation-duration: 220ms;
-}
-
-/* Hide a nonfunctional theme control when JavaScript is unavailable. */
-:root:not(.js) .theme-toggle {
-  display: none;
 }
 
 /* ------------------------------------------------------------- left sheet */

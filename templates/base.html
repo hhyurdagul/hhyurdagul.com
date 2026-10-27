@@ -8,8 +8,8 @@
   <meta name="description" content="{% block description %}{{ config.description }}{% endblock description %}">
   <meta name="author" content="{{ config.extra.author }}">
   {% block robots %}{% endblock robots %}
-  <meta name="theme-color" content="#F6F7F8" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0D0E10" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F7F2E8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#141312" media="(prefers-color-scheme: dark)">
   <link rel="canonical" href="{{ current_url | default(value=config.base_url) }}">
   {% if config.generate_feeds %}
   <link rel="alternate" type="application/rss+xml" title="{{ config.title }}" href="{{ get_url(path='rss.xml', lang=lang) }}">
@@ -34,31 +34,13 @@
   <link rel="apple-touch-icon" href="{{ get_url(path='apple-touch-icon.png') }}">
   <script>
     (function () {
-      var root = document.documentElement;
-      var saved;
-      try { saved = localStorage.getItem('theme'); } catch (_) {}
-      if (saved === 'light' || saved === 'dark') root.dataset.theme = saved;
-      root.classList.add('js');
-      window.toggleTheme = function () {
-        var dark = root.dataset.theme
-          ? root.dataset.theme === 'dark'
-          : matchMedia('(prefers-color-scheme: dark)').matches;
-        root.dataset.theme = dark ? 'light' : 'dark';
-        try { localStorage.setItem('theme', root.dataset.theme); } catch (_) {}
-        document.querySelectorAll('[data-theme-toggle]').forEach(function (button) {
-          button.setAttribute('aria-pressed', String(!dark));
-        });
-      };
-      document.addEventListener('DOMContentLoaded', function () {
-        var dark = root.dataset.theme
-          ? root.dataset.theme === 'dark'
-          : matchMedia('(prefers-color-scheme: dark)').matches;
-        document.querySelectorAll('[data-theme-toggle]').forEach(function (button) {
-          button.setAttribute('aria-pressed', String(dark));
-        });
-      });
+      try {
+        var theme = localStorage.getItem('theme');
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch (_) {}
     })();
   </script>
+  <script defer src="{{ get_url(path='js/appearance.js', cachebust=true) }}"></script>
   <script defer src="{{ get_url(path='js/explorer.js', cachebust=true) }}"></script>
   {% block head_extra %}{% endblock head_extra %}
 </head>
@@ -94,7 +76,7 @@
       <footer class="sheet-foot">
         <a href="{{ get_url(path='rss.xml', lang=lang) }}">{{ trans(key="rss", lang=lang) }}</a>
         <a href="{{ get_url(path='tags/', lang=lang, trailing_slash=true) }}">Topics</a>
-        <button type="button" data-theme-toggle class="theme-toggle" onclick="toggleTheme()" aria-label="Dark theme" aria-pressed="false">Theme</button>
+        <button type="button" id="appearance-toggle" hidden>Theme</button>
       </footer>
     </header>
 

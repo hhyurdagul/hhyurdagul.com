@@ -1,79 +1,37 @@
-/* Syntax colors: github-light / github-dark (giallo), merged with light-dark().
-   Follows color-scheme, so the theme toggle needs no stylesheet swapping. */
-.z-code { color: light-dark(#24292E, #E1E4E8); }
-.z-hl { background-color: light-dark(#F6F8FA, #2B3036); }
-.giallo-ln { color: light-dark(#1B1F234D, #444D56); }
-.z-comment { color: #6A737D; }
-.z-constant { color: light-dark(#005CC5, #79B8FF); }
-.z-entity { color: light-dark(#6F42C1, #B392F0); }
-.z-keyword { color: light-dark(#D73A49, #F97583); }
-.z-storage { color: light-dark(#D73A49, #F97583); }
-.z-string { color: light-dark(#032F62, #9ECBFF); }
-.z-support { color: light-dark(#005CC5, #79B8FF); }
-.z-variable { color: light-dark(#E36209, #FFAB70); }
-.z-carriage-return { color: light-dark(#FAFBFC, #24292E); background-color: light-dark(#D73A49, #F97583); font-style: italic; text-decoration: underline; }
-.z-variable { color: light-dark(#005CC5, #79B8FF); }
-.z-source { color: light-dark(#032F62, #9ECBFF); }
-.z-string.z-comment { color: #6A737D; }
-.z-variable.z-language { color: light-dark(#005CC5, #79B8FF); }
-.z-entity.z-name { color: light-dark(#6F42C1, #B392F0); }
-.z-storage.z-type { color: light-dark(#D73A49, #F97583); }
-.z-meta.z-property-name { color: light-dark(#005CC5, #79B8FF); }
-.z-variable.z-other { color: light-dark(#24292E, #E1E4E8); }
-.z-invalid.z-broken { color: light-dark(#B31D28, #FDAEB7); font-style: italic; }
-.z-invalid.z-deprecated { color: light-dark(#B31D28, #FDAEB7); font-style: italic; }
-.z-invalid.z-illegal { color: light-dark(#B31D28, #FDAEB7); font-style: italic; }
-.z-invalid.z-unimplemented { color: light-dark(#B31D28, #FDAEB7); font-style: italic; }
-.z-message.z-error { color: light-dark(#B31D28, #FDAEB7); }
-.z-source.z-regexp { color: light-dark(#032F62, #DBEDFF); }
-.z-string.z-regexp { color: light-dark(#032F62, #DBEDFF); }
-.z-support.z-constant { color: light-dark(#005CC5, #79B8FF); }
-.z-support.z-variable { color: light-dark(#005CC5, #79B8FF); }
-.z-meta.z-module-reference { color: light-dark(#005CC5, #79B8FF); }
-.z-markup.z-heading { color: light-dark(#005CC5, #79B8FF); font-weight: bold; }
-.z-markup.z-quote { color: light-dark(#22863A, #85E89D); }
-.z-markup.z-italic { color: light-dark(#24292E, #E1E4E8); font-style: italic; }
-.z-markup.z-bold { color: light-dark(#24292E, #E1E4E8); font-weight: bold; }
-.z-markup.z-underline { text-decoration: underline; }
-.z-markup.z-strikethrough { text-decoration: line-through; }
-.z-markup.z-deleted { color: light-dark(#B31D28, #FDAEB7); background-color: light-dark(#FFEEF0, #86181D); }
-.z-markup.z-inserted { color: light-dark(#22863A, #85E89D); background-color: light-dark(#F0FFF4, #144620); }
-.z-markup.z-changed { color: light-dark(#E36209, #FFAB70); background-color: light-dark(#FFEBDA, #C24E00); }
-.z-markup.z-ignored { color: light-dark(#F6F8FA, #2F363D); background-color: light-dark(#005CC5, #79B8FF); }
-.z-markup.z-untracked { color: light-dark(#F6F8FA, #2F363D); background-color: light-dark(#005CC5, #79B8FF); }
-.z-meta.z-separator { color: light-dark(#005CC5, #79B8FF); font-weight: bold; }
-.z-meta.z-output { color: light-dark(#005CC5, #79B8FF); }
-.z-brackethighlighter.z-tag { color: light-dark(#586069, #D1D5DA); }
-.z-brackethighlighter.z-curly { color: light-dark(#586069, #D1D5DA); }
-.z-brackethighlighter.z-round { color: light-dark(#586069, #D1D5DA); }
-.z-brackethighlighter.z-square { color: light-dark(#586069, #D1D5DA); }
-.z-brackethighlighter.z-angle { color: light-dark(#586069, #D1D5DA); }
-.z-brackethighlighter.z-quote { color: light-dark(#586069, #D1D5DA); }
-.z-brackethighlighter.z-unmatched { color: light-dark(#B31D28, #FDAEB7); }
-.z-entity.z-name { color: light-dark(#005CC5, #79B8FF); font-weight: bold; }
-.z-punctuation.z-definition.z-comment { color: #6A737D; }
-.z-entity.z-name.z-constant { color: light-dark(#005CC5, #79B8FF); }
-.z-variable.z-other.z-constant { color: light-dark(#005CC5, #79B8FF); }
-.z-variable.z-other.z-enummember { color: light-dark(#005CC5, #79B8FF); }
-.z-variable.z-parameter.z-function { color: light-dark(#24292E, #E1E4E8); }
-.z-entity.z-name.z-tag { color: light-dark(#22863A, #85E89D); }
-.z-storage.z-modifier.z-package { color: light-dark(#24292E, #E1E4E8); }
-.z-storage.z-modifier.z-import { color: light-dark(#24292E, #E1E4E8); }
-.z-storage.z-type.z-java { color: light-dark(#24292E, #E1E4E8); }
-.z-punctuation.z-definition.z-string { color: light-dark(#032F62, #9ECBFF); }
-.z-string.z-regexp.z-character-class { color: light-dark(#032F62, #DBEDFF); }
-.z-markup.z-inline.z-raw { color: light-dark(#005CC5, #79B8FF); }
-.z-punctuation.z-definition.z-deleted { color: light-dark(#B31D28, #FDAEB7); background-color: light-dark(#FFEEF0, #86181D); }
-.z-punctuation.z-definition.z-inserted { color: light-dark(#22863A, #85E89D); background-color: light-dark(#F0FFF4, #144620); }
-.z-punctuation.z-definition.z-changed { color: light-dark(#E36209, #FFAB70); background-color: light-dark(#FFEBDA, #C24E00); }
-.z-meta.z-diff.z-range { color: light-dark(#6F42C1, #B392F0); font-weight: bold; }
-.z-meta.z-diff.z-header { color: light-dark(#005CC5, #79B8FF); }
-.z-string.z-other.z-link { color: light-dark(#032F62, #DBEDFF); text-decoration: underline; }
-.z-constant.z-character.z-escape { color: light-dark(#032F62, #DBEDFF); }
-.z-source.z-ruby.z-embedded { color: light-dark(#032F62, #DBEDFF); }
-.z-string.z-regexp.z-arbitrary-repitition { color: light-dark(#032F62, #DBEDFF); }
-.z-constant.z-character.z-escape { color: light-dark(#22863A, #85E89D); font-weight: bold; }
-.z-meta.z-diff.z-header.z-from-file { color: light-dark(#B31D28, #FDAEB7); background-color: light-dark(#FFEEF0, #86181D); }
-.z-meta.z-diff.z-header.z-to-file { color: light-dark(#22863A, #85E89D); background-color: light-dark(#F0FFF4, #144620); }
-.z-constant.z-other.z-reference.z-link { color: light-dark(#032F62, #DBEDFF); text-decoration: underline; }
-.z-punctuation.z-definition.z-list.z-begin.z-markdown { color: light-dark(#E36209, #FFAB70); }
+/* Giallo token classes use Parchment / Nocturne's semantic colors. */
+.z-code {
+  color: var(--text);
+}
+.z-code :is(.z-keyword, .z-storage, .z-entity, .z-constant, .z-support, .z-string) {
+  color: var(--accent);
+}
+.z-code .z-comment,
+.z-code .z-comment * {
+  color: var(--muted);
+}
+.z-hl {
+  background-color: var(--accent-soft);
+}
+.giallo-ln {
+  color: var(--muted);
+}
+.z-entity.z-name,
+.z-markup.z-heading,
+.z-markup.z-bold,
+.z-meta.z-separator,
+.z-constant.z-character.z-escape {
+  font-weight: bold;
+}
+.z-markup.z-italic,
+.z-invalid,
+.z-carriage-return {
+  font-style: italic;
+}
+.z-markup.z-underline,
+.z-string.z-other.z-link,
+.z-carriage-return {
+  text-decoration: underline;
+}
+.z-markup.z-strikethrough {
+  text-decoration: line-through;
+}

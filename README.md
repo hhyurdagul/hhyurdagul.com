@@ -1,8 +1,8 @@
 # hhyurdagul.com
 
 Personal site, built with [Zola](https://www.getzola.org/). Hand-written CSS,
-self-hosted fonts, no third-party requests. JavaScript is optional: an inline
-theme toggle and a small progressive router (`static/js/explorer.js`).
+self-hosted fonts, no third-party requests. JavaScript is optional: a light/dark
+toggle (`static/js/appearance.js`) and a small progressive router (`static/js/explorer.js`).
 
 ## Develop
 
@@ -35,12 +35,24 @@ zola check             # build + link check
   direct links, and browsing without JavaScript work the same.
   Project images stay in the reading column, preserve their aspect ratio, and
   are capped at 24rem high; clicking opens the full-resolution original.
-- `static/css/main.css` — all styles, as nested component blocks. Colors are
-  `light-dark()` tokens on `:root`; `html[data-theme]` pins light/dark.
-  The palette is ink on warm paper with a single muted plum accent (lilac in
-  dark). Source Serif 4 sets names, titles and everything you read; Inter the
+- `static/css/main.css` — styles, as nested component blocks. `light-dark()`
+  tokens on `:root` follow the system color preference unless the footer's
+  light/dark toggle saves an override. There are two fixed appearances and
+  no palette catalog:
+  - **Parchment (light):** warm ivory `#F7F2E8`, charcoal ink `#292524`,
+    deep blue `#285B8F`.
+  - **Nocturne (dark):** deep warm charcoal `#141312`, warm-white text
+    `#EEEAE2`, soft blue `#8AAFE0`.
+  Surfaces, borders and muted text are mixed from the active background/ink.
+  Source Serif 4 sets names, titles and everything you read; Inter the
   interface; JetBrains Mono the path and other small technical details.
-- `static/css/syntax.css` — code colors (github-light/dark, merged).
+- `static/js/appearance.js` — the footer's **Theme** button toggles light/dark.
+  Saves the chosen mode in localStorage (`theme`); `base.html` restores it
+  before first paint. The choice survives page navigation and reloads.
+  With storage blocked, switching still works for the current page; without
+  JavaScript, the button is hidden and appearance follows the system.
+- `static/css/syntax.css` — Giallo code tokens use the active appearance's
+  ink, blue accent and muted tones.
 - `static/fonts/` — Source Serif 4, Inter, JetBrains Mono (variable
   woff2, latin + latin-ext, from Fontsource).
 

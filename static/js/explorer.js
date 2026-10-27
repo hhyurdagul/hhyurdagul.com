@@ -56,14 +56,6 @@
     }
   }
 
-  function syncTheme() {
-    const theme = document.documentElement.dataset.theme;
-    const dark = theme ? theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-    document.querySelectorAll("[data-theme-toggle]").forEach(button => {
-      button.setAttribute("aria-pressed", String(dark));
-    });
-  }
-
   function hashTarget(url) {
     if (!url.hash) return null;
     let id = url.hash.slice(1);
@@ -235,7 +227,6 @@
         syncLocation(reader, nextReader);
         document.body.dataset.section = page.body.dataset.section;
         syncMetadata(page, url);
-        syncTheme();
 
         // Home has no reader; its heading is the content.
         focus(document.body.dataset.section === "home"
@@ -332,11 +323,6 @@
   for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) {
     document.addEventListener(event, () => { settlingScroll = null; }, { capture: true, passive: true });
   }
-  new MutationObserver(syncTheme).observe(document.documentElement, {
-    attributes: true, attributeFilter: ["data-theme"]
-  });
-  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncTheme);
-  syncTheme();
   syncDirectoryHash();
   requestAnimationFrame(() => {
     if (revision !== 0) return;
