@@ -1,0 +1,9 @@
+<nav class="primary-nav" aria-label="Primary">
+  {% if not page or not is_project %}
+  <a class="primary-nav-link" href="{{ projects_section.permalink }}"{% if is_project %} aria-current="page"{% endif %}>Projects</a>
+  {% endif %}
+  {% if not page or not is_writing %}
+  <a class="primary-nav-link" href="{{ writing_section.permalink }}"{% if is_writing %} aria-current="page"{% endif %}>Writing</a>
+  {% endif %}
+  <a class="primary-nav-link" href="{{ cv_page.permalink }}"{% if page and page.permalink == cv_page.permalink %} aria-current="page"{% endif %}>CV</a>
+</nav>

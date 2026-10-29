@@ -25,7 +25,7 @@ zola check            # validates content and links; external checks need networ
 - `zola.toml` — site settings, contact links, and homepage introduction.
 - `content/` — the public homepage metadata, CV, projects, and writing.
 - `data/consultancies.json` — the complete grouped CV engagement records.
-- `templates/` — HTML templates, the shared page header, and bottom navigation.
+- `templates/` — HTML templates, the shared page header, and primary navigation.
 - `static/` — CSS, fonts, icons, project images, and site preview image.
 - `scripts/og-cards.py` — generates the site preview image.
 - `archive/` — historical content, supporting assets, and the original CV.
@@ -42,12 +42,23 @@ CSS follows the system's light or dark color scheme, including changes while the
 page is open. There is no theme switch or saved override; old `theme` values in
 localStorage are ignored.
 
-A fixed, text-only bottom navigation links to Home, Projects, Writing, and the CV.
-It aligns with the reading column and uses the breadcrumb's monospace type, a
-hairline top rule, and an underline for the current destination. Project and
-article pages keep their section active.
-Links retain 44px touch targets; the layout reserves space below the content and
-accounts for device safe areas. Navigation and theming work without JavaScript.
+The header pairs a parent-only breadcrumb on the left with contextual navigation
+on the right. `hhyurdagul` is the Home link. The current page's
+title stays in its heading rather than repeating in the breadcrumb: `/writing/`
+shows `hhyurdagul`, a post shows `hhyurdagul/writing`, and a project shows
+`hhyurdagul/projects`. The CV and not-found page show only the root link.
+
+When a section is already a clickable breadcrumb, its duplicate is omitted from
+the right-hand menu: posts show **Projects / CV** and project pages show
+**Writing / CV**. Home, section indexes, the CV, and not-found pages retain
+**Projects / Writing / CV**. Every header destination appears exactly once.
+
+Navigation shares the breadcrumb's monospace type and text baseline. Section
+indexes underline their active menu item; detail pages use the parent breadcrumb
+for section context. Section links retain 44px touch targets.
+On narrow screens, parent segments can wrap while the navigation stays aligned
+right on the root link's row. The header scrolls normally; there is no fixed
+bottom navigation. Navigation and theming work without JavaScript.
 No third-party scripts, icon libraries, or remote fonts are loaded.
 
 ## Updating content

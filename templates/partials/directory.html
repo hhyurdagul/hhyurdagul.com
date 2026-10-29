@@ -1,21 +1,17 @@
 {% set home_url = get_url(path='/', lang=lang) %}
 <div class="sheet-nav">
-  <nav class="path" aria-label="You are here">
+  <nav class="path" aria-label="Breadcrumb">
     <ol>
       <li><a href="{{ home_url }}"{% if is_home %} aria-current="page"{% endif %}>{{ config.extra.logo_text }}</a></li>
-      {% if is_project %}
-      <li><a href="{{ projects_section.permalink }}"{% if section %} aria-current="page"{% endif %}>projects</a></li>
+      {% if page and is_project %}
+      <li><a href="{{ projects_section.permalink }}">projects</a></li>
       {% endif %}
-      {% if is_writing %}
-      <li><a href="{{ writing_section.permalink }}"{% if section %} aria-current="page"{% endif %}>writing</a></li>
-      {% endif %}
-      {% if page %}
-      <li><a href="{{ page.permalink }}" aria-current="page">{{ page.slug }}</a></li>
-      {% elif not is_home and not is_project and not is_writing %}
-      <li><span aria-current="page">not-found</span></li>
+      {% if page and is_writing %}
+      <li><a href="{{ writing_section.permalink }}">writing</a></li>
       {% endif %}
     </ol>
   </nav>
+  {% include "partials/primary-nav.html" %}
 </div>
 
 {% if is_home %}
