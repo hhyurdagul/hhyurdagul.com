@@ -1,25 +1,25 @@
-{#- Every consulting engagement from data/consultancies.json, folded into one
-    disclosure on the CV; each client opens to its description and stack. -#}
+{#- The complete consulting list stays folded until requested. Each entry
+    opens its original description, domains, tools, and company website.
+    Legacy project URLs stay in the data; those case studies remain archived. -#}
 {%- set groups = load_data(path="data/consultancies.json") -%}
 {%- set_global total = 0 -%}
-{%- for g in groups %}{% set n = g.items | length %}{% set_global total = total + n %}{% endfor -%}
+{%- for group in groups %}{% set count = group.items | length %}{% set_global total = total + count %}{% endfor -%}
 <details class="engagements">
   <summary><span>All consulting engagements</span><span class="count">{{ total }}</span></summary>
-  {%- for g in groups %}
+  {%- for group in groups %}
   <section class="engagement-group">
-    <h4 class="engagement-label">{{ g.label }}</h4>
+    <h4 class="engagement-label">{{ group.label }}</h4>
     <ul>
-      {%- for c in g.items %}
+      {%- for company in group.items %}
       <li>
         <details class="engagement">
-          <summary><span class="name">{{ c.company }}</span><span class="when">{{ c.dates }}</span></summary>
+          <summary><span class="name">{{ company.company }}</span><span class="when">{{ company.dates }}</span></summary>
           <div class="engagement-body">
-            <p>{{ c.description }}</p>
-            {%- if c.tools or c.domain %}
-            <p class="cv-meta">{{ c.domain | concat(with=c.tools | default(value=[])) | join(sep=" · ") }}</p>
+            <p>{{ company.description }}</p>
+            {%- if company.tools or company.domain %}
+            <p class="cv-meta">{{ company.domain | concat(with=company.tools | default(value=[])) | join(sep=" · ") }}</p>
             {%- endif %}
-            {%- if c.url | default(value="") %}<p><a href="{{ c.url }}">{{ c.company }} website</a></p>{% endif %}
-            {%- if c.project_url | default(value="") %}<p><a href="{{ get_url(path=c.project_url) }}">Project details</a></p>{% endif %}
+            {%- if company.url | default(value="") %}<p><a href="{{ company.url }}">{{ company.company }} website</a></p>{% endif %}
           </div>
         </details>
       </li>

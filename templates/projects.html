@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% import "macros/directory.html" as dir %}
+
+{% block title %}{{ section.title }} · {{ config.title }}{% endblock title %}
+{% block description %}{{ section.description }}{% endblock description %}
+{% block ogtitle %}{{ section.title }} · {{ config.title }}{% endblock ogtitle %}
+{% block ogdesc %}{{ section.description }}{% endblock ogdesc %}
+
+{% block content %}
+<h2 class="visually-hidden">All projects</h2>
+<ul class="card-grid">
+  {% for item in section.pages %}{{ dir::card(project=item) }}{% endfor %}
+</ul>
+{% endblock content %}

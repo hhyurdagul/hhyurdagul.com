@@ -1,126 +1,142 @@
 # hhyurdagul.com
 
-Personal site, built with [Zola](https://www.getzola.org/). Hand-written CSS,
-self-hosted fonts, no third-party requests. JavaScript is optional: a light/dark
-toggle (`static/js/appearance.js`) and a small progressive router (`static/js/explorer.js`).
+A personal website built with [Zola](https://www.getzola.org/), handwritten CSS,
+and self-hosted fonts. No frontend framework or JavaScript package manager is
+needed.
 
-## Develop
+## Local development
+
+The Nix development shell supplies Zola 0.22.x; CI uses Zola 0.22.1.
 
 ```sh
-nix develop            # shell with the pinned zola (0.22.x, same as CI)
-zola serve             # http://127.0.0.1:1111
-zola check             # build + link check
+nix develop
+zola serve
 ```
 
-## Layout
+Open the local address printed by Zola. To build or check links:
 
-- `templates/` — Tera templates. `base.html` holds one centred column on
-  every page, with no navigation bar:
-  - **Header (`#directory`)**: the header of the current location
-    (`partials/directory.html`, rows in `macros/directory.html`). It starts
-    with a path such as `hhyurdagul / projects / teus` whose segments climb
-    back out, then the title, summary, facts and a collapsed Contents list.
-    Home is this header alone: introduction, projects and writing.
-  - **Content (`#reader`)**: follows the header. Everything, images included,
-    stays within the text column (`--measure`). Project cards (home strip and
-    Projects grid) show each screenshot as a window on the same mat: tall
-    captures hang from the top and run off the bottom edge, wide ones (wider
-    than 1.7:1) float centred.
-- `static/js/explorer.js` — optional router. For same-origin HTML links it
-  fetches the page and swaps only `#directory` and `#reader`, updates history,
-  title and metadata, and restores scroll on Back/Forward. Where supported,
-  page changes cross-fade with a view transition. Feeds, files,
-  external and modified clicks stay native; any fetch or markup failure falls
-  back to a normal navigation. Every URL is a real Zola page, so refresh,
-  direct links, and browsing without JavaScript work the same.
-  Project images stay in the reading column, preserve their aspect ratio, and
-  are capped at 24rem high; clicking opens the full-resolution original.
-- `static/css/main.css` — styles, as nested component blocks. `light-dark()`
-  tokens on `:root` follow the system color preference unless the footer's
-  light/dark toggle saves an override. There are two fixed appearances and
-  no palette catalog:
-  - **Parchment (light):** warm ivory `#F7F2E8`, charcoal ink `#292524`,
-    deep blue `#285B8F`.
-  - **Nocturne (dark):** deep warm charcoal `#141312`, warm-white text
-    `#EEEAE2`, soft blue `#8AAFE0`.
-  Surfaces, borders and muted text are mixed from the active background/ink.
-  Source Serif 4 sets names, titles and everything you read; Inter the
-  interface; JetBrains Mono the path and other small technical details.
-- `static/js/appearance.js` — the footer's **Theme** button toggles light/dark.
-  Saves the chosen mode in localStorage (`theme`); `base.html` restores it
-  before first paint. The choice survives page navigation and reloads.
-  With storage blocked, switching still works for the current page; without
-  JavaScript, the button is hidden and appearance follows the system.
-- `static/css/syntax.css` — Giallo code tokens use the active appearance's
-  ink, blue accent and muted tones.
-- `static/fonts/` — Source Serif 4, Inter, JetBrains Mono (variable
-  woff2, latin + latin-ext, from Fontsource).
+```sh
+zola build             # generates public/
+zola check            # validates content and links; external checks need network access
+```
 
-## Career and project content
+## Repository layout
 
-- `content/cv.md` is the CV, transcribed from the PDF in `static/cv/`. Keep the
-  two in step. `/about/` and `/work/` are aliases that redirect to it.
-- `data/consultancies.json` supplies the "All consulting engagements"
-  disclosure on the CV (the `engagements()` shortcode).
-- `zola.toml` holds the homepage introduction (`bio_1`, `bio_2`).
-- `content/projects/` holds project write-ups, ordered by `weight` (lowest
-  first). `extra.showcase` picks the projects listed on home; all project pages remain
-  available in the project archive. The homepage's featured project is set in
-  `content/_index.md`; its card image is `extra.featured_image` (a path under
-  `content/` or `static/`), falling back to `extra.screenshot`.
-- `static/images/projects/*-running.png` holds captures from actual project runs.
-  `extra.screenshot` and `extra.screenshot_alt` supply uncropped card previews
-  and, without an `extra.og_image`, the page's social preview.
-  Previews and page figures preserve the complete image and its aspect ratio,
-  with a 24rem height cap; page figures link to full-resolution originals.
-  Fishometry's cover is copied from `Thesis/Supervise/Thesis-Pipeline-Overview-V2.png`
-  in its source repository, not from the research explorer.
+- `zola.toml` — site settings, contact links, and homepage introduction.
+- `content/` — the public homepage metadata, CV, projects, and writing.
+- `data/consultancies.json` — the complete grouped CV engagement records.
+- `templates/` — HTML templates, the shared page header, and bottom navigation.
+- `static/` — CSS, fonts, icons, project images, and site preview image.
+- `scripts/og-cards.py` — generates the site preview image.
+- `archive/` — historical content, supporting assets, and the original CV.
+- `.github/workflows/deploy.yml` — build, link checks, and GitHub Pages deployment.
+- `public/` — generated output, ignored by Git.
 
-When refreshing a screenshot, launch the real application in an isolated
-workspace and exercise the displayed workflow. Keep client content, credentials
-and private paths out of the image. Captions say what the image shows and flag
-synthetic samples or stored (rather than freshly computed) results in a few
-words.
+## Browser behavior
 
-Check the archive, homepage, and project pages at desktop and mobile widths after
-replacement. Zola generates sized WebP previews while preserving the PNG originals.
+Links use ordinary browser navigation. CSS enables native cross-document view
+transitions where supported; other browsers navigate normally. Reduced-motion
+preferences disable the transitions.
 
-Keep degree and engagement status current. Describe offline results with their
-cohort, baseline and evaluation limits; implementation, deployment and measured
-business impact are separate claims. Public pages must not contain private vault
-paths, client records or credentials.
+CSS follows the system's light or dark color scheme, including changes while the
+page is open. There is no theme switch or saved override; old `theme` values in
+localStorage are ignored.
 
-## Content helpers
+A fixed, text-only bottom navigation links to Home, Projects, Writing, and the CV.
+It aligns with the reading column and uses the breadcrumb's monospace type, a
+hairline top rule, and an underline for the current destination. Project and
+article pages keep their section active.
+Links retain 44px touch targets; the layout reserves space below the content and
+accounts for device safe areas. Navigation and theming work without JavaScript.
+No third-party scripts, icon libraries, or remote fonts are loaded.
 
-- `{{ figure(src="assets/x.png", alt="…", caption="…") }}` — sized, lazy
-  image; rasters are re-encoded to WebP.
-  A leading-slash source, such as `/images/projects/muninn-running.png`, resolves
-  under `static/` rather than beside the page.
-- `{% sidenote(id="unique") %}Note text{% end %}` — numbered note: set in the
-  right margin on wide screens, opened below the line with a tap on narrow
-  ones. No footnotes; nothing jumps to the bottom of the page.
-- `{{ diagram(name="teus", alt="…") }}` — inlines `diagrams/teus.svg`.
+## Updating content
 
-## Social cards
+Edit the homepage introduction in `zola.toml` (`bio_1` and `bio_2`), its search
+and sharing description in `content/_index.md`, and the CV in `content/cv.md`.
+Other projects, older writing, topic pages, and publication lists remain archived.
+RSS and Atom feeds are disabled.
 
-Shared links use a 1200×630 card in the site's own type and colours: the site
-card (`static/assets/og.png`) and one per article (`static/og/<slug>.png`,
-picked up automatically by `templates/page.html`). After adding or renaming an
-article, re-render them:
+### CV engagements
+
+The Consulting section in `content/cv.md` includes `{{ engagements() }}`. Its
+shortcode renders `data/consultancies.json` as a normally closed **All consulting
+engagements** disclosure. Opening it shows every group, company, and date; each
+entry opens separately to its description, domains, tools, and company website.
+Both levels use native `<details>` and work with the keyboard and without JavaScript.
+
+Update the active JSON file rather than the historical copy in `archive/`.
+Group and item order control the display order; the entry count is calculated
+automatically and includes the reusable tools group. Historical `project_url`
+associations remain in the data, but this disclosure links company websites only:
+those older project case studies are still archived.
+
+### Writing
+
+Add a Markdown file under `content/writing/`, or use a page bundle such as
+`content/writing/my-note/index.md` to keep images beside a note. Each writing needs
+a title, description, and date:
+
+```toml
++++
+title = "A question worth exploring"
+description = "What I tried, what happened, and what I learned."
+date = 2026-10-29
++++
+```
+
+Write the article in Markdown after the closing `+++`. The section automatically
+lists entries newest first and supplies the article template, publication date,
+and reading time. The filename (or bundle directory) determines the URL.
+Set `draft = true` in the front matter to keep an unfinished article out of a
+normal build; use `zola serve --drafts` to preview it.
+
+The homepage's Writing section shows the three newest published writings as
+compact title/month-year rows. Its heading opens `/writing/`, which uses the same
+rows for the full list. Drafts and entries marked `is_template = true` are excluded
+from the homepage, including during draft preview. The section stays hidden until
+at least one real writing is published.
+
+`content/writing/writing-template.md` is a draft-only starting point, excluded from
+normal builds. Preview it with `zola serve --drafts`. Its `[extra] is_template = true`
+flag labels the preview **Template** instead of showing a publication date and
+adds `noindex` to its article page. To publish a copy, choose a new filename,
+replace the title, description, date, and body, and remove both `draft = true`
+and `is_template = true`.
+
+### Projects
+
+Projects live under `content/projects/`, ordered by `weight`. Muninn is restored
+as a complete example, with its screenshot and write-up. Its `[extra] showcase = true`
+flag includes it in the homepage's horizontal card strip. `/projects/` shows all
+published projects in a card grid with short summaries.
+
+Use `content/projects/muninn.md` as a content example. Put screenshots under
+`static/` and set `screenshot` to their path without the `static/` prefix; provide
+`screenshot_alt` as well. Cards and the `figure` shortcode create WebP previews
+with intrinsic dimensions. Project pages close with status, role, stack, dates,
+and source/demo links when those fields are present.
+
+Project cards and compact writing rows reuse the presentation from `84b8d59`,
+implemented in `templates/macros/directory.html` and `static/css/main.css`.
+Restoring another archived project also requires its images and any shortcodes
+it uses. Do not copy old `[taxonomies]` blocks unless topic pages are re-enabled.
+
+### Assets and archived content
+
+Everything in `static/` is copied into the website. Keep withdrawn material in
+`archive/`, outside both `content/` and `static/`, until it is ready to publish.
+The archive is excluded from the site build, **not private storage**: files in a
+public repository and its Git history remain accessible.
+
+After changing the site's name or role, regenerate its social preview:
 
 ```sh
 nix run .#og-cards
 ```
 
-Projects share their screenshot instead.
+## Deployment
 
-## Diagrams
-
-Mermaid sources live in `diagrams/*.mmd`. After editing one, re-render:
-
-```sh
-nix run .#diagrams
-```
-
-This writes style-free SVGs next to the sources; the site CSS themes them.
-Labels are measured with Inter, the font the site draws them in.
+Pushes to `master` build and deploy the generated site through GitHub Pages.
+Pull requests run the build and link checks without deploying. The workflow
+publishes the generated website, not the repository archive.

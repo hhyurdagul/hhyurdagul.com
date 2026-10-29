@@ -2,124 +2,15 @@
 
 {% block title %}{{ page.title }} · {{ config.title }}{% endblock title %}
 {% block description %}{{ page.description | default(value=config.description) }}{% endblock description %}
-{% block ogtitle %}{% if page.extra.kind | default(value="") == "cv" %}{{ config.extra.author }} — CV{% else %}{{ page.title }}{% endif %}{% endblock ogtitle %}
+{% block ogtitle %}{{ config.extra.author }} — CV{% endblock ogtitle %}
 {% block ogdesc %}{{ page.description | default(value=config.description) }}{% endblock ogdesc %}
-{% block ogtype %}{% if page.extra.kind | default(value="post") == "post" %}article{% else %}website{% endif %}{% endblock ogtype %}
-
-{% block ogimage %}
-{#- Articles share their own title card (static/og/<slug>.png, made by
-    `nix run .#og-cards`) when one exists. #}
-{% set title_card = get_image_metadata(path="og/" ~ page.slug ~ ".png", allow_missing=true) %}
-{% if title_card and page.extra.kind | default(value="post") == "post" %}
-<meta property="og:image" content="{{ get_url(path='og/' ~ page.slug ~ '.png') }}">
-<meta property="og:image:width" content="{{ title_card.width }}">
-<meta property="og:image:height" content="{{ title_card.height }}">
-<meta property="og:image:alt" content="{{ page.title }}">
-{% elif page.extra.og_image %}
-{% set og_meta = get_image_metadata(path=page.colocated_path ~ page.extra.og_image) %}
-<meta property="og:image" content="{{ page.permalink ~ page.extra.og_image }}">
-<meta property="og:image:width" content="{{ og_meta.width }}">
-<meta property="og:image:height" content="{{ og_meta.height }}">
-<meta property="og:image:alt" content="{{ page.title }}">
-{% elif page.extra.screenshot %}
-{% set og_meta = get_image_metadata(path=page.extra.screenshot) %}
-<meta property="og:image" content="{{ get_url(path=page.extra.screenshot) }}">
-<meta property="og:image:width" content="{{ og_meta.width }}">
-<meta property="og:image:height" content="{{ og_meta.height }}">
-<meta property="og:image:alt" content="{{ page.extra.screenshot_alt | default(value=page.title) }}">
-{% else %}
-{{ super() }}
-{% endif %}
-{% endblock ogimage %}
-
-{% block head_extra %}
-{% if page.extra.kind | default(value="post") == "post" and page.date %}
-<meta property="article:published_time" content="{{ page.date | date(format='%Y-%m-%d') }}">
-{% if page.updated %}<meta property="article:modified_time" content="{{ page.updated | date(format='%Y-%m-%d') }}">{% endif %}
-{% if page.taxonomies.tags %}{% for tag in page.taxonomies.tags %}<meta property="article:tag" content="{{ tag }}">
-{% endfor %}{% endif %}
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": {{ page.title | json_encode | safe }},
-  "description": {{ page.description | default(value="") | json_encode | safe }},
-  "datePublished": "{{ page.date | date(format='%Y-%m-%d') }}",
-  "dateModified": "{{ page.updated | default(value=page.date) | date(format='%Y-%m-%d') }}",
-  "url": {{ page.permalink | json_encode | safe }},
-  "wordCount": {{ page.word_count }},
-  "author": { "@type": "Person", "name": {{ config.extra.author | json_encode | safe }}, "url": {{ config.base_url | json_encode | safe }} }
-}
-</script>
-{% endif %}
-{% endblock head_extra %}
 
 {% block content %}
-{% set kind = page.extra.kind | default(value="post") %}
-{% set is_article = kind == "post" and page.date %}
-{% set is_project = kind == "project" %}
-{% set date_full = trans(key="date_full", lang=lang) %}
-{% set articles_sec = get_section(path="articles/_index.md", lang=lang) %}
-{% set projects_sec = get_section(path="projects/_index.md", lang=lang) %}
-
-<article class="stack-lg{% if is_project %} project-page{% elif is_article %} post{% endif %}">
+<article{% if is_project %} class="project-page"{% elif is_writing %} class="post"{% endif %}>
   <div class="prose">
     {{ page.content | safe }}
   </div>
-
-  {% if is_project %}
-  {#- Project facts close the page; the write-up itself comes first. #}
-  <footer class="page-foot">
-    <dl class="rows facts">
-      {% if page.extra.status %}<div class="row"><dt>Status</dt><dd>{{ page.extra.status }}</dd></div>{% endif %}
-      {% if page.extra.role %}<div class="row"><dt>Role</dt><dd>{{ page.extra.role }}</dd></div>{% endif %}
-      {% if page.extra.stack %}<div class="row"><dt>Stack</dt><dd>{{ page.extra.stack | join(sep=", ") }}</dd></div>{% endif %}
-      {% if page.date %}<div class="row"><dt>Written up</dt><dd><time datetime="{{ page.date | date(format='%Y-%m-%d') }}">{{ page.date | date(format="%b %Y") }}</time>{% if page.updated %}, updated <time datetime="{{ page.updated | date(format='%Y-%m-%d') }}">{{ page.updated | date(format="%b %Y") }}</time>{% endif %}</dd></div>{% endif %}
-      {% if page.extra.repo_url %}<div class="row"><dt>Source</dt><dd><a href="{{ page.extra.repo_url }}">{{ page.extra.repo_url | replace(from="https://", to="") }}</a></dd></div>{% endif %}
-      {% if page.extra.demo_url %}<div class="row"><dt>Demo</dt><dd><a href="{{ page.extra.demo_url }}">{{ page.extra.demo_url | replace(from="https://", to="") }}</a></dd></div>{% endif %}
-    </dl>
-    {% if page.taxonomies.tags %}
-    <ul class="chips" aria-label="{{ trans(key='tags', lang=lang) }}">
-      {% for tag in page.taxonomies.tags %}
-      <li><a href="{{ get_taxonomy_url(kind='tags', name=tag, lang=lang) }}">#{{ tag }}</a></li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-  </footer>
-  {% elif is_article or page.taxonomies.tags %}
-  <footer class="page-foot">
-    {% if page.taxonomies.tags %}
-    <ul class="chips" aria-label="{{ trans(key='tags', lang=lang) }}">
-      {% for tag in page.taxonomies.tags %}
-      <li><a href="{{ get_taxonomy_url(kind='tags', name=tag, lang=lang) }}">#{{ tag }}</a></li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-
-    {% if is_article %}
-    {% if page.updated %}
-    <p class="meta">{{ trans(key="updated", lang=lang) }} <time datetime="{{ page.updated | date(format='%Y-%m-%d') }}">{{ page.updated | date(format=date_full) }}</time></p>
-    {% endif %}
-
-    <details class="cite">
-      <summary>Cite this article</summary>
-      <p>{{ config.extra.citation_name }} ({{ page.date | date(format="%Y, %B %-d") }}). <i>{{ page.title }}</i>. {{ config.title }}. {{ page.permalink }}</p>
-    </details>
-
-    {#- Sorted by date (newest first): `higher` is the older neighbour. #}
-    {% if page.lower or page.higher %}
-    <nav class="prev-next" aria-label="More articles">
-      {% if page.higher %}
-      <a href="{{ page.higher.permalink }}"><span>&larr; {{ trans(key="older", lang=lang) }}</span>{{ page.higher.title }}</a>
-      {% else %}<span></span>{% endif %}
-      {% if page.lower %}
-      <a class="next" href="{{ page.lower.permalink }}"><span>{{ trans(key="newer", lang=lang) }} &rarr;</span>{{ page.lower.title }}</a>
-      {% endif %}
-    </nav>
-    {% endif %}
-    {% endif %}
-  </footer>
-  {% endif %}
+  {% block page_footer %}{% endblock page_footer %}
 </article>
 {% endblock content %}
 

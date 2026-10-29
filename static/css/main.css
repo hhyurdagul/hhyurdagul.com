@@ -1,8 +1,5 @@
-/* hhyurdagul.com — a written left column beside a scrolling reader.
- *
- * The left sheet is the header of the current location (path, title, index);
- * the window scrolls the right-hand content. One paper background, hairline
- * rows, no panels. Parchment and Nocturne follow the OS or a saved mode.
+/* hhyurdagul.com — a quiet, single-column personal site.
+ * Parchment and Nocturne follow the system color scheme.
  */
 
 /* ------------------------------------------------------------------ fonts */
@@ -106,7 +103,6 @@
   --muted: color-mix(in srgb, var(--text) 85%, var(--bg));
   --prose: var(--text);
   --accent: light-dark(#285B8F, #8AAFE0);
-  --accent-soft: color-mix(in srgb, var(--bg), var(--accent) 12%);
   --code-bg: var(--surface);
   --selection: color-mix(in srgb, var(--bg), var(--accent) 25%);
   --window-shadow: light-dark(rgb(15 25 45 / 0.18), rgb(0 0 0 / 0.65));
@@ -117,14 +113,6 @@
   --radius: 0.625rem;
   --measure: 40rem;
   --edge: clamp(1.25rem, 5vw, 5rem);
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
-}
-
-:root[data-theme="dark"] {
-  color-scheme: dark;
 }
 
 /* ------------------------------------------------------------------- base */
@@ -172,12 +160,6 @@ a {
   text-decoration: none;
 }
 
-button {
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-}
-
 ::selection {
   background: var(--selection);
   color: var(--text);
@@ -189,7 +171,7 @@ button {
   border-radius: 0.2rem;
 }
 
-/* Anchors land with some air, whether the browser or the router scrolls. */
+/* Native anchor navigation leaves space above the destination. */
 :is(:target, #content [id]) {
   scroll-margin-top: 2.5rem;
 }
@@ -221,8 +203,7 @@ button {
 
 /* ------------------------------------------------------------------ shell */
 
-/* One centred column on every page. The sheet is the page's header (path,
-   title, summary, contents); the reader follows; small links close it. */
+/* The page header, content and footer share one reading column. */
 .shell {
   display: flex;
   flex-direction: column;
@@ -230,6 +211,7 @@ button {
   min-height: 100dvh;
   margin-inline: auto;
   padding-inline: var(--edge);
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
 }
 
 .sheet {
@@ -261,41 +243,48 @@ button {
   font-size: 0.75rem;
 }
 
-.sheet-foot {
-  order: 3;
+/* ------------------------------------------------------ bottom navigation */
+
+.bottom-nav {
+  position: fixed;
+  z-index: 20;
+  inset-inline: 0;
+  bottom: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1.25rem;
-  margin-top: auto;
-  padding-block: 0.5rem 2.5rem;
+  gap: clamp(1rem, 4vw, 2rem);
+  width: min(var(--measure), calc(100% - var(--edge) * 2));
+  margin-inline: auto;
+  padding-block: 0.75rem calc(0.75rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.bottom-nav-link {
+  display: flex;
+  align-items: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
   color: var(--muted);
-  font-size: 0.75rem;
+  font: 400 0.75rem/1.6 var(--font-mono);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.5rem;
+  transition: color 150ms;
 
-  & :is(a, button) {
-    padding: 0;
-    border: 0;
-    background: none;
-    color: inherit;
-  }
-
-  & :is(a, button):hover {
-    color: var(--text);
+  &:hover,
+  &[aria-current] {
+    color: var(--accent);
+    text-decoration-line: underline;
   }
 }
 
-/* Home is the header alone: introduction, projects and writing. */
+/* Home pairs the introduction with project cards and compact writing rows. */
 body[data-section="home"] {
   & .sheet-body {
     padding-top: clamp(3rem, 14vh, 8rem);
   }
 
-  & .reader,
-  & .skip-link {
-    display: none;
-  }
-
-  & .sheet-foot {
-    padding-top: 4rem;
+  & .reader {
+    margin-top: 0;
   }
 
   & .sheet-title {
@@ -303,44 +292,13 @@ body[data-section="home"] {
   }
 }
 
-/* Articles open like a letter: a drop cap two lines deep. */
-.post .prose > p:first-of-type::first-letter {
-  float: left;
-  margin: 0.1em 0.08em 0 0;
-  color: var(--text);
-  font: 500 3.05em/0.8 var(--font-serif);
-}
-
-@supports (initial-letter: 2) {
-  .post .prose > p:first-of-type::first-letter {
-    float: none;
-    margin: 0 0.1em 0 0;
-    font-size: inherit;
-    line-height: inherit;
-    initial-letter: 2;
-  }
-}
-
-/* Project facts sit quietly at the end of the write-up. */
-.project-page .page-foot .facts {
-  margin-top: 0;
-  border-top: 0;
-  font-size: 0.8125rem;
-
-  & dd a {
-    color: var(--text);
-    text-decoration: underline;
-    text-decoration-color: var(--border-strong);
-    text-underline-offset: 3px;
-    overflow-wrap: anywhere;
-  }
-
-  & dd a:hover {
-    color: var(--accent);
-  }
-}
-
 /* Page changes cross-fade where the browser supports view transitions. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
 ::view-transition-group(root) {
   animation-duration: 220ms;
 }
@@ -348,8 +306,17 @@ body[data-section="home"] {
 /* ------------------------------------------------------------- left sheet */
 
 /* The location as a path: each segment climbs back out a level. */
-.path {
+.sheet-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 2.75rem;
   margin-bottom: 2.75rem;
+}
+
+.path {
+  min-width: 0;
   color: var(--muted);
   font: 400 0.75rem/1.6 var(--font-mono);
 
@@ -387,12 +354,6 @@ body[data-section="home"] {
   overflow-wrap: break-word;
 }
 
-.sheet-meta {
-  margin-top: 0.75rem;
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
 .sheet-lede {
   margin-top: 1rem;
   color: var(--text);
@@ -428,6 +389,12 @@ body[data-section="home"] {
   text-wrap: pretty;
 }
 
+.sheet-meta {
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
 .sheet-section {
   margin-top: 2.5rem;
 
@@ -439,8 +406,6 @@ body[data-section="home"] {
     font-weight: 500;
   }
 
-  /* A heading that opens its full section stays a heading; a thin arrow at
-     the far end of its rule says the whole row is a link. */
   & > h2 a {
     display: flex;
     align-items: center;
@@ -498,13 +463,6 @@ body[data-section="home"] {
     transition: color 150ms;
   }
 
-  & .row-main small {
-    display: block;
-    margin-top: 0.125rem;
-    color: var(--text-2);
-    font-size: 0.8125rem;
-  }
-
   & .row-aside {
     flex: 0 1 auto;
     max-width: 55%;
@@ -533,41 +491,14 @@ body[data-section="home"] {
   }
 }
 
-/* ------------------------------------------------------- right: streams */
-
-.list {
-  font-size: 0.9375rem;
-
-  & a {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-block: 0.625rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  & a:hover {
-    color: var(--accent);
-  }
-
-  & time {
-    flex: none;
-    color: var(--muted);
-    font-size: 0.8125rem;
-  }
+.content > .rows {
+  border-top: 1px solid var(--border);
 }
 
-.empty {
-  color: var(--text-2);
-  font: 400 1.5rem/1.4 var(--font-serif);
-}
+/* ---------------------------------------------------------------- projects */
 
-/* ------------------------------------------------------------ projects */
-
-/* A project card: the screenshot as a window on a small mat, then its name
-   and status. Tall captures hang from the top and run off the bottom edge;
-   wide ones float centred, so every card reads the same. */
+/* Screenshots sit on a small mat: tall captures hang from the top, while
+   wide ones float centred. These are the pre-removal project cards. */
 .card {
   display: grid;
   align-content: start;
@@ -664,15 +595,13 @@ body[data-section="home"] {
   line-height: 1.55;
 }
 
-/* The Projects page: short cards, three across where there is room. */
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
   gap: 2.5rem 1.5rem;
 }
 
-/* Home: the same cards in a strip within the text column, scrolled natively
-   and snapping to each card; the cut-off card shows there is more. */
+/* Home uses the same cards in a native, horizontally scrolling strip. */
 .card-strip {
   display: flex;
   gap: 1rem;
@@ -691,100 +620,15 @@ body[data-section="home"] {
   }
 }
 
-/* Lists that open a page (Writing, a topic) start on a hairline too. */
-.content > .rows {
-  border-top: 1px solid var(--border);
-}
-
-/* Project write-ups: a hairline between the summary and the write-up. */
 .project-page {
+  display: grid;
+  gap: 2.5rem;
   padding-top: 2.5rem;
   border-top: 1px solid var(--border);
 }
 
-body[data-section="projects"] .reader:has(.project-page) {
+.reader:has(.project-page) {
   margin-top: 2.5rem;
-}
-
-/* ------------------------------------------------------------- primitives */
-
-.stack-lg {
-  display: grid;
-  gap: 2.5rem;
-}
-
-.stack-xl {
-  display: grid;
-  gap: 3.5rem;
-}
-
-.meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem 0.75rem;
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1rem;
-  color: var(--muted);
-  font-size: 0.8125rem;
-
-  & a:hover {
-    color: var(--accent);
-  }
-}
-
-.block {
-  display: grid;
-  gap: 1rem;
-}
-
-.block-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-bottom: 0.625rem;
-  border-bottom: 1px solid var(--border);
-  color: var(--muted);
-  font-size: 0.8125rem;
-
-  & h2 {
-    color: var(--text);
-    font: 500 1.375rem/1.3 var(--font-serif);
-  }
-
-  & h2 a:hover {
-    color: var(--accent);
-  }
-}
-
-details > summary {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  cursor: pointer;
-  list-style: none;
-
-  &::-webkit-details-marker {
-    display: none;
-  }
-
-  &::after {
-    content: "+";
-    flex: none;
-    color: var(--muted);
-    transition: rotate 150ms;
-  }
-}
-
-details[open] > summary::after {
-  rotate: 45deg;
 }
 
 .page-foot {
@@ -794,67 +638,39 @@ details[open] > summary::after {
   border-top: 1px solid var(--border);
 }
 
-.cite {
+.project-page .page-foot .facts {
+  margin-top: 0;
+  border-top: 0;
   font-size: 0.8125rem;
 
-  & > summary {
-    justify-content: flex-start;
-    color: var(--text-2);
-  }
-
-  & > summary:hover {
-    color: var(--accent);
-  }
-
-  & p {
-    margin-top: 0.875rem;
-    padding: 1rem;
-    border-radius: var(--radius);
-    background: var(--surface);
-    color: var(--text-2);
-    overflow-wrap: anywhere;
-    user-select: all;
-  }
-}
-
-.prev-next {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem;
-
-  & a {
-    display: grid;
-    gap: 0.25rem;
+  & dd a {
     color: var(--text);
-    font: 500 1.0625rem/1.4 var(--font-serif);
+    text-decoration: underline;
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
   }
 
-  & a:hover {
+  & dd a:hover {
     color: var(--accent);
-  }
-
-  & .next {
-    grid-column: 2;
-    text-align: right;
-  }
-
-  & span {
-    color: var(--muted);
-    font: 400 0.75rem/1.6 var(--font-sans);
   }
 }
 
-.pager {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 2rem;
-  color: var(--muted);
-  font-size: 0.8125rem;
+/* Articles open like a letter, with the original two-line drop cap. */
+.post .prose > p:first-of-type::first-letter {
+  float: left;
+  margin: 0.1em 0.08em 0 0;
+  color: var(--text);
+  font: 500 3.05em/0.8 var(--font-serif);
+}
 
-  & a:hover {
-    color: var(--accent);
+@supports (initial-letter: 2) {
+  .post .prose > p:first-of-type::first-letter {
+    float: none;
+    margin: 0 0.1em 0 0;
+    font-size: inherit;
+    line-height: inherit;
+    initial-letter: 2;
   }
 }
 
@@ -1047,165 +863,6 @@ details[open] > summary::after {
   }
 }
 
-.figure {
-  & a {
-    display: block;
-  }
-
-  & img {
-    width: auto;
-    max-width: 100%;
-    height: auto;
-    object-fit: contain;
-  }
-}
-
-/* Project screenshots stay whole but never take over the reading column;
-   the original opens at full resolution. */
-.project-page .figure img {
-  max-height: 30rem;
-}
-
-/* Mermaid SVGs retain their intrinsic canvas and can scroll on small screens. */
-.diagram {
-  padding: 1.25rem;
-  overflow-x: auto;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-
-  & svg {
-    display: block;
-    max-width: none;
-    height: auto;
-    margin-inline: auto;
-    font: 400 14px var(--font-sans);
-  }
-
-  & .node > :is(rect, polygon, circle, path) {
-    fill: var(--surface-2);
-    stroke: var(--border-strong);
-    stroke-width: 1px;
-  }
-
-  & text {
-    fill: var(--text);
-  }
-
-  & .label text {
-    text-anchor: middle;
-  }
-
-  & .flowchart-link {
-    fill: none;
-    stroke: var(--muted);
-    stroke-width: 1.25px;
-  }
-
-  & .arrowMarkerPath {
-    fill: var(--muted);
-    stroke: var(--muted);
-  }
-
-  & .edgeLabel rect {
-    fill: var(--surface);
-  }
-
-  & .edgeLabel text {
-    fill: var(--text-2);
-    font-size: 12px;
-  }
-}
-
-/* Notes, numbered in the text. Wide screens set each one in the right margin
-   beside its line; narrower screens open it below the line on a tap. A hidden
-   checkbox does the toggling, so it needs no JavaScript. */
-.prose {
-  counter-reset: sidenote;
-}
-
-.sn-toggle {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.sn-ref {
-  counter-increment: sidenote;
-  cursor: pointer;
-
-  &::after {
-    content: counter(sidenote);
-    position: relative;
-    top: -0.55em;
-    margin-left: 0.1em;
-    padding-inline: 0.2em;
-    border-radius: 0.2rem;
-    color: var(--accent);
-    font: 600 0.62em/1 var(--font-sans);
-  }
-
-  &:hover::after {
-    background: var(--accent-soft);
-  }
-}
-
-.sn-toggle:focus-visible + .sn-ref::after {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-
-.sidenote {
-  display: none;
-  color: var(--text-2);
-  font: 400 0.875rem/1.6 var(--font-sans);
-
-  &::before {
-    content: counter(sidenote) ". ";
-    color: var(--accent);
-    font-weight: 600;
-  }
-}
-
-.sn-toggle:checked + .sn-ref + .sidenote {
-  display: block;
-  margin: 0.625rem 0 0.875rem;
-  padding: 0.625rem 0.875rem;
-  border-left: 2px solid var(--accent);
-  border-radius: 0 0.375rem 0.375rem 0;
-  background: var(--surface);
-}
-
-@media (width >= 80rem) {
-  .sn-toggle {
-    display: none;
-  }
-
-  .sn-ref {
-    cursor: default;
-  }
-
-  .sn-ref:hover::after {
-    background: none;
-  }
-
-  .sidenote,
-  .sn-toggle:checked + .sn-ref + .sidenote {
-    display: block;
-    float: right;
-    clear: right;
-    width: 13rem;
-    margin: 0.35rem -15.5rem 0 0;
-    padding: 0;
-    border: 0;
-    background: none;
-    font-size: 0.8125rem;
-    line-height: 1.55;
-  }
-}
-
 /* -------------------------------------------------------------------- CV */
 
 .prose {
@@ -1236,14 +893,34 @@ details[open] > summary::after {
   }
 }
 
-/* Every engagement folds into one disclosure; each client opens in place. */
+/* The complete consulting list opens in place; individual entries stay
+   compact until their descriptions are requested. Native details needs no JS. */
 .engagements {
   margin-top: 2rem;
   border-block: 1px solid var(--border);
   font: 400 0.9375rem/1.55 var(--font-sans);
 
+  & summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 2.75rem;
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::after {
+      content: "+";
+      flex: none;
+      color: var(--muted);
+    }
+  }
+
   & > summary {
-    justify-content: flex-start;
+    align-items: center;
     padding-block: 0.875rem;
     color: var(--text);
     font-weight: 500;
@@ -1269,6 +946,11 @@ details[open] > summary::after {
   }
 }
 
+.engagements[open] > summary::after,
+.engagement[open] > summary::after {
+  content: "−";
+}
+
 .engagement-group {
   margin-block: 0.75rem 1.5rem;
 }
@@ -1290,20 +972,20 @@ details[open] > summary::after {
   }
 
   & > summary .name {
+    min-width: 0;
     color: var(--text);
+    overflow-wrap: anywhere;
   }
 
   & > summary .when {
+    max-width: 45%;
     margin-left: auto;
+    text-align: right;
     font-size: 0.8125rem;
   }
 
   & > summary:hover .name {
     color: var(--accent);
-  }
-
-  & > summary::after {
-    font-size: 0.875rem;
   }
 }
 
@@ -1327,15 +1009,6 @@ details[open] > summary::after {
 
   .prose .when {
     white-space: normal;
-  }
-
-  .prev-next {
-    grid-template-columns: minmax(0, 1fr);
-
-    & .next {
-      grid-column: auto;
-      text-align: left;
-    }
   }
 }
 

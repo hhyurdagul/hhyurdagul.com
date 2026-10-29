@@ -2,7 +2,7 @@ base_url = "https://hhyurdagul.com"
 default_language = "en"
 compile_sass = false
 build_search_index = false
-generate_feeds = true
+generate_feeds = false
 
 [markdown]
 lazy_async_image = true
@@ -17,11 +17,6 @@ style = "class"
 light_theme = "github-light"
 dark_theme = "github-dark"
 
-[link_checker]
-# DergiPark (the journal host behind these DOIs) answers automated requests
-# with 503; the links work in a browser.
-skip_prefixes = ["https://doi.org/10.47495/"]
-
 [extra]
 author = "Hasan Hüseyin Yurdagül"
 github = "https://github.com/hhyurdagul"
@@ -29,26 +24,13 @@ linkedin = "https://linkedin.com/in/hhyurdagul"
 email = "mailto:hhyurdagul@gmail.com"
 logo_text = "hhyurdagul"
 og_image = "assets/og.png"
-citation_name = "Yurdagül, H. H."
 
 [languages.en]
 title = "Hasan Hüseyin Yurdagül"
-description = "Personal website of Hasan Hüseyin Yurdagül — Senior ML Engineer · Applied AI."
-taxonomies = [{ name = "tags", feed = true }]
-generate_feeds = true
-feed_filenames = ["atom.xml", "rss.xml"]
+description = "I'm Hasan Hüseyin Yurdagül, a machine learning engineer and technical lead. This is my personal website and CV."
 
 [translations]
-tags = "Tags"
-min_read = "min read"
-updated = "Updated"
-older = "Older"
-newer = "Newer"
-page_of = "Page $CURRENT of $TOTAL"
-rss = "RSS"
-date_full = "%d %B %Y"
-date_ym = "%b %Y"
-role = "Senior ML Engineer · Applied AI"
-bio_1 = "Leading AI R&D at Universal Software: forecasting, support intelligence, and mentoring engineers."
-bio_2 = "Consulting for Moka on fintech models and serving pipelines; completing an MSc thesis in Computer Engineering."
+role = "Machine learning engineer and technical lead"
+bio_1 = "I'm Hasan. I lead AI R&D at Universal Software, where I build machine learning systems and work with a team of engineers."
+bio_2 = "I also consult on machine learning and am finishing my MSc in Computer Engineering. Lately, much of my work has been with language models and retrieval."
 

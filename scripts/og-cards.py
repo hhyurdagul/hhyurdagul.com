@@ -1,10 +1,8 @@
-"""Render social-preview cards (1200x630 PNG) in the site's own type and colours.
+"""Render the site's social-preview card (1200x630 PNG).
 
-Writes static/assets/og.png (the site card) and static/og/<slug>.png for every
-article. templates/page.html uses an article's card when one exists.
+Writes static/assets/og.png in the site's own type and colours.
 Run with `nix run .#og-cards` from the repository root.
 """
-import datetime
 import html
 import pathlib
 import tempfile
@@ -58,52 +56,25 @@ def card(path, title, sub, foot_right, size):
     )
 
 
-def front_matter(md):
-    text = md.read_text()
-    return tomllib.loads(text.split("+++")[1])
-
-
-def articles():
-    for md in sorted((ROOT / "content" / "articles").glob("**/*.md")):
-        if md.name == "_index.md":
-            continue
-        slug = md.parent.name if md.name == "index.md" else md.stem
-        yield slug, front_matter(md)
-
-
-def title_size(title):
-    return 88 if len(title) <= 34 else 74 if len(title) <= 60 else 62
-
-
 def main():
-    out = ROOT / "static" / "og"
-    out.mkdir(exist_ok=True)
-    jobs = [(ROOT / "static" / "assets" / "og.png",
-             card([HANDLE, "home"], AUTHOR, ROLE, "Projects · Writing · CV", 92))]
-    for slug, fm in articles():
-        date = fm["date"]
-        if isinstance(date, str):
-            date = datetime.date.fromisoformat(date)
-        jobs.append((out / f"{slug}.png",
-                     card([HANDLE, "writing"], fm["title"], None,
-                          f"{AUTHOR} · {date:%B %Y}", title_size(fm["title"]))))
+    target = ROOT / "static" / "assets" / "og.png"
+    document = card([HANDLE, "home"], AUTHOR, ROLE, "CV · Contact", 92)
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page(viewport={"width": 1200, "height": 630})
         with tempfile.TemporaryDirectory() as tmp:
-            for i, (target, document) in enumerate(jobs):
-                # A file:// page may load the local font files; set_content may not.
-                source = pathlib.Path(tmp) / f"card-{i}.html"
-                source.write_text(document)
-                page.goto(source.as_uri())
-                page.evaluate("document.fonts.ready")
-                missing = page.evaluate(
-                    "['Source Serif 4', 'Inter', 'JetBrains Mono']"
-                    ".filter(f => !document.fonts.check(`16px '${f}'`))")
-                if missing:
-                    raise SystemExit(f"fonts did not load for {target.name}: {missing}")
-                page.screenshot(path=str(target))
-                print(f"rendered {target.relative_to(ROOT)}")
+            # A file:// page may load the local font files; set_content may not.
+            source = pathlib.Path(tmp) / "card.html"
+            source.write_text(document)
+            page.goto(source.as_uri())
+            page.evaluate("document.fonts.ready")
+            missing = page.evaluate(
+                "['Source Serif 4', 'Inter', 'JetBrains Mono']"
+                ".filter(f => !document.fonts.check(`16px '${f}'`))")
+            if missing:
+                raise SystemExit(f"fonts did not load for {target.name}: {missing}")
+            page.screenshot(path=str(target))
+            print(f"rendered {target.relative_to(ROOT)}")
         browser.close()
 
 

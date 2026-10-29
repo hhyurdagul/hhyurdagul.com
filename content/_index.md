@@ -1,8 +1,5 @@
 +++
 title = "Home"
-description = "Senior ML Engineer and hands-on Technical Lead: forecasting, applied AI and model-serving systems."
+description = "I'm Hasan, a machine learning engineer and technical lead. I build AI systems and help teams put them to use."
 template = "index.html"
-
-[extra]
-featured = "projects/teus/index.md"
 +++

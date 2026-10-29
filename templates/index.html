@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "macros/directory.html" as dir %}
 
 {% block title %}{{ config.extra.author }} — {{ trans(key="role", lang=lang) }}{% endblock title %}
 {% block ogtitle %}{{ config.extra.author }} — {{ trans(key="role", lang=lang) }}{% endblock ogtitle %}
@@ -21,6 +22,32 @@
 </script>
 {% endblock head_extra %}
 
-{#- Home is the page header alone: introduction, projects and writing. The
-    reader stays empty and hidden. -#}
-{% block content %}{% endblock content %}
+{% block content %}
+{% set projects = projects_section.pages | filter(attribute="extra.showcase", value=true) %}
+{% if projects %}
+<section class="sheet-section" aria-labelledby="projects-heading">
+  <h2 id="projects-heading"><a href="{{ projects_section.permalink }}" aria-label="All projects"><span>Projects</span><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-5-5 5 5-5 5"/></svg></a></h2>
+  <ul class="card-strip">
+    {% for item in projects %}{{ dir::card(project=item, summary=false) }}{% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% set_global writings = [] %}
+{% for item in writing_section.pages %}
+  {% set is_template = item.extra.is_template | default(value=false) %}
+  {% if not item.draft and not is_template %}
+    {% set_global writings = writings | concat(with=[item]) %}
+    {% if writings | length == 3 %}{% break %}{% endif %}
+  {% endif %}
+{% endfor %}
+
+{% if writings %}
+<section class="sheet-section" aria-labelledby="writing-heading">
+  <h2 id="writing-heading"><a href="{{ writing_section.permalink }}" aria-label="All writing"><span>Writing</span><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-5-5 5 5-5 5"/></svg></a></h2>
+  <ul class="rows">
+    {% for item in writings %}{{ dir::article_row(item=item) }}{% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock content %}

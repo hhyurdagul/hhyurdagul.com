@@ -1,7 +1,5 @@
-{#- Figure with intrinsic size (no layout shift), lazy loading, and raster
-    images re-encoded to WebP at a sane width. The image links to the original.
-    Usage: {{ figure(src="assets/plot.png", alt="…", caption="…") }}
-    Use a leading slash for images under static/. -#}
+{#- Figure with intrinsic size, lazy loading, and raster images re-encoded
+    to WebP. The image links to the original. A leading slash uses static/. -#}
 {%- set file = src | trim_start_matches(pat="./") -%}
 {%- if file is starting_with("/") -%}
   {%- set path = file | trim_start_matches(pat="/") -%}

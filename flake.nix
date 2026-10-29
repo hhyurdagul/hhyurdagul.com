@@ -20,8 +20,7 @@
       # the site's CSS themes (light/dark). Kept out of the dev shell because
       # mermaid-cli pulls in a headless Chromium.
       apps = forAllSystems (pkgs: {
-        # `nix run .#og-cards` → social-preview cards for the site and every
-        # article (static/assets/og.png, static/og/<slug>.png).
+        # `nix run .#og-cards` → the site's social-preview card.
         og-cards = {
           type = "app";
           program = toString (pkgs.writeShellScript "og-cards" ''

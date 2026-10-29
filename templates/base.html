@@ -1,9 +1,9 @@
-{% import "macros/directory.html" as dir %}
 <!doctype html>
 <html lang="{{ lang }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
   <title>{% block title %}{{ config.title }}{% endblock title %}</title>
   <meta name="description" content="{% block description %}{{ config.description }}{% endblock description %}">
   <meta name="author" content="{{ config.extra.author }}">
@@ -11,10 +11,6 @@
   <meta name="theme-color" content="#F7F2E8" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#141312" media="(prefers-color-scheme: dark)">
   <link rel="canonical" href="{{ current_url | default(value=config.base_url) }}">
-  {% if config.generate_feeds %}
-  <link rel="alternate" type="application/rss+xml" title="{{ config.title }}" href="{{ get_url(path='rss.xml', lang=lang) }}">
-  <link rel="alternate" type="application/atom+xml" title="{{ config.title }}" href="{{ get_url(path='atom.xml', lang=lang) }}">
-  {% endif %}
   <meta property="og:site_name" content="{{ config.title }}">
   <meta property="og:type" content="{% block ogtype %}website{% endblock ogtype %}">
   <meta property="og:url" content="{{ current_url | default(value=config.base_url) }}">
@@ -32,55 +28,26 @@
   <link rel="stylesheet" href="{{ get_url(path='css/syntax.css', cachebust=true) }}">
   <link rel="icon" type="image/svg+xml" href="{{ get_url(path='favicon.svg', cachebust=true) }}">
   <link rel="apple-touch-icon" href="{{ get_url(path='apple-touch-icon.png') }}">
-  <script>
-    (function () {
-      try {
-        var theme = localStorage.getItem('theme');
-        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
-      } catch (_) {}
-    })();
-  </script>
-  <script defer src="{{ get_url(path='js/appearance.js', cachebust=true) }}"></script>
-  <script defer src="{{ get_url(path='js/explorer.js', cachebust=true) }}"></script>
   {% block head_extra %}{% endblock head_extra %}
 </head>
-<body data-section="{% if section and section.path == '/' %}home{% elif section and section.extra.kind %}{{ section.extra.kind }}{% elif page and page.components %}{% if 'projects' in page.components %}projects{% elif 'articles' in page.components %}posts{% elif 'cv' in page.components %}cv{% endif %}{% elif taxonomy %}tags{% else %}404{% endif %}">
-  {% set_global sec = "" %}
-  {% if section and section.extra.kind %}
-    {% set_global sec = section.extra.kind %}
-  {% elif page and page.components %}
-    {% if "articles" in page.components %}{% set_global sec = "posts" %}
-    {% elif "projects" in page.components %}{% set_global sec = "projects" %}
-    {% elif "cv" in page.components %}{% set_global sec = "cv" %}{% endif %}
-  {% elif taxonomy %}{% set_global sec = "tags" %}{% endif %}
+<body data-section="{% if section and section.path == '/' %}home{% elif section or page %}page{% else %}404{% endif %}">
   {% set is_home = section and section.path == "/" %}
-  {% set location_path = current_path | default(value="/404.html") %}
-  {% set articles_sec = get_section(path="articles/_index.md", lang=lang) %}
-  {% set projects_sec = get_section(path="projects/_index.md", lang=lang) %}
   {% set cv_page = get_page(path="cv.md", lang=lang) %}
-  {% if page %}{% set location_title = page.extra.short_title | default(value=page.title) %}
-  {% elif is_home %}{% set location_title = "Home" %}
-  {% elif section %}{% set location_title = section.title %}
-  {% elif term %}{% set location_title = "#" ~ term.name %}
-  {% elif taxonomy %}{% set location_title = "Topics" %}
-  {% else %}{% set location_title = "Not found" %}{% endif %}
+  {% set projects_section = get_section(path="projects/_index.md", lang=lang) %}
+  {% set is_project = (section and section.path == projects_section.path) or (page and "projects/_index.md" in page.ancestors) %}
+  {% set writing_section = get_section(path="writing/_index.md", lang=lang) %}
+  {% set is_writing = (section and section.path == writing_section.path) or (page and "writing/_index.md" in page.ancestors) %}
 
   <a class="skip-link" href="#content">Skip to content</a>
   <div class="shell">
-    {#- One centred column: the header of the current location (#directory),
-        then the content (#reader). The router swaps both. #}
+    {#- Every link opens a complete static page; CSS handles page transitions. #}
     <header class="sheet">
-      <div id="directory" class="sheet-body" data-location="{{ location_path }}" data-level="{% if page %}page{% elif sec == 'tags' %}tags{% elif is_home %}root{% else %}section{% endif %}">
+      <div id="directory" class="sheet-body">
         {% include "partials/directory.html" %}
       </div>
-      <footer class="sheet-foot">
-        <a href="{{ get_url(path='rss.xml', lang=lang) }}">{{ trans(key="rss", lang=lang) }}</a>
-        <a href="{{ get_url(path='tags/', lang=lang, trailing_slash=true) }}">Topics</a>
-        <button type="button" id="appearance-toggle" hidden>Theme</button>
-      </footer>
     </header>
 
-    <div id="reader" class="reader" data-location="{{ location_path }}">
+    <div id="reader" class="reader">
       <main id="content" class="content" tabindex="-1">
         {% block content %}{% endblock content %}
       </main>
@@ -89,5 +56,6 @@
       </footer>
     </div>
   </div>
+  {% include "partials/bottom-nav.html" %}
 </body>
 </html>

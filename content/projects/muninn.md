@@ -4,12 +4,8 @@ description = "A Rust LLM agent that searches and edits a Markdown vault from th
 date = 2026-10-14
 weight = 4
 
-[taxonomies]
-tags = ["Rust", "LLM", "MCP", "Developer Tools", "Software Engineering"]
-
 [extra]
 short_title = "Muninn"
-monogram = "Mu"
 card_description = "An LLM librarian for Markdown notes, from the terminal or inside a coding agent."
 kind = "project"
 status = "Active development"

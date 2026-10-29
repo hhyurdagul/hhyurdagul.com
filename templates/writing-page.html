@@ -1,0 +1,5 @@
+{% extends "page.html" %}
+
+{% block ogtitle %}{{ page.title }} · {{ config.title }}{% endblock ogtitle %}
+{% block ogtype %}article{% endblock ogtype %}
+{% block robots %}{% if page.extra.is_template | default(value=false) %}<meta name="robots" content="noindex">{% endif %}{% endblock robots %}
