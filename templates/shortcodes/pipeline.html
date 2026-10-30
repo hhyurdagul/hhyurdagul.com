@@ -1,0 +1,28 @@
+{#- System pipeline from a TOML file colocated with the page: `steps` with
+    name/tool/stat, a step with `branch` splits into parallel outcomes, and
+    an optional `caption`. Usage: {{ pipeline(src="pipeline.toml") }} -#}
+{%- macro step(s) -%}
+  {%- if s.label %}<span class="pipeline-label">{{ s.label }}</span>{% endif %}
+  <b class="pipeline-name">{{ s.name }}</b>
+  <span class="pipeline-tool">{{ s.tool }}</span>
+  <span class="pipeline-stat">{{ s.stat }}</span>
+{%- endmacro step -%}
+{%- set data = load_data(path=page.colocated_path ~ src) %}
+<figure class="pipeline">
+  <ol>
+  {%- for s in data.steps %}
+    {%- if s.branch %}
+    <li class="pipeline-branch">
+      {%- for b in s.branch %}
+      <div class="pipeline-step">{{ self::step(s=b) }}</div>
+      {%- endfor %}
+    </li>
+    {%- else %}
+    <li class="pipeline-step">{{ self::step(s=s) }}</li>
+    {%- endif %}
+  {%- endfor %}
+  </ol>
+  {%- if data.caption %}
+  <figcaption>{{ data.caption }}</figcaption>
+  {%- endif %}
+</figure>

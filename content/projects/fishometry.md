@@ -5,9 +5,6 @@ date = 2026-01-13
 updated = 2026-10-14
 weight = 3
 
-[taxonomies]
-tags = ["Computer Vision", "Deep Learning", "Monocular Measurement", "Image Segmentation", "PyTorch", "Python"]
-
 [extra]
 short_title = "Fishometry"
 monogram = "Fi"
@@ -15,11 +12,11 @@ card_description = "Fish length from a single photo: 5.53 cm outdoor MAE, 36.9% 
 kind = "project"
 status = "Thesis in progress"
 role = "Researcher, MSc thesis"
-repo_url = "https://github.com/hhyurdagul/fishometry"
 showcase = true
+repo_url = "https://github.com/hhyurdagul/fishometry"
 stack = ["Python", "PyTorch", "YOLO11", "Segment Anything", "Depth Anything V2", "DINOv2", "XGBoost", "Polars", "Streamlit"]
-screenshot = "images/projects/fishometry-cover-v2.png"
-screenshot_alt = "Fishometry thesis pipeline: datasets, data split, preprocessing, model inputs, models, and held-out evaluation."
+screenshot = "images/projects/fishometry-demo.png"
+screenshot_alt = "The Fishometry walkthrough's hidden-ruler step: zoomed 1.45×, a 28.4 cm fish spans 329 px and a pixels-to-centimetres rule fitted at the fixed camera distance reads 41.1 cm (illustrative values)."
 +++
 
 Can a model estimate a fish's length from a single photo, with no ruler,
@@ -27,7 +24,7 @@ reference object, or camera calibration in the frame? Fishometry is my MSc
 thesis research on that question. I built the image-processing pipeline, the
 experiment matrix, and a Streamlit results explorer.
 
-{{ figure(src="/images/projects/fishometry-cover-v2.png", alt="Fishometry experimental pipeline: three datasets, a protected split, landmark detection, relative depth, segmentation and scene annotation, seven model families, and test-set results", caption="The full experimental pipeline, from three datasets to held-out results. Open the image for the full-resolution version.") }}
+{{ demo(name="fishometry") }}
 
 ## Why it is hard
 
@@ -38,6 +35,8 @@ length information learned features recover within a known distribution of
 photos, and whether that survives changes in scale and scene.
 
 ## How it works
+
+{{ figure(src="/images/projects/fishometry-cover-v2.png", alt="Fishometry experimental pipeline: three datasets, a protected split, landmark detection, relative depth, segmentation and scene annotation, seven model families, and test-set results", caption="The full experimental pipeline, from three datasets to held-out results. Open the image for the full-resolution version.") }}
 
 - A YOLO11 model trained for this study detects the fish, head, tail, and eye;
   Depth Anything V2 samples relative depth at the head, body, and tail; Segment

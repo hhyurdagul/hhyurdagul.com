@@ -1,0 +1,5 @@
+{#- Interactive demo inlined from demos/<name>.html, which renders into its own
+    shadow DOM so page and demo styles stay apart. Usage: {{ demo(name="mdsai") }} -#}
+<figure class="demo">
+{{ load_data(path="demos/" ~ name ~ ".html", format="plain") | safe }}
+</figure>

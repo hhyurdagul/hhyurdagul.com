@@ -2,27 +2,21 @@
 title = "Teus — River and Flood Forecasting"
 description = "Hourly river-discharge forecasting for eight stations: 11% thresholded MAPE on flood peaks 24 h ahead, vs 38% seasonal-naive."
 date = 2024-09-21
-updated = 2026-10-19
+updated = 2026-10-30
 weight = 1
-
-[taxonomies]
-tags = ["Deep Learning", "Time Series Forecasting", "Hydrology", "PyTorch", "Python"]
 
 [extra]
 short_title = "Teus"
-featured_title = "Forecasting rivers. Studying the floods."
-featured_label = "Flood forecasting"
-featured_topic = "Deep learning & hydrology"
-featured_image = "projects/teus/assets/d22a114-flood-forecast.png"
-og_image = "assets/d22a114-flood-forecast.png"
+monogram = "Te"
+card_description = "Hourly river-discharge forecasting for eight stations: flood peaks 24 h ahead at 11% thresholded MAPE, against 38% for seasonal-naive."
 kind = "project"
 status = "Research & model serving"
 role = "Co-lead, ML engineering"
-repo_url = "https://github.com/hhyurdagul/Teus"
 showcase = true
+repo_url = "https://github.com/hhyurdagul/Teus"
 stack = ["Python", "PyTorch", "scikit-learn", "Polars", "FastAPI", "NeuralForecast"]
-screenshot = "images/projects/teus-running.png"
-screenshot_alt = "Teus run report for a Ridge baseline with per-event metrics and error charts."
+screenshot = "images/projects/teus-demo.png"
+screenshot_alt = "The Teus walkthrough: observed discharge at station D22A114 rising to 72 m³/s, with seasonal-naive, Ridge and seq2seq forecasts made 24 hours ahead."
 +++
 
 Teus forecasts hourly river discharge and evaluates every model on the rare
@@ -31,6 +25,8 @@ that I co-lead with a hydraulic engineer; I own the data, modeling, evaluation,
 and serving work. In backtests across all eight stations, its attention-based
 seq2seq model forecasts flood peaks 24 hours ahead at 11% thresholded MAPE,
 against 38% for a seasonal-naive baseline.
+
+{{ demo(name="teus") }}
 
 {{ figure(src="assets/d22a114-flood-forecast.png", alt="24-hour seq2seq forecast closely tracking observed discharge as station D22A114 rises from about 5 to 72 cubic metres per second", caption="Station D22A114, July 2023: a 24-hour seq2seq forecast (orange) against observed discharge (blue) as the river rose from about 5 to 72 m³/s in four hours. A selected event, forecast with 72-hour rainfall forecasts from meteorological institutions as input. Labels are Turkish: *Debi* = discharge, *Tarih* = date.") }}
 
@@ -64,8 +60,6 @@ result is at **24 hours**: 11% thresholded MAPE on flood peaks, against 38% for
 seasonal-naive.
 
 {{ figure(src="/images/projects/teus-running.png", alt="Teus run report for a Ridge baseline: run settings, a per-event metrics table, and RMSE and thresholded-MAPE charts", caption="A run report for a Ridge baseline: 168 hours of history, a 72-hour horizon, three event backtests. Every run produces one, so weak baselines stay as visible as strong models.") }}
-
-{{ diagram(name="teus", alt="Teus pipeline: station discharge and rain gauges become hourly data with basin-weighted rainfall, threshold-selected peak-event windows, expanding-window backtests, and reproducible run artifacts; registered candidates pass checkpoint validation to become the serving champion behind the FastAPI forecast service.") }}
 
 ## Results and limits
 

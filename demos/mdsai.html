@@ -1,0 +1,1490 @@
+<mdsai-demo><p>The interactive MdsAI walkthrough needs JavaScript.</p></mdsai-demo>
+<template id="mdsai-demo">
+<style>
+
+/* MdsAI is always light: white surfaces, one indigo accent, muted pastels
+   for categories and people. The demo lives in a shadow root, so these rules
+   never touch the page and the page's prose rules never touch the demo. */
+:host {
+  all: initial;
+  display: block;
+  container-type: inline-size;
+  color-scheme: light;
+  --page: #F6F7FB;
+  --card: #FFFFFF;
+  --surface: #F2F3F8;
+  --border: #E4E6EF;
+  --text: #1A1C2B;
+  --muted: #676C84;
+  --accent: #4F46E5;
+  --accent-ink: #3730A3;
+  --accent-soft: #EEF0FF;
+  --ok: #157F3C;
+  --ok-soft: #E9F6EE;
+  --warn: #A65B06;
+  --warn-soft: #FDF4E4;
+  --bad: #B42318;
+  --bad-soft: #FDEDEB;
+  --c-coral: #E07A5F;
+  --c-blue: #5B8DEF;
+  --c-amber: #D99A2B;
+  --c-violet: #8B7CF6;
+  --c-teal: #33A391;
+  --c-rose: #D46A93;
+  --c-green: #7AAA43;
+  --shadow: 0 1px 2px rgb(24 26 60 / 0.04), 0 6px 20px rgb(24 26 60 / 0.06);
+  --sans: "Inter", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --col: 44rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: default; }
+:is(button, a, summary, input):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code, pre { font-family: var(--mono); }
+p { margin: 0; }
+h1, h2, h3, h4 { margin: 0; }
+
+/* The card: overflow is clipped, not scrolled, so the sticky progress and nav
+   stay sticky against the page. */
+.app {
+  overflow: clip;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--page);
+  color: var(--text);
+  font: 400 15px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  box-shadow: 0 10px 40px rgb(24 26 60 / 0.12);
+  text-align: left;
+}
+.wrap { width: 100%; max-width: var(--col); margin-inline: auto; padding-inline: 20px; }
+
+/* ------------------------------------------------------------ header */
+
+.top { background: var(--card); border-bottom: 1px solid var(--border); }
+.picker { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 14px; align-items: center; padding-block: 12px; }
+.picker-k { color: var(--muted); font-size: 12px; font-weight: 600; }
+.opts { display: grid; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; gap: 2px; padding: 3px; border-radius: 10px; background: var(--surface); }
+.opt { padding: 5px 10px; border: 0; border-radius: 8px; background: none; color: var(--muted); font-size: 13px; font-weight: 500; line-height: 1.35; }
+.opt:hover { color: var(--text); }
+.opt[aria-pressed="true"] { background: var(--card); color: var(--text); font-weight: 600; box-shadow: 0 1px 3px rgb(24 26 60 / 0.12); }
+.blurb { grid-column: 2; color: var(--muted); font-size: 12.5px; }
+
+/* The picker scrolls away; only the step progress stays pinned. */
+.progress { position: sticky; top: 0; z-index: 10; background: var(--card); border-bottom: 1px solid var(--border); }
+.progress[hidden] { display: none; }
+.prog-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-top: 9px; font-size: 13px; }
+.prog-row b { font-weight: 650; }
+.prog-row .muted { overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+.segs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 8px 0 10px; }
+.seg { height: 6px; padding: 0; border: 0; border-radius: 999px; background: var(--border); }
+.seg.done { background: color-mix(in srgb, var(--accent) 45%, white); }
+.seg.current { background: var(--accent); }
+.seg:not(:disabled):hover { outline: 2px solid var(--accent-soft); }
+
+/* ------------------------------------------------------------ main */
+
+main { min-height: 30rem; padding: 26px 0 32px; }
+.reveal { animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+.eyebrow { color: var(--accent); font-size: 12.5px; font-weight: 650; letter-spacing: 0.01em; }
+.head .t1 { margin: 6px 0 10px; font-size: 26px; font-weight: 750; letter-spacing: -0.03em; line-height: 1.2; }
+.head .t2 { margin: 6px 0 8px; font-size: 24px; font-weight: 750; letter-spacing: -0.025em; line-height: 1.2; }
+.lede { color: var(--muted); font-size: 15.5px; }
+.card { margin-top: 20px; padding: 20px; border: 1px solid var(--border); border-radius: 16px; background: var(--card); box-shadow: var(--shadow); }
+.card-label { margin-bottom: 12px; color: var(--muted); font-size: 12px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; }
+.small { color: var(--muted); font-size: 12.5px; }
+
+.result { display: flex; align-items: center; gap: 14px; margin-top: 16px; padding: 14px 18px; border-radius: 14px; background: var(--soft-bg, var(--accent-soft)); font-size: 15px; }
+.result .big { flex: none; color: var(--ink, var(--accent-ink)); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+.result.ok { --soft-bg: var(--ok-soft); --ink: var(--ok); }
+.result.warn { --soft-bg: var(--warn-soft); --ink: var(--warn); }
+.result.bad { --soft-bg: var(--bad-soft); --ink: var(--bad); }
+
+.why { margin-top: 16px; padding: 14px 18px; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 4px 14px 14px 4px; background: var(--card); }
+.why-k { color: var(--muted); font-size: 11.5px; font-weight: 650; letter-spacing: 0.05em; text-transform: uppercase; }
+.why-main { display: flex; align-items: baseline; gap: 12px; margin-top: 4px; }
+.why-main b { flex: none; color: var(--accent-ink); font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+.why details { margin-top: 8px; }
+.why summary, .mech summary { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; list-style: none; }
+.why summary::-webkit-details-marker, .mech summary::-webkit-details-marker { display: none; }
+.why summary::after, .mech summary::after { content: "▾"; font-size: 11px; transition: transform 0.2s; }
+details[open] > summary::after { transform: rotate(180deg); }
+.why details > div { display: grid; gap: 10px; margin-top: 10px; color: var(--muted); font-size: 14px; }
+.mech { margin-top: 14px; }
+.mech > div { display: grid; gap: 14px; margin-top: 12px; padding: 16px; border-radius: 14px; background: var(--surface); }
+.mech h4 { margin-bottom: 8px; font-size: 13px; font-weight: 650; }
+
+/* compose */
+.from { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 14px; color: var(--muted); font-size: 13px; }
+.tno { font: 500 12px var(--mono); }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { display: grid; gap: 4px; margin-bottom: 12px; }
+.field > span { color: var(--muted); font-size: 12px; font-weight: 600; }
+.val { min-height: 38px; padding: 8px 11px; border: 1px solid var(--border); border-radius: 10px; background: var(--page); font-size: 14px; }
+.val.area { min-height: 110px; white-space: pre-wrap; }
+.typing::after { content: ""; display: inline-block; width: 2px; height: 1.05em; margin-left: 1px; background: var(--accent); vertical-align: text-bottom; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s, box-shadow 0.2s, opacity 0.2s;
+}
+.btn:hover:not(:disabled) { background: var(--surface); }
+.btn:disabled { opacity: 0.45; }
+.btn.primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+.btn.primary:hover:not(:disabled) { background: var(--accent-ink); }
+.btn.counting::after { content: ""; position: absolute; inset: auto 0 0 0; height: 3px; background: rgb(255 255 255 / 0.8); transform-origin: left; animation: count var(--dur, 6s) linear forwards; }
+@keyframes count { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.submit { width: 100%; margin-top: 4px; padding: 11px; font-size: 15px; }
+.submit.pulse { animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px var(--accent-soft); } }
+.note { margin-top: 16px; }
+
+/* read */
+.subj { margin-bottom: 6px; font-size: 16px; font-weight: 700; }
+.marked { font-size: 16px; line-height: 1.8; }
+.marked mark { padding: 1px 3px; border-radius: 5px; background: transparent; color: inherit; transition: background 0.4s, box-shadow 0.4s; }
+.marked mark.on { background: color-mix(in srgb, var(--c) 16%, white); box-shadow: inset 0 -2px 0 var(--c); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; color: var(--muted); font-size: 12.5px; }
+.legend span::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 3px; background: var(--c); }
+
+/* category map */
+.scatter { display: block; width: 100%; height: auto; }
+.scatter .pt { opacity: 0.6; }
+.scatter .lab { font: 600 11px var(--sans); fill: var(--muted); }
+.scatter .nn { stroke: var(--text); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.4; }
+.scatter .me { transition: transform 1.2s cubic-bezier(0.3, 0.9, 0.25, 1); }
+.scatter .core { fill: var(--text); stroke: #fff; stroke-width: 2.5; }
+.scatter .halo { fill: none; stroke: var(--accent); stroke-width: 2; animation: halo 1.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes halo { from { transform: scale(1); opacity: 0.9; } to { transform: scale(3); opacity: 0; } }
+.vec { display: flex; align-items: center; gap: 2px; height: 34px; }
+.vec i { width: 4px; height: var(--h); border-radius: 2px; background: var(--c); }
+.bars { display: grid; gap: 8px; }
+.bar-row { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) 3rem; gap: 12px; align-items: center; font-size: 14px; }
+.bar-row .label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar { position: relative; height: 8px; border-radius: 999px; background: var(--surface); }
+.bar > i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--c, var(--accent)); transition: width 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.pct { font: 600 12.5px var(--mono); text-align: right; }
+
+/* people */
+.people { display: grid; gap: 10px; }
+.person { display: grid; grid-template-columns: 42px minmax(0, 1fr) 7rem 3rem; gap: 14px; align-items: center; padding: 12px 14px; border: 1px solid var(--border); border-radius: 14px; transition: border-color 0.3s, background 0.3s, box-shadow 0.3s; }
+.person.top { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px var(--accent-soft); }
+.avatar { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: var(--c); color: #fff; font-size: 14px; font-weight: 750; }
+.person b { display: block; font-size: 15px; }
+.person small { color: var(--muted); font-size: 13px; }
+.badge { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; vertical-align: 2px; }
+
+/* search */
+.hits { display: grid; gap: 10px; }
+.hit { display: grid; grid-template-columns: minmax(0, 1fr) 8rem 3rem; gap: 14px; align-items: center; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; }
+.hit.above { border-color: color-mix(in srgb, var(--ok) 45%, white); }
+.hit.above .bar > i { background: var(--ok); }
+.hit.below { background: var(--page); }
+.hit.below .t { color: var(--muted); }
+.hit.below .bar > i { background: #B9BDCC; }
+.hit .t { font-size: 14px; line-height: 1.45; }
+.hit .t small { display: block; margin-top: 2px; color: var(--muted); font: 500 11.5px var(--mono); }
+.hit mark { border-radius: 3px; background: #FDEBB8; color: inherit; }
+.hit .bar::before { content: ""; position: absolute; top: -5px; bottom: -5px; left: 60%; width: 2px; border-radius: 1px; background: var(--text); opacity: 0.5; }
+.threshold { margin-top: 10px; color: var(--muted); font-size: 12.5px; }
+.grams { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.term { margin-right: 6px; font-size: 17px; font-weight: 750; }
+.gram { padding: 2px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent-ink); font: 600 13px var(--mono); white-space: pre; }
+.funnel { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 14px; }
+.pill { padding: 5px 12px; border-radius: 999px; background: var(--card); border: 1px solid var(--border); font-weight: 600; }
+.pill.on { border-color: var(--accent); background: var(--accent); color: #fff; }
+
+/* draft */
+.model-line { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; color: var(--muted); font-size: 13px; }
+.model-line b { color: var(--text); font-weight: 650; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+.busy .dot { background: var(--accent); animation: blink 0.8s steps(1) infinite; }
+.draft { font-size: 15px; line-height: 1.7; }
+.draft p + p { margin-top: 8px; }
+.cite { display: inline-grid; place-items: center; min-width: 19px; height: 19px; margin-left: 3px; padding: 0 4px; border-radius: 6px; background: var(--accent-soft); color: var(--accent-ink); font: 700 11px var(--mono); vertical-align: 1px; }
+.sources { display: grid; gap: 6px; margin: 14px 0 0; padding: 14px 0 0; border-top: 1px solid var(--border); list-style: none; font-size: 13px; }
+.sources li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: baseline; color: var(--muted); }
+.sources code { color: var(--text); font-size: 12px; }
+.ctx { display: grid; gap: 6px; }
+.blk { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: 10px; padding: 8px 12px; border-radius: 10px; background: var(--card); font-size: 13px; transition: box-shadow 0.2s; }
+.blk b { color: var(--accent-ink); font: 700 12px var(--mono); }
+.blk.lit { box-shadow: 0 0 0 2px var(--accent); }
+
+/* review */
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.btn.approve { border-color: var(--ok); background: var(--ok); color: #fff; }
+.btn.approve:hover:not(:disabled) { background: #106530; }
+.btn.reject { color: var(--bad); }
+.btn.chosen { opacity: 1; box-shadow: 0 0 0 3px var(--border); }
+.try { margin-top: 16px; color: var(--accent-ink); font-size: 14px; font-weight: 600; }
+.customer-view { border-style: dashed; box-shadow: none; }
+.customer-view .who { margin-bottom: 8px; color: var(--ok); font-size: 13px; font-weight: 700; }
+.customer-view p + p { margin-top: 6px; }
+.customer-view .status { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+.customer-view .status::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--warn); box-shadow: 0 0 0 4px var(--warn-soft); }
+
+/* brief */
+.msg-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 14px; }
+.msg-head .mark { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 800; }
+.prio { padding: 2px 9px; border-radius: 999px; background: var(--warn-soft); color: var(--warn); font-size: 12px; font-weight: 600; }
+.prio.normal { background: var(--surface); color: var(--muted); }
+.msg section { margin-top: 14px; }
+.msg h4 { margin-bottom: 4px; color: var(--muted); font-size: 12px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; }
+.msg ul { margin: 0; padding-left: 18px; }
+.codebox { margin-top: 6px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.codebox .path { padding: 6px 12px; background: var(--surface); font: 600 12px var(--mono); }
+.codebox pre { margin: 0; padding: 10px 12px; overflow-x: auto; font-size: 12.5px; line-height: 1.55; }
+.lanes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.lane h4 { margin-bottom: 6px; font-size: 13px; }
+.lane ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: 12.5px; }
+.lane li { padding: 7px 9px; border-radius: 8px; background: var(--card); line-height: 1.4; }
+.lane code { font-size: 11.5px; word-break: break-all; }
+
+/* hand-off */
+.toast { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center; padding: 14px 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); box-shadow: 0 10px 30px rgb(24 26 60 / 0.1); animation: slide 0.6s cubic-bezier(0.2, 0.9, 0.2, 1.1) both; }
+@keyframes slide { from { opacity: 0; transform: translateY(-10px) scale(0.98); } }
+.toast small { display: block; color: var(--muted); font-size: 13px; }
+.checks { display: grid; gap: 10px; margin: 16px 0 0; padding: 0; list-style: none; }
+.checks li { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+.checks li::before { content: "✓"; display: grid; flex: none; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ok-soft); color: var(--ok); font-size: 12px; font-weight: 800; }
+
+/* recap */
+.path { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.path li { display: grid; grid-template-columns: 26px 7rem minmax(0, 1fr); gap: 12px; align-items: center; font-size: 14.5px; }
+.path li > span:first-child { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); font-size: 12px; font-weight: 700; }
+.path li > b { color: var(--muted); font-weight: 600; }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tile { padding: 14px 16px; border-radius: 12px; background: var(--accent-soft); }
+.tile b { display: block; color: var(--accent-ink); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; }
+.tile span { color: var(--muted); font-size: 13px; }
+.paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.pathcard { display: grid; gap: 4px; padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); text-align: left; transition: border-color 0.15s, box-shadow 0.15s; }
+.pathcard:hover { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.pathcard b { font-size: 14.5px; }
+.pathcard span { color: var(--muted); font-size: 13px; }
+
+/* ------------------------------------------------------------ nav */
+
+.nav { position: sticky; bottom: 0; z-index: 10; background: rgb(255 255 255 / 0.94); border-top: 1px solid var(--border); backdrop-filter: blur(8px); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
+.switch { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; cursor: pointer; user-select: none; }
+.switch input { position: absolute; opacity: 0; pointer-events: none; }
+.switch span { position: relative; width: 32px; height: 18px; border-radius: 999px; background: #D3D6E2; transition: background 0.2s; }
+.switch span::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / 0.25); transition: transform 0.2s; }
+.switch input:checked + span { background: var(--accent); }
+.switch input:checked + span::after { transform: translateX(14px); }
+.switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@container (max-width: 640px) {
+  .picker { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .blurb { grid-column: auto; }
+  .opt { padding: 5px 6px; font-size: 12.5px; }
+  .prog-row .muted { display: none; }
+  .wrap { padding-inline: 14px; }
+  .head .t1 { font-size: 22px; }
+  .head .t2 { font-size: 21px; }
+  .pair, .paths, .lanes { grid-template-columns: minmax(0, 1fr); }
+  .bar-row { grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr) 2.8rem; font-size: 13px; }
+  .person { grid-template-columns: 38px minmax(0, 1fr) 2.8rem; }
+  .person .bar { display: none; }
+  .hit { grid-template-columns: minmax(0, 1fr) 4.5rem 2.6rem; }
+  .blk { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .path li { grid-template-columns: 26px minmax(0, 1fr); }
+  .path li > b { display: none; }
+  .why-main { flex-direction: column; gap: 2px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+<div class="app">
+  <header class="top">
+    <div class="wrap picker">
+      <span class="picker-k" id="groups-k">Kind</span>
+      <div class="opts" role="group" aria-labelledby="groups-k" id="groups"></div>
+      <span class="picker-k" id="examples-k">Ticket</span>
+      <div class="opts" role="group" aria-labelledby="examples-k" id="examples"></div>
+      <p class="blurb" id="blurb"></p>
+    </div>
+  </header>
+  <div class="progress" id="progress" hidden>
+    <div class="wrap">
+      <div class="prog-row"><b id="prog-title"></b><span class="muted" id="prog-ticket"></span></div>
+      <div class="segs" id="segs" role="group" aria-label="Steps"></div>
+    </div>
+  </div>
+
+  <main><div class="wrap" id="stage"></div></main>
+
+  <nav class="nav" aria-label="Walkthrough controls">
+    <div class="wrap">
+      <button class="btn" id="back" type="button">← Back</button>
+      <label class="switch"><input type="checkbox" id="auto"><span></span>Autoplay</label>
+      <button class="btn primary" id="next" type="button"></button>
+    </div>
+  </nav>
+  <p class="sr" aria-live="polite" id="announce"></p>
+</div>
+</template>
+<script>
+(() => {
+"use strict";
+
+const host = document.querySelector("mdsai-demo");
+const template = document.getElementById("mdsai-demo");
+if (!host || !template || !host.attachShadow) return;
+const root = host.attachShadow({ mode: "open" });
+root.append(template.content.cloneNode(true));
+
+/* ------------------------------------------------------------------ data */
+
+const THRESHOLD = 0.6;
+
+const PEOPLE = {
+  elif:   { name: "Elif K.",   team: "Revenue & Collections", c: "var(--c-rose)" },
+  burak:  { name: "Burak Ş.",  team: "Accounting & Budget",   c: "var(--c-amber)" },
+  murat:  { name: "Murat D.",  team: "Integrations",          c: "var(--c-violet)" },
+  can:    { name: "Can Ö.",    team: "Water Billing",         c: "var(--c-blue)" },
+  deniz:  { name: "Deniz Y.",  team: "Portal & Access",       c: "var(--c-teal)" },
+  zeynep: { name: "Zeynep A.", team: "Payroll & HR",          c: "var(--c-coral)" },
+  selin:  { name: "Selin T.",  team: "Building Permits",      c: "var(--c-green)" },
+};
+
+const GROUPS = [
+  { id: "misfiled", label: "Misfiled",
+    blurb: "Filed under the wrong category. MdsAI re-files it and finds the right person." },
+  { id: "answerable", label: "Solved before",
+    blurb: "Something similar was solved before. MdsAI drafts a cited answer for an expert." },
+  { id: "new", label: "New problem",
+    blurb: "Nothing similar exists. MdsAI refuses to guess and briefs the expert instead." },
+];
+
+// Seven operational categories and where their tickets sit on the 2-D map.
+const CATS = {
+  "Error / malfunction":  { c: "var(--c-coral)",  at: [105, 82] },
+  "How-to question":      { c: "var(--c-blue)",   at: [235, 58] },
+  "Data correction":      { c: "var(--c-amber)",  at: [362, 88] },
+  "Integration":          { c: "var(--c-violet)", at: [92, 182] },
+  "Access & permissions": { c: "var(--c-teal)",   at: [212, 196] },
+  "Reporting":            { c: "var(--c-rose)",   at: [322, 192] },
+  "Change request":       { c: "var(--c-green)",  at: [420, 168] },
+};
+
+// Token kinds the normalizer keeps intact.
+const KINDS = {
+  code:   ["Error code / ID", "var(--c-coral)"],
+  number: ["Number", "var(--c-amber)"],
+  time:   ["Time", "var(--c-blue)"],
+  module: ["Module / object", "var(--c-violet)"],
+  clue:   ["Clue", "var(--c-teal)"],
+};
+
+const SCENARIOS = [
+  {
+    group: "misfiled", chip: "Tax refund", ticket: "#48207",
+    from: "Collections clerk · district municipality",
+    product: "Revenue & Collections", filed: "Error / malfunction",
+    subject: "Refund for a double-paid property tax installment",
+    body: "A citizen paid the second property tax installment twice: once at the bank and once on the e-Municipality portal. The account now shows a 1,840 TL credit. How do we refund it to the citizen's IBAN instead of offsetting it against next year?",
+    key: "refund",
+    tags: [["second property tax installment", "module"], ["e-Municipality portal", "module"], ["1,840 TL", "number"], ["refund", "clue"], ["IBAN", "code"], ["next year", "time"]],
+    category: [["How-to question", 0.81], ["Error / malfunction", 0.09], ["Data correction", 0.06]],
+    route: "Software team · error queue",
+    assignee: [["elif", 0.74], ["burak", 0.15], ["deniz", 0.05]],
+    hits: [
+      { id: "T-21844", title: "Refunding an overpayment to the citizen's bank account instead of offsetting", score: 0.83, when: "Jun 2025" },
+      { id: "T-19302", title: "Same installment paid at the bank and online: credit balance on account", score: 0.77, when: "Nov 2024" },
+      { id: "T-25510", title: "Credit automatically offset against next year's property tax", score: 0.58, when: "Feb 2025" },
+    ],
+    draft: { secs: 5, lines: [
+      "The 1,840 TL shows as a credit because both payments were posted to the same installment. To refund it instead of offsetting it: [1][2]",
+      "1. Open Revenue › Taxpayer Account › Credits and select the credit for the second installment. [1]",
+      "2. Choose \"Refund request\", enter the citizen's IBAN and attach the signed refund petition. [1]",
+      "3. Once Accounting approves the payment order, the transfer goes out with the next bank payment batch. [1]",
+      "If the credit has already been offset automatically, reverse the offset first under Credits › History. [2]",
+    ] },
+    review: { by: "elif", mins: 7, edit: null },
+  },
+  {
+    group: "misfiled", chip: "Budget report", ticket: "#48211",
+    from: "Budget officer · metropolitan municipality",
+    product: "Accounting & Budget", filed: "Reporting",
+    subject: "Budget execution report double-counts a moved expense line",
+    body: "In October we moved expense line 03.5.1 from the Parks directorate to Environmental Services. Since then the budget execution report shows its commitments under both directorates, inflating the total by 312,400 TL. The vouchers themselves look correct.",
+    key: "execution report",
+    tags: [["October", "time"], ["expense line 03.5.1", "code"], ["Parks directorate", "module"], ["Environmental Services", "module"], ["budget execution report", "module"], ["both directorates", "clue"], ["312,400 TL", "number"]],
+    category: [["Data correction", 0.64], ["Reporting", 0.27], ["Error / malfunction", 0.06]],
+    route: "Reporting team · report queue",
+    assignee: [["burak", 0.71], ["elif", 0.11], ["deniz", 0.04]],
+    hits: [
+      { id: "T-20177", title: "Budget transfer between directorates not reflected in the execution report", score: 0.49, when: "Mar 2024" },
+      { id: "T-23015", title: "Commitment counted twice after a voucher reversal", score: 0.44, when: "Sep 2024" },
+      { id: "T-18840", title: "Filtering the execution report by economic code", score: 0.36, when: "Jan 2023" },
+    ],
+    brief: {
+      priority: "Normal priority",
+      summary: "Line 03.5.1 was moved between directorates mid-year, and its commitments now appear under both in the budget execution report (+312,400 TL). The vouchers are correct, so the duplication is probably in how the report joins a line to its directorate history, not in the postings.",
+      docs: [
+        { ref: "Accounting Admin Guide › Budget › Moving a line between units, §5.3", why: "How commitments should follow a line after a transfer." },
+        { ref: "Release notes 4.11 › Budget execution report moved to the new reporting views", why: "The report was rewritten recently." },
+      ],
+      code: [
+        { path: "accounting/reports/budget_execution.sql", loc: "L88–96", why: "Joins the unit history with no validity-date filter, so a moved line matches both rows.",
+          snippet: "LEFT JOIN budget_line_unit_history h\n  ON h.line_id = c.line_id\n-- no filter on h.valid_from / h.valid_to\nGROUP BY h.unit_id, c.line_id" },
+        { path: "accounting/budget/transfer.py", loc: "move_line_to_unit()", why: "Closes the old history row with valid_to when a line moves." },
+      ],
+      near: [{ id: "T-20177", score: 0.49, note: "Same symptom in 2024, fixed by re-running the period close. Different cause, but quick to rule out." }],
+      ask: ["Was the line moved with Budget Transfer, or by editing the line directly?"],
+    },
+  },
+  {
+    group: "misfiled", chip: "Bank import", ticket: "#48215",
+    from: "Accounting staff · district municipality",
+    product: "Bank Integration", filed: "Access & permissions",
+    subject: "BNK-417 \"unauthorized source\" on the daily collection import",
+    body: "Importing today's collection file from the bank fails with \"BNK-417: unauthorized source\". Our accountant's user has the import permission. It started after the bank sent us new SFTP credentials yesterday.",
+    key: "BNK-417",
+    tags: [["today's", "time"], ["collection file", "module"], ["BNK-417", "code"], ["import permission", "module"], ["new SFTP credentials", "clue"], ["yesterday", "time"]],
+    category: [["Integration", 0.77], ["Access & permissions", 0.17], ["Error / malfunction", 0.04]],
+    route: "Portal & Access team",
+    assignee: [["murat", 0.82], ["deniz", 0.10], ["elif", 0.05]],
+    hits: [
+      { id: "T-22931", title: "BNK-417 after the bank rotated SFTP credentials", score: 0.88, when: "Aug 2025" },
+      { id: "T-17706", title: "BNK-417 unauthorized source on the daily collection import", score: 0.79, when: "May 2023" },
+      { id: "T-24418", title: "BNK-402 encoding error in the collection file", score: 0.41, when: "Dec 2024" },
+    ],
+    draft: { secs: 4, lines: [
+      "BNK-417 comes from the bank connection, not from user permissions: each file is checked against the bank's registered host key, and that key changes when the bank issues new SFTP credentials. [1][2]",
+      "1. Go to Integrations › Bank Connections, select the bank and choose Edit connection. [1]",
+      "2. Enter the new SFTP username and key, then click \"Verify host key\" to register the new fingerprint. [1]",
+      "3. Re-run today's import from Collections › Bank Files › Retry. Receipts already imported are skipped, so nothing is posted twice. [2]",
+    ] },
+    review: { by: "murat", mins: 11, edit: "Added the bank's support line for credential questions." },
+  },
+  {
+    group: "answerable", chip: "Meter readings", ticket: "#48219",
+    from: "Water billing officer · water utility",
+    product: "Water Billing", filed: "Error / malfunction",
+    subject: "Meter readings rejected with SAY-203",
+    body: "While uploading this month's readings from the handheld terminals, 37 subscribers are rejected with SAY-203 \"reading lower than previous\". The field team says the readings are right. Most are on streets where meters were replaced last week.",
+    key: "SAY-203",
+    tags: [["this month's", "time"], ["handheld terminals", "module"], ["37 subscribers", "number"], ["SAY-203", "code"], ["reading lower than previous", "code"], ["meters were replaced", "clue"], ["last week", "time"]],
+    category: [["Error / malfunction", 0.72], ["Data correction", 0.19], ["How-to question", 0.06]],
+    route: "Water Billing queue",
+    assignee: [["can", 0.86], ["elif", 0.06], ["murat", 0.04]],
+    hits: [
+      { id: "T-23390", title: "SAY-203 after meter replacement", score: 0.86, when: "Apr 2025" },
+      { id: "T-16021", title: "Readings lower than previous after a meter swap", score: 0.80, when: "Feb 2023" },
+      { id: "T-20945", title: "SAY-203 on meters that rolled over (99,999 → 00,000)", score: 0.66, when: "Jul 2024" },
+    ],
+    draft: { secs: 6, lines: [
+      "The readings are rejected because the new meters start from a lower index, and until a meter change is recorded the system compares them with the old meter's last reading. [1][2]",
+      "1. For each affected subscriber, open Subscriber › Meters › Meter change and enter the old meter's final index, then the new meter's serial number and initial index. [1]",
+      "2. Re-upload the file from Readings › Terminal Import; the 37 readings are then checked against the new meters. [1]",
+      "3. If a meter rolled over rather than being replaced, mark that reading as \"Rollover\" instead. [3]",
+      "The import log can export the rejected rows, which gives you the list of subscribers to update. [2]",
+    ] },
+    review: { by: "can", mins: 9, edit: null },
+  },
+  {
+    group: "answerable", chip: "Card payments", ticket: "#48224",
+    from: "IT officer · district municipality",
+    product: "e-Municipality Portal", filed: "Error / malfunction",
+    subject: "Card payments fail with \"session expired\" after our domain change",
+    body: "Since we moved the online services portal to our new domain on Monday, citizens paying by card get \"Your session has expired\" right after the bank's 3-D Secure SMS step. The bank says the authorizations are reversed automatically.",
+    key: "3-D Secure",
+    tags: [["online services portal", "module"], ["new domain", "clue"], ["Monday", "time"], ["Your session has expired", "code"], ["3-D Secure", "module"], ["reversed automatically", "clue"]],
+    category: [["Error / malfunction", 0.69], ["Integration", 0.24], ["Access & permissions", 0.04]],
+    route: "Portal queue",
+    assignee: [["deniz", 0.63], ["murat", 0.29], ["elif", 0.03]],
+    hits: [
+      { id: "T-24702", title: "\"Session expired\" after 3-D Secure following a portal domain change", score: 0.84, when: "Oct 2025" },
+      { id: "T-19950", title: "Virtual POS callback URLs must match the registered domain", score: 0.75, when: "Jun 2024" },
+      { id: "T-21116", title: "Blank payment success page on mobile browsers", score: 0.38, when: "Nov 2024" },
+    ],
+    draft: { secs: 5, lines: [
+      "After the 3-D Secure step the bank still sends citizens back to the old domain. The session cookie belongs to the new domain, so the return request arrives without it and the bank reverses the authorization. [1][2]",
+      "1. In Portal Admin › Payments › Virtual POS, change the success and fail callback URLs to the new domain. [2]",
+      "2. Ask your bank to register the new domain as an allowed return URL for your merchant ID; most banks want this in writing. [1]",
+      "3. Test with a small payment. Reversed authorizations need no action: no debt was closed and nothing was charged. [1]",
+    ] },
+    review: { by: "deniz", mins: 14, edit: "Added the bank's merchant support contact." },
+  },
+  {
+    group: "answerable", chip: "Overtime pay", ticket: "#48230",
+    from: "Payroll officer · metropolitan municipality",
+    product: "Payroll & HR", filed: "Error / malfunction",
+    subject: "Overtime calculated with last year's hourly base",
+    body: "After the January wage update, payroll calculates overtime with last year's hourly base. Basic salaries are correct. It affects everyone with overtime this month, about 140 employees.",
+    key: "overtime",
+    tags: [["January wage update", "time"], ["overtime", "module"], ["last year's hourly base", "clue"], ["Basic salaries are correct", "clue"], ["about 140 employees", "number"]],
+    category: [["Error / malfunction", 0.52], ["How-to question", 0.33], ["Data correction", 0.11]],
+    route: "Payroll queue",
+    assignee: [["zeynep", 0.88], ["burak", 0.07], ["elif", 0.02]],
+    hits: [
+      { id: "T-25877", title: "Overtime uses the previous year's base after the wage update", score: 0.81, when: "Jan 2025" },
+      { id: "T-18233", title: "Activating the new year's payroll parameter set", score: 0.74, when: "Jan 2024" },
+      { id: "T-22410", title: "Minimum wage exemption amount not updated", score: 0.52, when: "Jan 2025" },
+    ],
+    draft: { secs: 5, lines: [
+      "Overtime is calculated from the active payroll parameter set, which is separate from the salary update. The new wages are in, but last year's parameter set is still active. [1][2]",
+      "1. Go to Payroll › Parameters › Parameter Sets and activate the new year's set, effective 1 January. [2]",
+      "2. Recalculate January for the affected staff from Payroll › Calculate › Recalculate selected. [1]",
+      "3. If payslips have already been issued, the difference is added as a correction line to next month's payroll instead of changing January. [1]",
+    ] },
+    review: { by: "zeynep", mins: 6, edit: null },
+  },
+  {
+    group: "new", chip: "e-Archive queue", ticket: "#48236",
+    from: "e-Invoice officer · water utility",
+    product: "e-Invoice & e-Archive", filed: "Integration",
+    subject: "e-Archive invoices stuck in \"Queued\" since this morning",
+    body: "Since about 09:00, every e-Archive invoice for water bills stays in \"Queued\" with no error message. e-Invoices to companies are going out normally. Around 1,200 invoices are waiting.",
+    key: "e-Archive",
+    tags: [["09:00", "time"], ["e-Archive invoice", "module"], ["Queued", "code"], ["no error message", "clue"], ["going out normally", "clue"], ["1,200 invoices", "number"]],
+    category: [["Integration", 0.84], ["Error / malfunction", 0.13], ["Reporting", 0.01]],
+    route: "Integrations queue",
+    assignee: [["murat", 0.88], ["can", 0.06], ["deniz", 0.03]],
+    hits: [
+      { id: "T-21507", title: "e-Invoice rejected: signing certificate expired", score: 0.47, when: "Mar 2025" },
+      { id: "T-19488", title: "e-Archive daily report not sent to the tax authority", score: 0.42, when: "Aug 2024" },
+      { id: "T-23660", title: "Invoice queue paused after a maintenance window", score: 0.39, when: "Feb 2025" },
+    ],
+    brief: {
+      priority: "High priority · 1,200 invoices waiting",
+      summary: "e-Archive submissions stopped around 09:00 with nothing surfacing as an error, while e-Invoice is unaffected. An expired certificate would break both channels, so the e-Archive sender itself is the first suspect.",
+      docs: [
+        { ref: "Integration Guide › e-Archive › Submission queue and retries, §3.2", why: "When the sender pauses and how it resumes." },
+        { ref: "Operations Runbook › Restarting the e-Archive sender safely", why: "How to restart without sending invoices twice." },
+      ],
+      code: [
+        { path: "integrations/earchive/sender.py", loc: "drain() · L141–163", why: "If a batch-signing call times out, the loop stops without marking an error.",
+          snippet: "try:\n    signed = signer.sign_batch(batch, timeout=30)\nexcept SigningTimeout:\n    log.warning(\"sign_batch timeout\")\n    return  # batch stays Queued" },
+        { path: "integrations/common/signing.py", loc: "sign_batch()", why: "Shared with e-Invoice, but only e-Archive uses the batch endpoint." },
+      ],
+      near: [{ id: "T-23660", score: 0.39, note: "Queue paused after maintenance and resumed by restarting the worker. Same symptom; the cause may differ." }],
+      ask: [],
+    },
+  },
+  {
+    group: "new", chip: "Permit signatory", ticket: "#48241",
+    from: "Zoning officer · district municipality",
+    product: "Building Permits", filed: "Error / malfunction",
+    subject: "Occupancy permits still printed with the former deputy mayor",
+    body: "Since Monday, occupancy permits are generated with the former deputy mayor as signatory, although we updated the signing authority under Settings › Authorities on Friday. Construction permits print the new name correctly.",
+    key: "signatory",
+    tags: [["Monday", "time"], ["occupancy permits", "module"], ["former deputy mayor", "clue"], ["Settings › Authorities", "module"], ["Friday", "time"], ["Construction permits print the new name correctly", "clue"]],
+    category: [["Error / malfunction", 0.61], ["Data correction", 0.30], ["How-to question", 0.06]],
+    route: "Building Permits queue",
+    assignee: [["selin", 0.79], ["deniz", 0.09], ["elif", 0.04]],
+    hits: [
+      { id: "T-20388", title: "Wrong signatory on a construction permit after a delegation", score: 0.52, when: "May 2024" },
+      { id: "T-17254", title: "Permit PDF shows the old municipality logo", score: 0.40, when: "Oct 2023" },
+      { id: "T-22102", title: "Signatory missing on the zoning status certificate", score: 0.37, when: "Dec 2024" },
+    ],
+    brief: {
+      priority: "Normal priority",
+      summary: "The signing authority was changed on Friday. Construction permits use the new name; occupancy permits still print the old one. The settings are right, so the occupancy template probably chooses its signatory differently.",
+      docs: [
+        { ref: "Permits Admin Guide › Document templates › Signatory rules, §7.4", why: "Occupancy permits use the signatory valid on the application date, not the print date. Likely the whole answer." },
+      ],
+      code: [
+        { path: "permits/documents/occupancy.py", loc: "resolve_signatory() · L58–60", why: "Looks up the authority on the application date.",
+          snippet: "def resolve_signatory(permit):\n    return authorities.valid_on(permit.application_date)" },
+        { path: "permits/documents/construction.py", loc: "resolve_signatory() · L40–42", why: "Uses today's date, which is why construction permits look right.",
+          snippet: "def resolve_signatory(permit):\n    return authorities.valid_on(date.today())" },
+      ],
+      near: [{ id: "T-20388", score: 0.52, note: "Delegation case: the signatory came from the delegation table. Same area, different cause." }],
+      ask: ["The numbers of two or three affected occupancy permits."],
+    },
+  },
+  {
+    group: "new", chip: "Restructured debt", ticket: "#48247",
+    from: "Revenue officer · metropolitan municipality",
+    product: "Revenue & Collections", filed: "Error / malfunction",
+    subject: "Late-payment interest charged twice on restructured debt",
+    body: "For taxpayers who restructured their debt under the new installment regulation, this month's statements show late-payment interest twice: once on the original debt and once on the first installment. Example: taxpayer 4471-xx.",
+    key: "restructured",
+    tags: [["restructured their debt", "module"], ["new installment regulation", "clue"], ["this month's", "time"], ["late-payment interest twice", "clue"], ["4471-xx", "code"]],
+    category: [["Error / malfunction", 0.66], ["Data correction", 0.21], ["How-to question", 0.09]],
+    route: "Revenue queue",
+    assignee: [["elif", 0.84], ["burak", 0.10], ["zeynep", 0.02]],
+    hits: [
+      { id: "T-18907", title: "Interest recalculated after an installment plan was cancelled", score: 0.45, when: "Apr 2023" },
+      { id: "T-21733", title: "Restructured debt: interest on the statement but not collected", score: 0.41, when: "Oct 2024" },
+      { id: "T-16650", title: "Statement shows a paid installment as open", score: 0.33, when: "Jun 2022" },
+    ],
+    brief: {
+      priority: "High priority · statements already sent",
+      summary: "Under the new restructuring regulation, statements show late-payment interest on both the original debt and the first installment. Most likely the original debt's interest accruals stay open when the plan is created, so they keep accruing.",
+      docs: [
+        { ref: "Revenue Guide › Restructuring › Interest on restructured debt, §9.1", why: "Which accruals must close when a plan starts." },
+        { ref: "Legal note › New installment regulation: interest rules", why: "What the regulation allows to be charged." },
+      ],
+      code: [
+        { path: "revenue/restructuring/plan.py", loc: "create_plan() · L212–213", why: "Closes the original accruals for principal only.",
+          snippet: "close_accruals(debt, kinds=[\"principal\"])\n# interest accruals left open" },
+        { path: "revenue/interest/late_payment.py", loc: "accrue()", why: "The nightly job skips debts marked \"restructured\"; check that status on the example taxpayer." },
+      ],
+      near: [{ id: "T-21733", score: 0.41, note: "Display-only issue in 2024: interest shown but not collected. Check whether money was actually collected this time." }],
+      ask: ["Has any of the doubled interest already been collected?"],
+    },
+  },
+];
+
+const META = {
+  read:    { title: "Read the ticket", method: "Normalization",
+    lede: "Before any model runs, the text is cleaned. Error codes, amounts and module names are kept exactly as written: on support tickets they carry most of the signal." },
+  cat:     { title: "Check the category", method: "EmbeddingGemma + classifier",
+    lede: "The ticket becomes a vector. Tickets about the same kind of problem land close together, so a classifier trained on expert-labelled history can tell what this one really is." },
+  who:     { title: "Pick the assignee", method: "Same embedding, second classifier",
+    lede: "The same vector goes to a second classifier, trained on who actually resolved similar tickets." },
+  search:  { title: "Search solved cases", method: "Hybrid retrieval: character n-grams + EmbeddingGemma 2",
+    lede: "MdsAI searches solved cases for the ticket's product. Character n-gram pieces catch typos, Turkish suffixes and error codes; EmbeddingGemma 2 embeddings catch paraphrases." },
+  draft:   { title: "Draft a cited answer", method: "RAG with a fine-tuned LLM",
+    lede: "The matching solved cases go into the prompt. A fine-tuned model writes the answer from them, and only from them, citing each one." },
+  review:  { title: "Expert review", method: "Human in the loop",
+    lede: "Nothing reaches the customer without a person approving it. You're the expert now." },
+  brief:   { title: "Brief the expert", method: "Docs, code and history search + LLM summary",
+    lede: "No reliable precedent, so a generated answer would be a guess. MdsAI gathers what an expert would look up first and writes a short briefing instead." },
+  handoff: { title: "Hand off", method: "Ticket and briefing to the assignee",
+    lede: "The assignee gets the ticket and the briefing in one message." },
+  recap:   { title: "Recap", method: "What happened, and the numbers", lede: "" },
+};
+
+// The decision behind each step: one number, one sentence, details on click.
+// Figures come from the deployed system and its offline benchmarks.
+const WHY = {
+  read: { num: "15.4K", text: "expert-curated cases came out of 132,497 raw log rows. Most of the work was the data, not the model.",
+    more: ["A Polars pipeline folds each ticket's event history into one clean record, turning placeholders into nulls and keeping technical tokens intact.",
+      "Support experts then reviewed 79 embedding clusters (EmbeddingGemma, UMAP, HDBSCAN) instead of 29K tickets one by one. The index has grown to 18.9K as experts approve new answers."] },
+  cat: { num: "96 → 7", text: "categories. The old label set was the bottleneck, so it was redesigned rather than modelled harder.",
+    more: ["The old system had 96 labels, many near-duplicates or with fewer than ten examples; predicting them gave 0.14 macro-F1. Support experts consolidated them into 7 operational groups: 0.89 macro-F1 and 93% accuracy. Different tasks, so this argues for the new taxonomy, not a better model on the same task.",
+      "EmbeddingGemma was chosen over E5-Large: 2.3 points lower, a quarter of the memory, 33% faster to encode.",
+      "A calibrated decision model, Laya, is being tested against this classifier."] },
+  who: { num: "24% → 9%", text: "of tickets re-routed after their first assignment, measured on the live desk.",
+    more: ["The assignee model reuses the category model's embedding, so the second prediction costs almost nothing."] },
+  search: { num: "86.4%", text: "Recall@1 for hybrid retrieval on 1,236 real questions among 2,000 distractors, scoped to the ticket's product.",
+    more: ["On the same offline benchmark, EmbeddingGemma 2 alone reached 84.2% Recall@1, character n-grams 73.5%, and MiniLM 52.4%. Production retrieval combines character n-grams with EmbeddingGemma 2, a newer model than the EmbeddingGemma used for categories.",
+      "Turkish is agglutinative: sayaç, sayacı and sayaçlarda share “saya”. The n-gram half catches these pieces and error codes; embeddings catch paraphrases. Cases more than two releases old are downweighted."] },
+  draft: { num: "76%", text: "of blind comparisons on 1,200 held-out tickets went to the fine-tuned Gemma 4 12B, against Gemma 4 31B (14%) and Qwen3 32B (10%) used as-is.",
+    more: ["Gemma 4 12B was fine-tuned with QLoRA on 12,000 ticket–solution pairs. Given the same retrieved cases, 96% of its drafts were fully supported by citations, versus 81% for Gemma 4 31B and 72% for Qwen3 32B.",
+      "All three ran in FP8 with vLLM: 12 GB of GPU memory for the 12B versus 31 GB and 32 GB, and a median 5 s versus 27 s and 30 s. In production it runs on one L40S, up to 40 drafts in parallel.",
+      "PII is masked before fine-tuning. Nothing leaves Universal's servers."] },
+  review: { num: "61%", text: "of drafts go out with light or no edits (under 15% of characters changed).",
+    more: ["An estimated 6 minutes are saved per drafted ticket. Rejected drafts become next month's regression set; a new model ships only if it beats the current one on that set.",
+      "An outdated-source rejection retires the case from the index: 140 cases in H1 2026.",
+      "The LLM speeds the expert up; it never answers customers on its own."] },
+  brief: { num: "68%", text: "of new tickets get a cited draft. The rest get routing and a briefing instead of a guessed answer.",
+    more: ["The 0.60 bar was set on 400 unanswerable questions, whose solving ticket and near-duplicates were removed from the index: MdsAI held back on 91% of them and still drafted on 94% of 1,236 answerable ones.",
+      "The same fine-tuned model writes the briefing from product docs, the codebase and the closest past tickets."] },
+  handoff: { num: "15.5 h → 2.4 h", text: "median time to the first written reply, before the first release and after rollout.",
+    more: ["First release in August 2025 to 14 municipalities, then about ten more at a time until all were live in March 2026. The comparison covers 23,132 tickets from January 2022 – July 2025 against 9,800 from January–June 2026.",
+      "Monthly volume nearly tripled as 12 new municipalities joined. On the 48 municipalities present in both periods, the median fell from 15.1 h to 2.6 h.",
+      "A before/after comparison, not a controlled experiment."] },
+};
+
+const CITE_C = ["var(--accent)", "var(--c-teal)", "var(--c-rose)"];
+
+/* --------------------------------------------------------------- helpers */
+
+const $ = (id) => root.getElementById(id);
+const CANCEL = Symbol("cancel");
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const cur = () => SCENARIOS[S.sc];
+const isRag = (s) => s.hits[0].score >= THRESHOLD;
+const pct = (p) => `${Math.round(p * 100)}%`;
+const fmt = (x) => x.toFixed(2);
+const stripCites = (line) => line.replace(/\s*\[\d+\]/g, "");
+const initials = (name) => name.split(/\s+/).map((w) => w[0]).join("");
+const announce = (text) => { $("announce").textContent = text; };
+
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat(3)) {
+    if (kid == null || kid === false) continue;
+    el.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+
+function svg(tag, attrs, ...kids) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
+  for (const kid of kids) el.append(kid);
+  return el;
+}
+
+function rng(seed) {
+  return () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const seedOf = (str) => [...str].reduce((a, c) => (Math.imul(a, 31) + c.charCodeAt(0)) | 0, 7);
+
+// Character n-grams without whitespace: the pieces two texts share.
+function ngramSet(text, n = 5) {
+  const t = text.toLowerCase();
+  const set = new Set();
+  for (let i = 0; i + n <= t.length; i++) {
+    const g = t.slice(i, i + n);
+    if (!/\s/.test(g) && /[a-z0-9çğıöşü]/.test(g)) set.add(g);
+  }
+  return set;
+}
+function highlightShared(text, set, n = 5) {
+  const lower = text.toLowerCase();
+  const hit = new Array(text.length).fill(false);
+  for (let i = 0; i + n <= lower.length; i++) {
+    if (set.has(lower.slice(i, i + n))) for (let k = i; k < i + n; k++) hit[k] = true;
+  }
+  const el = h("span");
+  for (let i = 0; i < text.length;) {
+    let j = i;
+    while (j < text.length && hit[j] === hit[i]) j++;
+    el.append(hit[i] ? h("mark", {}, text.slice(i, j)) : text.slice(i, j));
+    i = j;
+  }
+  return el;
+}
+
+function markText(text, tags) {
+  const spans = tags
+    .map(([sub, kind]) => [text.indexOf(sub), sub.length, kind])
+    .filter(([i]) => i >= 0)
+    .sort((a, b) => a[0] - b[0]);
+  const el = h("p", { class: "marked" });
+  const marks = [];
+  let pos = 0;
+  for (const [start, len, kind] of spans) {
+    if (start < pos) continue;
+    el.append(text.slice(pos, start));
+    const m = h("mark", { style: `--c:${KINDS[kind][1]}` }, text.slice(start, start + len));
+    marks.push(m);
+    el.append(m);
+    pos = start + len;
+  }
+  el.append(text.slice(pos));
+  return { el, marks };
+}
+
+function grow(fills) {
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    for (const [fill, p] of fills) fill.style.width = pct(p);
+  }));
+}
+function bars(rows) {
+  const fills = [];
+  const box = h("div", { class: "bars" }, rows.map(([label, p, c]) => {
+    const fill = h("i", { style: `--c:${c}` });
+    fills.push([fill, p]);
+    return h("div", { class: "bar-row" }, h("span", { class: "label" }, label), h("span", { class: "bar" }, fill), h("span", { class: "pct" }, pct(p)));
+  }));
+  grow(fills);
+  return box;
+}
+
+/* ---------------------------------------------------------------- state */
+
+const S = {
+  sc: 0, phase: "compose", step: 0, reached: -1,
+  token: 0, cd: 0, fast: false, busy: false, auto: false,
+  typed: false, decided: null, userScrolled: false,
+};
+let F = {};  // compose form
+let D = {};  // review elements
+
+function sleep(ms, tk) {
+  return new Promise((resolve, reject) => {
+    const end = performance.now() + ms;
+    (function tick() {
+      if (tk !== S.token) return reject(CANCEL);
+      if (S.fast || performance.now() >= end) return resolve();
+      setTimeout(tick, Math.min(50, end - performance.now()));
+    })();
+  });
+}
+// Revisited steps and reduced motion render instantly.
+function makeWait(tk, instant) {
+  return (ms) => {
+    if (tk !== S.token) return Promise.reject(CANCEL);
+    return instant || reduced ? Promise.resolve() : sleep(ms, tk);
+  };
+}
+
+// Keep the newest element above the pinned nav while a step the reader started
+// plays, unless they have scrolled away in the meantime.
+function show(el, last = el) {
+  if (S.userScrolled || !el.isConnected) return;
+  const top = el.getBoundingClientRect().top;
+  const bottom = last.getBoundingClientRect().bottom;
+  const progress = $("progress");
+  const topLimit = (progress.hidden ? 0 : progress.offsetHeight) + 12;
+  const bottomLimit = innerHeight - root.querySelector(".nav").offsetHeight - 12;
+  if (bottom <= bottomLimit) return;
+  const delta = Math.min(bottom - bottomLimit, top - topLimit);
+  if (delta > 0) scrollBy({ top: delta, behavior: reduced || S.fast ? "auto" : "smooth" });
+}
+
+// A new step starts at the top of the stage; if the reader has scrolled past
+// it, bring it back just under the pinned progress bar.
+function bringIntoView() {
+  const progress = $("progress");
+  const offset = $("stage").getBoundingClientRect().top - (progress.hidden ? 0 : progress.offsetHeight) - 12;
+  if (offset < 0) scrollBy({ top: offset, behavior: reduced ? "auto" : "smooth" });
+}
+
+// Typing starts the first time the card is on screen.
+const visible = new Promise((resolve) => {
+  const io = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    io.disconnect();
+    resolve();
+  }, { threshold: 0.25 });
+  io.observe(host);
+});
+
+function steps() {
+  const rag = isRag(cur());
+  const known = S.reached > 3 || (S.reached === 3 && !(S.step === 3 && S.busy));
+  const list = ["read", "cat", "who", "search", rag ? "draft" : "brief", rag ? "review" : "handoff", "recap"]
+    .map((key) => ({ key, title: META[key].title }));
+  if (!known) {
+    list[4] = { ...list[4], title: "Draft or brief" };
+    list[5] = { ...list[5], title: "Review or hand-off" };
+  }
+  return list;
+}
+
+/* ------------------------------------------------------------- chrome */
+
+function renderPicker() {
+  const s = cur();
+  $("groups").replaceChildren(...GROUPS.map((g) => {
+    const b = h("button", { class: "opt", type: "button", "aria-pressed": String(g.id === s.group) }, g.label);
+    b.onclick = () => select(SCENARIOS.findIndex((t) => t.group === g.id));
+    return b;
+  }));
+  $("examples").replaceChildren(...SCENARIOS.map((x, i) => [x, i]).filter(([x]) => x.group === s.group).map(([x, i]) => {
+    const b = h("button", { class: "opt", type: "button", "aria-pressed": String(i === S.sc) }, x.chip);
+    b.onclick = () => select(i);
+    return b;
+  }));
+  $("blurb").textContent = GROUPS.find((g) => g.id === s.group).blurb;
+}
+
+function renderProgress() {
+  const bar = $("progress");
+  bar.hidden = S.phase !== "pipeline";
+  if (bar.hidden) return;
+  const list = steps();
+  const s = cur();
+  $("prog-title").textContent = `Step ${S.step + 1} of ${list.length} · ${list[S.step].title}`;
+  $("prog-ticket").textContent = `${s.ticket} · ${s.subject}`;
+  $("segs").replaceChildren(...list.map((st, i) => {
+    const state = i === S.step ? "current" : i <= S.reached ? "done" : "";
+    const b = h("button", { class: `seg ${state}`, type: "button", disabled: i > S.reached, "aria-label": `Step ${i + 1}: ${st.title}`, title: st.title, "aria-current": i === S.step ? "step" : null });
+    b.onclick = () => go(i);
+    return b;
+  }));
+}
+
+function updateNav() {
+  const back = $("back");
+  const next = $("next");
+  if (S.phase === "compose") {
+    back.disabled = true;
+    next.textContent = "Submit ticket →";
+    next.disabled = false;
+    return;
+  }
+  const list = steps();
+  const key = list[S.step].key;
+  back.disabled = S.step === 0;
+  next.disabled = false;
+  if (S.busy) next.textContent = "Skip animation";
+  else if (key === "review" && !S.decided) { next.textContent = "Your call ↑"; next.disabled = true; }
+  else if (key === "recap") next.textContent = "Next example →";
+  else next.textContent = host.clientWidth <= 640 ? "Next →" : `Next: ${list[S.step + 1].title} →`;
+}
+
+function stopCountdown() {
+  S.cd++;
+  $("next").classList.remove("counting");
+}
+
+async function countdown(ms) {
+  const id = ++S.cd;
+  const btn = $("next");
+  btn.classList.remove("counting");
+  void btn.offsetWidth;
+  btn.style.setProperty("--dur", `${ms}ms`);
+  btn.classList.add("counting");
+  await new Promise((r) => setTimeout(r, ms));
+  if (id !== S.cd) return false;
+  btn.classList.remove("counting");
+  return S.auto;
+}
+
+async function autoAdvance() {
+  if (!S.auto || S.busy) return;
+  if (S.phase === "compose") {
+    if (S.typed && await countdown(2500)) submit();
+    return;
+  }
+  const key = steps()[S.step].key;
+  if (key === "review" && !S.decided) {
+    if (await countdown(4000)) decide("approve");
+    return;
+  }
+  if (await countdown(key === "recap" ? 9000 : 7000)) advance();
+}
+
+function advance() {
+  if (S.phase === "compose") return submit();
+  if (S.busy) {
+    S.fast = true;
+    return;
+  }
+  if (steps()[S.step].key === "recap") return select((S.sc + 1) % SCENARIOS.length);
+  go(S.step + 1);
+}
+
+/* --------------------------------------------------------------- compose */
+
+function select(i, scroll = true) {
+  stopCountdown();
+  const tk = ++S.token;
+  Object.assign(S, { sc: i, phase: "compose", step: 0, reached: -1, decided: null, typed: false, busy: false, fast: false });
+  renderPicker();
+  renderProgress();
+  renderCompose();
+  updateNav();
+  if (scroll) bringIntoView();
+  typeTicket(tk).catch((e) => { if (e !== CANCEL) throw e; });
+}
+
+function renderCompose() {
+  const s = cur();
+  const g = GROUPS.find((x) => x.id === s.group);
+  const field = (name, el) => h("div", { class: "field" }, h("span", {}, name), el);
+  F = {
+    no: h("span", { class: "tno" }, "New ticket"),
+    subj: h("div", { class: "val" }),
+    body: h("div", { class: "val area" }),
+    submit: h("button", { class: "btn primary submit", type: "button" }, "Submit ticket"),
+  };
+  F.submit.onclick = submit;
+  $("stage").replaceChildren(
+    h("div", { class: "head reveal" },
+      h("p", { class: "eyebrow" }, "Interactive walkthrough · ", g.label),
+      h("h3", { class: "t1" }, "Submit a ticket and follow it through the models"),
+      h("p", { class: "lede" }, "A customer is writing the ticket below. Submit it, then step through what each model does with it.")),
+    h("div", { class: "card reveal" },
+      h("div", { class: "from" }, h("span", {}, s.from), F.no),
+      h("div", { class: "pair" }, field("Module", h("div", { class: "val" }, s.product)), field("Category", h("div", { class: "val" }, s.filed))),
+      field("Subject", F.subj),
+      field("Message", F.body),
+      F.submit),
+    h("p", { class: "small note reveal" }, "Tickets are synthetic and in English; production runs on Turkish ones."));
+}
+
+async function typeTicket(tk) {
+  const s = cur();
+  const wait = makeWait(tk, false);
+  const typeInto = async (el, text, per) => {
+    el.classList.add("typing");
+    for (let i = 2; i < text.length; i += 2) {
+      el.textContent = text.slice(0, i);
+      await wait(per * 2);
+    }
+    el.textContent = text;
+    el.classList.remove("typing");
+  };
+  await visible;
+  await wait(500);
+  await typeInto(F.subj, s.subject, 24);
+  await wait(250);
+  await typeInto(F.body, s.body, 10);
+  S.typed = true;
+  F.submit.classList.add("pulse");
+  autoAdvance();
+}
+
+function submit() {
+  if (S.phase !== "compose") return;
+  stopCountdown();
+  S.token++;
+  S.typed = true;
+  S.phase = "pipeline";
+  go(0);
+}
+
+/* ------------------------------------------------------------------ steps */
+
+async function go(i) {
+  if (S.phase !== "pipeline" || i < 0 || i > S.reached + 1 || i >= steps().length) return;
+  stopCountdown();
+  const tk = ++S.token;
+  const seen = i <= S.reached;
+  Object.assign(S, { step: i, reached: Math.max(S.reached, i), busy: true, fast: false, userScrolled: false });
+  const key = steps()[i].key;
+  renderProgress();
+  updateNav();
+  announce(`Step ${i + 1}: ${META[key].title}`);
+  const stage = $("stage");
+  stage.replaceChildren();
+  bringIntoView();
+  try {
+    await RENDER[key](stage, cur(), makeWait(tk, seen));
+  } catch (e) {
+    if (e === CANCEL) return;
+    throw e;
+  }
+  if (tk !== S.token) return;
+  S.busy = false;
+  renderProgress();
+  updateNav();
+  autoAdvance();
+}
+
+const head = (key) => h("div", { class: "head reveal" },
+  h("p", { class: "eyebrow" }, `Step ${S.step + 1} · ${META[key].method}`),
+  h("h3", { class: "t2" }, META[key].title),
+  h("p", { class: "lede" }, META[key].lede));
+
+function why(key) {
+  const w = WHY[key];
+  return h("div", { class: "why reveal" },
+    h("p", { class: "why-k" }, "Why it's built this way"),
+    h("p", { class: "why-main" }, h("b", {}, w.num), h("span", {}, w.text)),
+    h("details", {}, h("summary", {}, "More"), h("div", {}, w.more.map((t) => h("p", {}, t)))));
+}
+
+const mechanics = (...kids) => h("details", { class: "mech reveal" }, h("summary", {}, "Show the mechanics"), h("div", {}, kids));
+const result = (tone, big, ...text) => h("div", { class: `result ${tone} reveal` }, big ? h("span", { class: "big" }, big) : null, h("span", {}, text));
+
+// Finish a step: result line, then the design note and optional mechanics.
+function finish(stage, ...parts) {
+  const kept = parts.filter(Boolean);
+  for (const p of kept) stage.append(p);
+  // Mechanics stay folded, so the result and the design note are what must fit.
+  const visible = kept.filter((p) => !p.classList.contains("mech"));
+  show(visible[0], visible.at(-1));
+}
+
+function draftLine(line, pieces) {
+  const p = h("p");
+  for (const part of line.split(/(\[\d+\])/).filter(Boolean)) {
+    const m = part.match(/^\[(\d+)\]$/);
+    const node = m ? h("span", { class: "cite", "data-n": m[1] }, m[1]) : null;
+    if (pieces) {
+      if (node) pieces.push(node);
+      else for (const w of part.split(/(?<=\s)/)) pieces.push(w);
+    } else {
+      p.append(node || part);
+    }
+  }
+  return p;
+}
+
+function sourcesList(s) {
+  const cited = [...new Set(s.draft.lines.join(" ").match(/\[\d+\]/g).map((x) => Number(x.slice(1, -1))))].sort();
+  return h("ol", { class: "sources" }, cited.map((n) => {
+    const hit = s.hits[n - 1];
+    return h("li", {}, h("span", { class: "cite" }, n), h("span", {}, h("code", {}, hit.id), ` ${hit.title}`), h("span", {}, fmt(hit.score)));
+  }));
+}
+
+function customerView(s, kind) {
+  const who = PEOPLE[kind === "handoff" ? s.assignee[0][0] : s.review.by];
+  if (kind === "handoff" || kind === "reject") {
+    return h("div", { class: "card customer-view reveal" },
+      h("p", { class: "card-label" }, "What the customer sees"),
+      h("p", { class: "status" }, `${s.ticket} · ${who.name} (${who.team}) is working on it`));
+  }
+  return h("div", { class: "card customer-view reveal" },
+    h("p", { class: "card-label" }, "What the customer sees"),
+    h("p", { class: "who" }, `FlexCity Support · ${who.name} · ${s.review.mins} min after filing`),
+    s.draft.lines.map((l) => h("p", {}, stripCites(l))));
+}
+
+function buildScatter(s) {
+  const r = rng(11);
+  const root = svg("svg", { class: "scatter", viewBox: "0 0 480 240", role: "img", "aria-label": "Past tickets in embedding space, coloured by category" });
+  const pts = [];
+  for (const [name, { c, at }] of Object.entries(CATS)) {
+    for (let i = 0; i < 24; i++) {
+      const x = at[0] + (r() + r() + r() - 1.5) * 34;
+      const y = at[1] + (r() + r() + r() - 1.5) * 24;
+      pts.push([x, y, name]);
+      root.append(svg("circle", { class: "pt", cx: x.toFixed(1), cy: y.toFixed(1), r: 3.2, style: `fill:${c}` }));
+    }
+  }
+  for (const [name, { at }] of Object.entries(CATS)) {
+    const t = svg("text", { class: "lab", x: at[0], y: at[1] - 30, "text-anchor": "middle" });
+    t.textContent = name;
+    root.append(t);
+  }
+  const [[c1, p1], [c2, p2]] = s.category;
+  const a = CATS[c1].at;
+  const b = CATS[c2].at;
+  const w = (p2 / (p1 + p2)) * 0.7;
+  const target = [a[0] + (b[0] - a[0]) * w, a[1] + (b[1] - a[1]) * w];
+  const me = svg("g", { class: "me", style: "transform: translate(240px, 120px)" },
+    svg("circle", { class: "halo", r: 7 }), svg("circle", { class: "core", r: 7 }));
+  root.append(me);
+  const near = pts.filter((p) => p[2] === c1)
+    .map((p) => [p, Math.hypot(p[0] - target[0], p[1] - target[1])])
+    .sort((x, y) => x[1] - y[1]).slice(0, 5)
+    .map(([p]) => svg("line", { class: "nn", x1: target[0].toFixed(1), y1: target[1].toFixed(1), x2: p[0].toFixed(1), y2: p[1].toFixed(1) }));
+  return { root, me, target, near };
+}
+
+const RENDER = {
+  async read(stage, s, wait) {
+    stage.append(head("read"));
+    const { el, marks } = markText(s.body, s.tags);
+    const kinds = [...new Set(s.tags.map((t) => t[1]))];
+    stage.append(h("div", { class: "card reveal" },
+      h("p", { class: "card-label" }, `Ticket ${s.ticket}, as MdsAI reads it`),
+      h("p", { class: "subj" }, s.subject), el,
+      h("div", { class: "legend" }, kinds.map((k) => h("span", { style: `--c:${KINDS[k][1]}` }, KINDS[k][0])))));
+    await wait(800);
+    for (const m of marks) {
+      m.classList.add("on");
+      await wait(500);
+    }
+    await wait(500);
+    finish(stage,
+      result("", null, "Search scope: ", h("b", {}, s.product), ". Only this product's solved cases will be searched."),
+      why("read"));
+  },
+
+  async cat(stage, s, wait) {
+    stage.append(head("cat"));
+    const [top, p1] = s.category[0];
+    const corrected = top !== s.filed;
+    const map = buildScatter(s);
+    const card = h("div", { class: "card reveal" },
+      h("p", { class: "card-label" }, "Where the ticket lands among past tickets"), map.root,
+      h("p", { class: "small" }, "Each dot is a past ticket, coloured by its expert-assigned category (2-D projection, illustrative). Dashed lines join its nearest neighbours."));
+    stage.append(card);
+    await wait(900);
+    map.me.style.transform = `translate(${map.target[0]}px, ${map.target[1]}px)`;
+    await wait(1400);
+    for (const line of map.near) {
+      map.root.insertBefore(line, map.me);
+      await wait(110);
+    }
+    await wait(700);
+    const r = rng(seedOf(s.ticket));
+    const vec = h("div", { class: "vec", "aria-hidden": "true" },
+      Array.from({ length: 56 }, () => { const v = r(); return h("i", { style: `--h:${Math.round(5 + v * 26)}px; --c:${v > 0.5 ? "var(--accent)" : "var(--c-teal)"}` }); }));
+    finish(stage,
+      corrected
+        ? result("warn", pct(p1), h("b", {}, top), `. The customer filed it as “${s.filed}”; MdsAI re-files it.`)
+        : result("ok", pct(p1), h("b", {}, top), ", as the customer filed it."),
+      why("cat"),
+      mechanics(
+        h("div", {}, h("h4", {}, "1 · EmbeddingGemma turns the text into 768 numbers"), vec),
+        h("div", {}, h("h4", {}, "2 · The classifier's top three"), bars(s.category.map(([c, p]) => [c, p, CATS[c].c])))));
+  },
+
+  async who(stage, s, wait) {
+    stage.append(head("who"));
+    const list = h("div", { class: "people" });
+    stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "Who resolved tickets like this one"), list));
+    await wait(700);
+    const rows = [];
+    for (const [k, p] of s.assignee) {
+      const who = PEOPLE[k];
+      const fill = h("i", { style: `--c:${who.c}` });
+      const row = h("div", { class: "person reveal" },
+        h("span", { class: "avatar", style: `--c:${who.c}` }, initials(who.name)),
+        h("span", {}, h("b", {}, who.name), h("small", {}, who.team)),
+        h("span", { class: "bar" }, fill), h("span", { class: "pct" }, pct(p)));
+      list.append(row);
+      rows.push(row);
+      grow([[fill, p]]);
+      await wait(550);
+    }
+    await wait(800);
+    rows[0].classList.add("top");
+    rows[0].querySelector("b").append(h("span", { class: "badge" }, "Assigned"));
+    await wait(600);
+    const who = PEOPLE[s.assignee[0][0]];
+    const corrected = s.category[0][0] !== s.filed;
+    finish(stage,
+      corrected
+        ? result("", null, h("b", {}, `${who.name}, ${who.team}. `), `The filed category would have sent it to ${s.route}.`)
+        : result("", null, h("b", {}, `${who.name}, ${who.team}`), ` gets the ticket.`),
+      why("who"));
+  },
+
+  async search(stage, s, wait) {
+    stage.append(head("search"));
+    const hits = h("div", { class: "hits" });
+    stage.append(h("div", { class: "card reveal" },
+      h("p", { class: "card-label" }, `Closest solved cases in ${s.product}`), hits,
+      h("p", { class: "threshold" }, "Highlighted: character runs shared with the new ticket. The line marks the 0.60 bar a case must clear.")));
+    await wait(700);
+    const grams = ngramSet(`${s.subject} ${s.body}`);
+    for (const hit of s.hits) {
+      const fill = h("i");
+      hits.append(h("div", { class: `hit ${hit.score >= THRESHOLD ? "above" : "below"} reveal` },
+        h("span", { class: "t" }, highlightShared(hit.title, grams), h("small", {}, `${hit.id} · solved ${hit.when}`)),
+        h("span", { class: "bar" }, fill), h("span", { class: "pct" }, fmt(hit.score))));
+      grow([[fill, hit.score]]);
+      await wait(800);
+    }
+    await wait(600);
+    const used = s.hits.filter((x) => x.score >= THRESHOLD).length;
+    const t = ` ${s.key.toLowerCase()} `;
+    finish(stage,
+      isRag(s)
+        ? result("ok", fmt(s.hits[0].score), h("b", {}, "Solved before. "), `${used} case${used > 1 ? "s" : ""} clear the bar, so MdsAI will draft an answer from ${used > 1 ? "them" : "it"}.`)
+        : result("warn", fmt(s.hits[0].score), h("b", {}, "No reliable precedent. "), "Nothing clears the bar, so MdsAI won't write an answer. It will brief an expert instead."),
+      why("search"),
+      mechanics(
+        h("div", {}, h("h4", {}, "1 · Text becomes character n-grams and an EmbeddingGemma 2 vector (3-grams shown)"),
+          h("div", { class: "grams" }, h("span", { class: "term" }, `“${s.key}”`),
+            Array.from({ length: t.length - 2 }, (_, i) => h("span", { class: "gram" }, t.slice(i, i + 3).replace(/ /g, "␣"))))),
+        h("div", {}, h("h4", {}, "2 · Only the ticket's product is searched"),
+          h("div", { class: "funnel" }, h("span", { class: "pill" }, "18.9K approved solved cases"), "→", h("span", { class: "pill on" }, s.product))),
+        h("div", {}, h("h4", {}, "3 · Older product versions carry less weight"),
+          h("p", { class: "small" }, "Cases more than two releases old are downweighted."))));
+  },
+
+  async draft(stage, s, wait) {
+    stage.append(head("draft"));
+    const line = h("p", { class: "model-line busy" }, h("span", { class: "dot" }), h("b", {}, "Fine-tuned Gemma 4 12B"), " on vLLM · writing…");
+    const text = h("div", { class: "draft" });
+    const card = h("div", { class: "card reveal" }, line, text);
+    stage.append(card);
+    await wait(900);
+    for (const l of s.draft.lines) {
+      const pieces = [];
+      const p = draftLine(l, pieces);
+      text.append(p);
+      for (const piece of pieces) {
+        p.append(piece);
+        await wait(piece instanceof Node ? 140 : 60);
+      }
+      show(card);
+      await wait(300);
+    }
+    line.className = "model-line";
+    line.lastChild.textContent = ` on vLLM · done (about ${s.draft.secs} s in production)`;
+    card.append(sourcesList(s));
+    show(card);
+    await wait(600);
+    const used = s.hits.filter((x) => x.score >= THRESHOLD);
+    const ctx = h("div", { class: "ctx" },
+      h("div", { class: "blk" }, h("b", {}, "Rules"), h("span", {}, "Answer only from the cases below and cite them as [n]. If they don't cover the question, say so.")),
+      used.map((x, i) => h("div", { class: "blk", "data-n": i + 1 }, h("b", {}, `[${i + 1}] ${x.id}`), h("span", {}, `Approved solution: ${x.title}`))),
+      h("div", { class: "blk" }, h("b", {}, `Ticket ${s.ticket}`), h("span", {}, s.subject)));
+    for (const c of card.querySelectorAll(".cite")) {
+      const blk = ctx.querySelector(`.blk[data-n="${c.textContent}"]`);
+      c.onmouseenter = () => blk?.classList.add("lit");
+      c.onmouseleave = () => blk?.classList.remove("lit");
+    }
+    finish(stage, why("draft"), mechanics(h("div", {}, h("h4", {}, "The prompt the model saw (hover a citation above to find its source)"), ctx)));
+  },
+
+  async review(stage, s) {
+    stage.append(head("review"));
+    const reviewer = PEOPLE[s.review.by];
+    const actions = h("div", { class: "actions" },
+      h("button", { class: "btn approve", type: "button", "data-k": "approve" }, "Approve & send"),
+      h("button", { class: "btn", type: "button", "data-k": "edit" }, "Edit, then send"),
+      h("button", { class: "btn reject", type: "button", "data-k": "reject" }, "Reject"));
+    const hint = h("p", { class: "try" }, `You're the reviewer (${reviewer.name}). Check the draft against its sources, then decide.`);
+    stage.append(h("div", { class: "card reveal" },
+      h("p", { class: "card-label" }, `AI draft for ${s.ticket}`),
+      h("div", { class: "draft" }, s.draft.lines.map((l) => draftLine(l))),
+      sourcesList(s), hint, actions));
+    for (const b of actions.querySelectorAll("button")) b.onclick = () => decide(b.dataset.k);
+    D = { stage, actions, hint };
+    if (S.decided) renderDecision(false);
+  },
+
+  async brief(stage, s, wait) {
+    stage.append(head("brief"));
+    const b = s.brief;
+    const who = PEOPLE[s.assignee[0][0]];
+    const line = h("p", { class: "model-line busy" }, h("span", { class: "dot" }), h("b", {}, "Searching docs, code and past tickets"), " · then summarising…");
+    const card = h("div", { class: "card msg reveal" }, line);
+    stage.append(card);
+    await wait(1600);
+    line.className = "model-line";
+    line.replaceChildren(h("span", { class: "dot" }), h("b", {}, "Briefing ready"), ` · ${b.docs.length + b.code.length + b.near.length} sources`);
+    const code = b.code.find((c) => c.snippet);
+    const sections = [
+      h("div", { class: "msg-head" }, h("span", { class: "mark" }, "M"), h("b", {}, "MdsAI"), "→", h("b", {}, `@${who.name}`),
+        h("span", { class: `prio ${/^High/.test(b.priority) ? "" : "normal"}` }, b.priority)),
+      h("section", {}, h("h4", {}, "What's going on"), h("p", {}, b.summary)),
+      h("section", {}, h("h4", {}, "Read first"), h("p", {}, b.docs[0].ref), h("p", { class: "small" }, b.docs[0].why)),
+      code ? h("section", {}, h("h4", {}, "Code to look at"), h("p", { class: "small" }, code.why),
+        h("div", { class: "codebox" }, h("div", { class: "path" }, `${code.path} · ${code.loc}`), h("pre", {}, h("code", {}, code.snippet)))) : null,
+      h("section", {}, h("h4", {}, "Ask the customer"),
+        b.ask.length ? h("ul", {}, b.ask.map((a) => h("li", {}, a))) : h("p", { class: "small" }, "Nothing yet; the logs come first.")),
+    ];
+    for (const sec of sections) {
+      if (!sec) continue;
+      sec.classList.add("reveal");
+      card.append(sec);
+      show(card);
+      await wait(1100);
+    }
+    const lane = (title, items) => h("div", { class: "lane" }, h("h4", {}, title), h("ul", {}, items));
+    finish(stage, why("brief"), mechanics(h("div", {}, h("h4", {}, "Everything the three searches found"), h("div", { class: "lanes" },
+      lane("Product docs", b.docs.map((d) => h("li", {}, d.ref))),
+      lane("Codebase", b.code.map((c) => h("li", {}, h("code", {}, c.path), h("br"), h("span", { class: "small" }, c.loc)))),
+      lane("Past tickets", b.near.map((n) => h("li", {}, h("code", {}, n.id), ` · ${fmt(n.score)}, related but not the same`)))))));
+  },
+
+  async handoff(stage, s, wait) {
+    stage.append(head("handoff"));
+    const b = s.brief;
+    const who = PEOPLE[s.assignee[0][0]];
+    await wait(500);
+    const list = h("ul", { class: "checks" });
+    stage.append(h("div", { class: "card" },
+      h("div", { class: "toast" },
+        h("span", { class: "avatar", style: `--c:${who.c}` }, initials(who.name)),
+        h("span", {}, h("b", {}, `${who.name}: new ticket ${s.ticket}`), h("small", {}, `${s.subject} · briefing attached`))),
+      list));
+    await wait(1100);
+    const items = [
+      "A summary and a first suspect",
+      `${b.docs.length} documentation section${b.docs.length > 1 ? "s" : ""}`,
+      `${b.code.length} code locations, with the relevant lines`,
+      `${b.near.length} related past ticket, and why it differs`,
+      b.ask.length ? "The question to ask the customer" : "A note that nothing is needed from the customer yet",
+    ];
+    for (const item of items) {
+      list.append(h("li", { class: "reveal" }, item));
+      await wait(500);
+    }
+    await wait(500);
+    finish(stage, customerView(s, "handoff"), why("handoff"));
+  },
+
+  async recap(stage, s, wait) {
+    const rag = isRag(s);
+    const [top, p1] = s.category[0];
+    const who = PEOPLE[s.assignee[0][0]];
+    stage.append(h("div", { class: "head reveal" }, h("p", { class: "eyebrow" }, "Recap"), h("h3", { class: "t2" }, `What happened to ${s.ticket}`)));
+    const rows = [
+      ["Read", `${s.tags.length} technical tokens kept; scoped to ${s.product}`],
+      ["Category", top !== s.filed ? `${s.filed} → ${top} (${pct(p1)})` : `${top}, as filed (${pct(p1)})`],
+      ["Assignee", `${who.name}, ${who.team}`],
+      ["Search", rag ? `Best match ${fmt(s.hits[0].score)}: answerable` : `Best match ${fmt(s.hits[0].score)}: held back`],
+      rag ? ["Draft", `Cited answer from ${s.hits.filter((x) => x.score >= THRESHOLD).length} solved cases`]
+        : ["Briefing", `${s.brief.docs.length} docs, ${s.brief.code.length} code locations, ${s.brief.near.length} past ticket`],
+      rag ? ["Review", { approve: "Approved and sent", edit: "Edited and sent", reject: "Rejected; the expert replies" }[S.decided]]
+        : ["Hand-off", `${who.name} briefed`],
+    ];
+    const list = h("ol", { class: "path" });
+    stage.append(h("div", { class: "card reveal" }, list));
+    for (const [i, [k, v]] of rows.entries()) {
+      list.append(h("li", { class: "reveal" }, h("span", {}, i + 1), h("b", {}, k), h("span", {}, v)));
+      await wait(220);
+    }
+    await wait(400);
+    const tile = (big, label) => h("div", { class: "tile" }, h("b", {}, big), h("span", {}, label));
+    stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "On the live desk, after rollout"),
+      h("div", { class: "tiles" },
+        tile("15.5 h → 2.4 h", "median time to first reply"),
+        tile("24% → 9%", "tickets re-routed"),
+        tile("61%", "drafts sent with light or no edits"),
+        tile("68%", "new tickets get a cited draft"))));
+    await wait(400);
+    const others = GROUPS.map((g) => {
+      const idx = SCENARIOS.map((x, i) => [x, i]).filter(([x]) => x.group === g.id).map(([, i]) => i);
+      const target = g.id === s.group ? idx[(idx.indexOf(S.sc) + 1) % idx.length] : idx[0];
+      const b = h("button", { class: "pathcard", type: "button" }, h("b", {}, g.id === s.group ? `Another “${g.label}”` : g.label), h("span", {}, g.blurb));
+      b.onclick = () => select(target);
+      return b;
+    });
+    finish(stage,
+      h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "Try another ticket"), h("div", { class: "paths" }, others)));
+  },
+};
+
+function decide(kind) {
+  if (S.decided || S.phase !== "pipeline" || steps()[S.step].key !== "review") return;
+  stopCountdown();
+  S.decided = kind;
+  renderDecision(true);
+  updateNav();
+  autoAdvance();
+}
+
+function renderDecision(scroll) {
+  const s = cur();
+  const reviewer = PEOPLE[s.review.by];
+  for (const b of D.actions.querySelectorAll("button")) {
+    b.disabled = true;
+    if (b.dataset.k === S.decided) b.classList.add("chosen");
+  }
+  D.hint.remove();
+  const out = {
+    approve: result("ok", "✓", h("b", {}, "Sent as drafted. "), `${reviewer.name} checked it against the cited cases instead of researching from scratch.`),
+    edit: result("ok", "✓", h("b", {}, "Edited, then sent. "), s.review.edit ? `${reviewer.name}: “${s.review.edit}”` : `${reviewer.name} tightened one step before sending.`),
+    reject: result("bad", "✕", h("b", {}, "Rejected. "), `${reviewer.name} writes the reply, and the rejected draft joins next month's regression set.`),
+  }[S.decided];
+  D.stage.append(out, customerView(s, S.decided), why("review"));
+  if (scroll) show(out, D.stage.lastChild);
+}
+
+/* --------------------------------------------------------------- wiring */
+
+$("next").onclick = () => { stopCountdown(); advance(); };
+$("back").onclick = () => {
+  stopCountdown();
+  if (S.phase === "pipeline" && S.step > 0) go(S.step - 1);
+};
+$("auto").onchange = (e) => {
+  S.auto = e.target.checked;
+  if (S.auto) autoAdvance();
+  else stopCountdown();
+};
+for (const ev of ["wheel", "touchmove"]) {
+  addEventListener(ev, () => { if (S.busy) S.userScrolled = true; }, { passive: true });
+}
+// Arrow keys step through the demo only while focus is inside it.
+host.addEventListener("keydown", (e) => {
+  if (e.altKey || e.ctrlKey || e.metaKey || e.composedPath()[0].closest?.("summary")) return;
+  if (e.key === "ArrowRight" && !$("next").disabled) { e.preventDefault(); $("next").click(); }
+  if (e.key === "ArrowLeft" && !$("back").disabled) { e.preventDefault(); $("back").click(); }
+});
+
+select(0, false);
+})();
+</script>

@@ -1,0 +1,1492 @@
+<teus-demo><p>The interactive Teus walkthrough needs JavaScript.</p></teus-demo>
+<template id="teus-demo">
+<style>
+
+/* Teus is always light: white surfaces, one cyan accent, and a few fixed
+   series colours. The demo lives in a shadow root, so these rules never touch
+   the page and the page's prose rules never touch the demo. */
+:host {
+  all: initial;
+  display: block;
+  container-type: inline-size;
+  color-scheme: light;
+  --page: #F6F7FB;
+  --card: #FFFFFF;
+  --surface: #F2F3F8;
+  --border: #E4E6EF;
+  --text: #1A1C2B;
+  --muted: #676C84;
+  --accent: #0E7490;
+  --accent-ink: #155E75;
+  --accent-soft: #ECFEFF;
+  --ok: #157F3C;
+  --ok-soft: #E9F6EE;
+  --warn: #A65B06;
+  --warn-soft: #FDF4E4;
+  --bad: #B42318;
+  --bad-soft: #FDEDEB;
+  --obs: #1F3B63;
+  --rain: #8EC3E6;
+  --rain-fc: #0E7490;
+  --naive: #8A8FA3;
+  --ridge: #8B7CF6;
+  --s2s: #E8772E;
+  --shadow: 0 1px 2px rgb(24 26 60 / 0.04), 0 6px 20px rgb(24 26 60 / 0.06);
+  --sans: "Inter", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --col: 44rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: default; }
+:is(button, a, summary, input):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code, pre { font-family: var(--mono); }
+p { margin: 0; }
+h1, h2, h3, h4 { margin: 0; }
+
+/* The card: overflow is clipped, not scrolled, so the sticky progress and nav
+   stay sticky against the page. */
+.app {
+  overflow: clip;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--page);
+  color: var(--text);
+  font: 400 15px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  box-shadow: 0 10px 40px rgb(24 26 60 / 0.12);
+  text-align: left;
+}
+.wrap { width: 100%; max-width: var(--col); margin-inline: auto; padding-inline: 20px; }
+
+/* ------------------------------------------------------------ header */
+
+.top { background: var(--card); border-bottom: 1px solid var(--border); }
+.picker { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 14px; align-items: center; padding-block: 12px; }
+.picker-k { color: var(--muted); font-size: 12px; font-weight: 600; }
+.opts { display: grid; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; gap: 2px; padding: 3px; border-radius: 10px; background: var(--surface); }
+.opt { padding: 5px 10px; border: 0; border-radius: 8px; background: none; color: var(--muted); font-size: 13px; font-weight: 500; line-height: 1.35; }
+.opt:hover { color: var(--text); }
+.opt[aria-pressed="true"] { background: var(--card); color: var(--text); font-weight: 600; box-shadow: 0 1px 3px rgb(24 26 60 / 0.12); }
+.blurb { grid-column: 2; color: var(--muted); font-size: 12.5px; }
+
+/* The picker scrolls away; only the step progress stays pinned. */
+.progress { position: sticky; top: 0; z-index: 10; background: var(--card); border-bottom: 1px solid var(--border); }
+.progress[hidden] { display: none; }
+.prog-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-top: 9px; font-size: 13px; }
+.prog-row b { font-weight: 650; }
+.prog-row .muted { overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+.segs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 8px 0 10px; }
+.seg { height: 6px; padding: 0; border: 0; border-radius: 999px; background: var(--border); }
+.seg.done { background: color-mix(in srgb, var(--accent) 45%, white); }
+.seg.current { background: var(--accent); }
+.seg:not(:disabled):hover { outline: 2px solid var(--accent-soft); }
+
+/* ------------------------------------------------------------ main */
+
+main { min-height: 30rem; padding: 26px 0 32px; }
+.reveal { animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+.eyebrow { color: var(--accent); font-size: 12.5px; font-weight: 650; letter-spacing: 0.01em; }
+.head .t1 { margin: 6px 0 10px; font-size: 26px; font-weight: 750; letter-spacing: -0.03em; line-height: 1.2; }
+.head .t2 { margin: 6px 0 8px; font-size: 24px; font-weight: 750; letter-spacing: -0.025em; line-height: 1.2; }
+.lede { color: var(--muted); font-size: 15.5px; }
+.card { margin-top: 20px; padding: 20px; border: 1px solid var(--border); border-radius: 16px; background: var(--card); box-shadow: var(--shadow); }
+.card-label { margin-bottom: 12px; color: var(--muted); font-size: 12px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; }
+.small { color: var(--muted); font-size: 12.5px; }
+.illus { margin-top: 10px; color: var(--muted); font-size: 12px; font-style: italic; }
+
+.result { display: flex; align-items: center; gap: 14px; margin-top: 16px; padding: 14px 18px; border-radius: 14px; background: var(--soft-bg, var(--accent-soft)); font-size: 15px; }
+.result .big { flex: none; color: var(--ink, var(--accent-ink)); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+.result.ok { --soft-bg: var(--ok-soft); --ink: var(--ok); }
+.result.warn { --soft-bg: var(--warn-soft); --ink: var(--warn); }
+.result.bad { --soft-bg: var(--bad-soft); --ink: var(--bad); }
+
+.why { margin-top: 16px; padding: 14px 18px; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 4px 14px 14px 4px; background: var(--card); }
+.why-k { color: var(--muted); font-size: 11.5px; font-weight: 650; letter-spacing: 0.05em; text-transform: uppercase; }
+.why-main { display: flex; align-items: baseline; gap: 12px; margin-top: 4px; }
+.why-main b { flex: none; color: var(--accent-ink); font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+.why details { margin-top: 8px; }
+.why summary, .mech summary { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; list-style: none; }
+.why summary::-webkit-details-marker, .mech summary::-webkit-details-marker { display: none; }
+.why summary::after, .mech summary::after { content: "▾"; font-size: 11px; transition: transform 0.2s; }
+details[open] > summary::after { transform: rotate(180deg); }
+.why details > div { display: grid; gap: 10px; margin-top: 10px; color: var(--muted); font-size: 14px; }
+.mech { margin-top: 14px; }
+.mech > div { display: grid; gap: 14px; margin-top: 12px; padding: 16px; border-radius: 14px; background: var(--surface); }
+.mech h4 { margin-bottom: 8px; font-size: 13px; font-weight: 650; }
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s, box-shadow 0.2s, opacity 0.2s;
+}
+.btn:hover:not(:disabled) { background: var(--surface); }
+.btn:disabled { opacity: 0.45; }
+.btn.primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+.btn.primary:hover:not(:disabled) { background: var(--accent-ink); }
+.btn.counting::after { content: ""; position: absolute; inset: auto 0 0 0; height: 3px; background: rgb(255 255 255 / 0.8); transform-origin: left; animation: count var(--dur, 6s) linear forwards; }
+@keyframes count { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.submit { width: 100%; margin-top: 16px; padding: 11px; font-size: 15px; }
+.submit.pulse { animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px var(--accent-soft); } }
+.note { margin-top: 16px; }
+.try { margin-top: 14px; color: var(--accent-ink); font-size: 14px; font-weight: 600; }
+
+/* intro: the gauges reporting in */
+.from { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin-bottom: 14px; color: var(--muted); font-size: 13px; }
+.code { font: 600 12.5px var(--mono); color: var(--text); }
+.gauges { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.gauge { padding: 10px 12px; border-radius: 12px; background: var(--page); }
+.gauge span { display: block; color: var(--muted); font-size: 12px; font-weight: 600; }
+.gauge b { display: block; font: 700 18px/1.3 var(--mono); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.gauge small { color: var(--muted); font-size: 12px; }
+.spark { display: block; width: 100%; height: 70px; margin-top: 12px; }
+
+/* charts: one SVG unit is one CSS pixel, so labels stay readable at any width */
+.chart { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font: 500 11px var(--sans); fill: var(--muted); }
+.chart .tick { stroke: var(--border); stroke-width: 1; }
+.chart .base { stroke: #C9CCD8; stroke-width: 1; }
+.chart .ln { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+.chart .q { stroke: var(--obs); stroke-width: 2; }
+.chart .naive { stroke: var(--naive); stroke-width: 2; stroke-dasharray: 5 4; }
+.chart .ridge { stroke: var(--ridge); stroke-width: 2; }
+.chart .s2s { stroke: var(--s2s); stroke-width: 2.4; }
+.chart .ghost { stroke: #C9CCD8; stroke-width: 1.5; stroke-dasharray: 2 4; }
+/* Lines and bars are revealed left to right, like time passing. */
+.chart .wipe { transform: scaleX(0); transform-box: fill-box; transform-origin: left; transition: transform var(--t, 1.6s) cubic-bezier(0.4, 0.1, 0.3, 1); }
+.chart .wipe.on { transform: scaleX(1); }
+/* "Skip animation" finishes every reveal at once. */
+.fast .chart :is(.wipe, .fade) { transition: none; }
+.chart .rain { fill: var(--rain); }
+.chart .rainfc { fill: var(--rain-fc); opacity: 0.55; }
+.chart .thr { stroke: var(--bad); stroke-width: 1.3; stroke-dasharray: 4 3; }
+.chart .thr-l { fill: var(--bad); font-weight: 600; }
+.chart .flood { fill: var(--bad); opacity: 0.16; }
+.chart .scored { fill: var(--accent); opacity: 0.1; transition: opacity 0.4s; }
+.chart .hist { fill: var(--accent); opacity: 0.07; }
+.chart .origin { stroke: var(--accent-ink); stroke-width: 1.5; }
+.chart .brk { stroke: var(--accent-ink); stroke-width: 1.2; fill: none; }
+.chart .brk-l { fill: var(--accent-ink); font-weight: 650; }
+.chart .tgt { fill: var(--accent); stroke: #fff; stroke-width: 2; transition: transform 0.25s; }
+.chart .tgt-ln { stroke: var(--accent); stroke-width: 1.2; stroke-dasharray: 3 3; transition: transform 0.25s; }
+.chart .mark-l { fill: var(--text); font-weight: 650; }
+.chart .fade { transition: opacity 0.6s; }
+.chart .hidden { opacity: 0; }
+.chart .dot { fill: var(--obs); stroke: #fff; stroke-width: 2; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; color: var(--muted); font-size: 12.5px; }
+.legend span::before { content: ""; display: inline-block; width: 14px; height: var(--hh, 3px); margin-right: 6px; border-radius: 2px; background: var(--c); vertical-align: middle; }
+.legend .box::before { --hh: 10px; width: 10px; }
+.lgs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.lg { display: inline-flex; align-items: center; gap: 7px; padding: 4px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--card); font-size: 12.5px; font-weight: 600; transition: opacity 0.2s, border-color 0.2s; }
+.lg::before { content: ""; width: 14px; height: 3px; border-radius: 2px; background: var(--c); }
+.lg[aria-pressed="false"] { opacity: 0.5; }
+.lg[aria-pressed="false"]::before { background: var(--border); }
+.lg:disabled { opacity: 0.35; }
+
+/* score */
+.mode { display: inline-grid; grid-auto-flow: column; margin: 12px 0 14px; }
+.mode .opt { padding: 6px 12px; }
+.bars { display: grid; gap: 8px; margin-top: 14px; }
+.bar-row { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) 4rem; gap: 12px; align-items: center; font-size: 14px; transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.bar-row .label { display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-row .label::before { content: ""; flex: none; width: 10px; height: 10px; border-radius: 3px; background: var(--c); }
+.bar-row .rank { flex: none; color: var(--muted); font: 600 12px var(--mono); }
+.bar { position: relative; height: 8px; border-radius: 999px; background: var(--surface); }
+.bar > i { display: block; width: 0; max-width: 100%; height: 100%; border-radius: inherit; background: var(--c, var(--accent)); transition: width 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.pct { font: 600 12.5px var(--mono); text-align: right; }
+.formula { padding: 10px 12px; border-radius: 10px; background: var(--card); font: 500 13px/1.7 var(--mono); overflow-x: auto; white-space: nowrap; }
+.folds { display: grid; gap: 6px; }
+.fold { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); gap: 10px; align-items: center; font-size: 12px; color: var(--muted); }
+.fold-bar { display: flex; height: 14px; border-radius: 4px; background: var(--card); overflow: hidden; }
+.fold-bar .tr { background: color-mix(in srgb, var(--accent) 35%, white); }
+.fold-bar .te { background: var(--s2s); }
+
+/* model diagram */
+.flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
+.pill { padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; background: var(--card); font-weight: 600; }
+.pill.on { border-color: var(--accent); background: var(--accent); color: #fff; }
+.arrow { color: var(--muted); }
+
+/* run report and serving */
+.files { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.file { display: grid; align-content: start; gap: 2px; padding: 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--page); font-size: 13px; font-weight: 650; }
+.file small { color: var(--muted); font-size: 12px; font-weight: 500; line-height: 1.4; }
+.file::before { content: "✓"; display: grid; place-items: center; width: 20px; height: 20px; margin-bottom: 4px; border-radius: 50%; background: var(--ok-soft); color: var(--ok); font-size: 11px; font-weight: 800; }
+.gate { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.gate li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; align-items: center; font-size: 14.5px; color: var(--muted); transition: color 0.3s; }
+.gate li::before { content: ""; display: grid; place-items: center; width: 22px; height: 22px; border: 2px solid var(--border); border-radius: 50%; font-size: 12px; font-weight: 800; transition: background 0.3s, border-color 0.3s; }
+.gate li.pass { color: var(--text); }
+.gate li.pass::before { content: "✓"; border-color: var(--ok-soft); background: var(--ok-soft); color: var(--ok); }
+.gate li.busy::before { border-color: var(--accent); border-top-color: transparent; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.served { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center; margin-top: 16px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); box-shadow: 0 10px 30px rgb(24 26 60 / 0.1); animation: slide 0.6s cubic-bezier(0.2, 0.9, 0.2, 1.1) both; }
+@keyframes slide { from { opacity: 0; transform: translateY(-10px) scale(0.98); } }
+.served .mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--accent); color: #fff; font-size: 12px; font-weight: 800; }
+.served small { display: block; color: var(--muted); font-size: 13px; }
+
+/* recap */
+.path { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.path li { display: grid; grid-template-columns: 26px 7rem minmax(0, 1fr); gap: 12px; align-items: center; font-size: 14.5px; }
+.path li > span:first-child { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); font-size: 12px; font-weight: 700; }
+.path li > b { color: var(--muted); font-weight: 600; }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tile { padding: 14px 16px; border-radius: 12px; background: var(--accent-soft); }
+.tile b { display: block; color: var(--accent-ink); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; }
+.tile span { color: var(--muted); font-size: 13px; }
+.limit { border-style: dashed; box-shadow: none; }
+.limit p + p { margin-top: 6px; }
+.paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.pathcard { display: grid; align-content: start; gap: 4px; padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); text-align: left; transition: border-color 0.15s, box-shadow 0.15s; }
+.pathcard:hover { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.pathcard b { font-size: 14.5px; }
+.pathcard span { color: var(--muted); font-size: 13px; }
+
+/* ------------------------------------------------------------ nav */
+
+.nav { position: sticky; bottom: 0; z-index: 10; background: rgb(255 255 255 / 0.94); border-top: 1px solid var(--border); backdrop-filter: blur(8px); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
+.switch { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; cursor: pointer; user-select: none; }
+.switch input { position: absolute; opacity: 0; pointer-events: none; }
+.switch span { position: relative; width: 32px; height: 18px; border-radius: 999px; background: #D3D6E2; transition: background 0.2s; }
+.switch span::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / 0.25); transition: transform 0.2s; }
+.switch input:checked + span { background: var(--accent); }
+.switch input:checked + span::after { transform: translateX(14px); }
+.switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@container (max-width: 640px) {
+  .picker { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .blurb { grid-column: auto; }
+  .opt { padding: 5px 6px; font-size: 12.5px; }
+  .prog-row .muted { display: none; }
+  .wrap { padding-inline: 14px; }
+  .card { padding: 16px 14px; }
+  .head .t1 { font-size: 22px; }
+  .head .t2 { font-size: 21px; }
+  .paths { grid-template-columns: minmax(0, 1fr); }
+  .files { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gauge b { font-size: 15px; }
+  .bar-row { grid-template-columns: minmax(0, 9.5rem) minmax(0, 1fr) 2.8rem; gap: 8px; font-size: 13px; }
+  .path li { grid-template-columns: 26px minmax(0, 1fr); }
+  .path li > b { display: none; }
+  .why-main { flex-direction: column; gap: 2px; }
+  .result { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .mode { display: grid; width: 100%; }
+  .mode .opt { padding: 6px 8px; }
+  .file:last-child { grid-column: span 2; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+<div class="app">
+  <header class="top">
+    <div class="wrap picker">
+      <span class="picker-k" id="groups-k">Kind</span>
+      <div class="opts" role="group" aria-labelledby="groups-k" id="groups"></div>
+      <span class="picker-k" id="examples-k">Event</span>
+      <div class="opts" role="group" aria-labelledby="examples-k" id="examples"></div>
+      <p class="blurb" id="blurb"></p>
+    </div>
+  </header>
+  <div class="progress" id="progress" hidden>
+    <div class="wrap">
+      <div class="prog-row"><b id="prog-title"></b><span class="muted" id="prog-event"></span></div>
+      <div class="segs" id="segs" role="group" aria-label="Steps"></div>
+    </div>
+  </div>
+
+  <main><div class="wrap" id="stage"></div></main>
+
+  <nav class="nav" aria-label="Walkthrough controls">
+    <div class="wrap">
+      <button class="btn" id="back" type="button">← Back</button>
+      <label class="switch"><input type="checkbox" id="auto"><span></span>Autoplay</label>
+      <button class="btn primary" id="next" type="button"></button>
+    </div>
+  </nav>
+  <p class="sr" aria-live="polite" id="announce"></p>
+</div>
+</template>
+<script>
+(() => {
+"use strict";
+
+const host = document.querySelector("teus-demo");
+const template = document.getElementById("teus-demo");
+if (!host || !template || !host.attachShadow) return;
+const root = host.attachShadow({ mode: "open" });
+root.append(template.content.cloneNode(true));
+
+/* ------------------------------------------------------------------ data */
+
+// Every window is 240 hourly readings: 168 h of history ending at the forecast
+// origin, then the 72 h the forecast covers. The origin is 16:00 the day before
+// the event, so the run's 24-hour value lands on the event day's 16:00.
+const N = 240;
+const O = 167;       // forecast origin: the last observed hour
+const E = 175;       // event day, 00:00
+const H = 24;        // headline horizon
+
+const GROUPS = [
+  { id: "flood", label: "Flood event",
+    blurb: "A selected event from the project's figures, replayed as a 24-hour-ahead forecast." },
+  { id: "ordinary", label: "Ordinary flow",
+    blurb: "Most hours look like this. Every model scores well here, which is the problem." },
+];
+
+// Discharge (m³/s) on the event day, traced from the published figures, with
+// the seq2seq line traced the same way. Everything around it is synthetic.
+const SCENARIOS = [
+  {
+    group: "flood", chip: "Sharp peak", station: "D22A114", when: "July 2023", date: [2023, 6, 4],
+    blurb: "D22A114, July 2023: the river rose from about 5 to 72 m³/s in four hours.",
+    thr: 15, base: 1.25, tau: 14, bias: 0.25, ridgeFrac: 0.55,
+    peak: ["72 m³/s", "at the peak, up from about 5 m³/s four hours earlier."],
+    outcome: ["ok", "72 m³/s", "observed at the peak, and seq2seq matched it closely a full day ahead. Seasonal-naive repeated yesterday and missed it."],
+    recapModels: "Seq2seq matched the sharp peak closely",
+    day: [1.0, 1.1, 4.0, 6.2, 6.5, 6.0, 5.3, 5.0, 5.0, 4.6, 4.3, 4.3, 4.3, 7.2, 21.2, 64.5, 72.3, 69.5, 66.0, 61.0, 52.0, 44.3, 39.0, 34.5],
+    s2s: [1.0, 1.0, 1.2, 4.0, 6.4, 6.2, 5.3, 4.6, 4.4, 4.5, 4.2, 4.3, 4.2, 4.6, 8.6, 27.3, 72.6, 69.0, 65.5, 57.0, 51.5, 42.8, 39.0, 32.0],
+    bumps: [[86, 5.5, 3, 9], [131, 2.2, 2, 6]],
+    rain: [[83, 6, 2], [129, 2.5, 1], [E + 1, 4, 1], [E + 11, 5, 0], [E + 12, 11, 0], [E + 13, 16, 0], [E + 14, 8, 0], [E + 15, 2, 0]],
+  },
+  {
+    group: "flood", chip: "Flashy basin", station: "D08A084", when: "April 2021", date: [2021, 3, 5],
+    blurb: "D08A084, April 2021: a small, flashy basin that went from near zero to about 20 m³/s.",
+    thr: 3, base: 0.09, tau: 5, bias: 0.12, ridgeFrac: 0.2,
+    peak: ["≈20 m³/s", "at the peak, in a small and flashy basin."],
+    outcome: ["warn", "≈5 vs ≈20", "m³/s, forecast against observed: seq2seq caught the timing, not the magnitude."],
+    recapModels: "Right timing; about 5 m³/s against a peak near 20",
+    day: [0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.1, 0.5, 0.45, 0.45, 0.6, 1.1, 1.1, 3.5, 20.4, 19.7, 13.8, 7.8, 7.8, 2.9, 2.2, 1.8],
+    s2s: [0.1, 0.18, 0.3, 0.32, 0.22, 0.2, 0.15, 0.13, 0.17, 0.2, 0.8, 0.72, 0.65, 0.8, 1.4, 1.4, 3.2, 5.1, 4.8, 4.5, 3.8, 4.2, 2.2, 1.9],
+    bumps: [[61, 0.6, 2, 4]],
+    rain: [[59, 3, 1], [E + 8, 2, 1], [E + 13, 2, 0], [E + 14, 5, 0], [E + 15, 9, 0], [E + 16, 3, 0]],
+  },
+  {
+    group: "ordinary", chip: "Dry week", station: "D22A114", when: "an ordinary week", date: null,
+    blurb: "D22A114 in an ordinary week: baseflow and a little drizzle, no flood.",
+    thr: 15, base: 2.4, bias: 0.15, ridgeFrac: 0.9,
+    peak: null,
+    outcome: ["", null, "All three models stay close to baseflow. Nothing here separates a good flood model from a weak one."],
+    recapModels: "All three stay close to baseflow",
+    bumps: [[52, 0.8, 3, 10], [150, 0.6, 3, 8]],
+    rain: [[49, 1.2, 2], [147, 0.9, 1], [E + 20, 0.6, 1]],
+  },
+  {
+    group: "ordinary", chip: "Rain, no flood", station: "D22A114", when: "a rainy day",
+    date: null,
+    blurb: "D22A114 after a summer shower: the river rises, but stays below the flood threshold.",
+    thr: 15, base: 2.1, bias: 0.2, ridgeFrac: 0.75,
+    peak: null,
+    outcome: ["", null, "Seasonal-naive misses the shower's rise. Ridge and seq2seq take rainfall as input and see it coming."],
+    recapModels: "Naive missed the rise; the rainfall-driven models caught it",
+    bumps: [[70, 1.2, 3, 8], [E + 12, 8.5, 3, 7]],
+    rain: [[67, 2, 1], [E + 8, 4, 0], [E + 9, 8, 0], [E + 10, 5, 0], [E + 11, 2, 0]],
+  },
+];
+
+const MODELS = [
+  { id: "naive", name: "Seasonal-naive", short: "Seasonal-naive", c: "var(--naive)",
+    note: "repeats the same hour one day earlier" },
+  { id: "ridge", name: "Ridge", short: "Ridge", c: "var(--ridge)",
+    note: "a linear baseline on discharge and rainfall" },
+  { id: "s2s", name: "Seq2seq LSTM + attention", short: "Seq2seq", c: "var(--s2s)",
+    note: "the neural model behind the headline result" },
+];
+
+const META = {
+  gauges: { title: "Read the gauges", method: "Hourly discharge + basin-weighted rainfall",
+    lede: "Each station reports river discharge every hour. Rain gauges across the basin are combined into one basin-weighted rainfall series beside it." },
+  floods: { title: "Find the floods", method: "Discharge-quantile threshold",
+    lede: "A flood hour is any hour above the station's discharge-quantile threshold. Those are the hours a warning is for, and there are very few of them." },
+  origin: { title: "Set the forecast origin", method: "168 h history + 72 h rainfall forecast",
+    lede: "Rewind a day. The model may only use what was known at the forecast origin: the past week at the gauges, and the rainfall forecast for the next three days." },
+  models: { title: "Run three models", method: "Seasonal-naive · Ridge · seq2seq LSTM",
+    lede: "Each line shows forecasts made 24 hours ahead: every point was predicted a full day before it happened." },
+  score: { title: "Score the flood hours", method: "Thresholded MAPE",
+    lede: "Which model looks best depends on which hours you score. Move the threshold and watch the leaderboard." },
+  serve: { title: "Report and serve", method: "Run report · checkpoint checks · FastAPI",
+    lede: "Every run leaves the same inspectable report, whether the model was strong or weak. Only checkpoints that pass the checks are served." },
+  recap: { title: "Recap", method: "What happened, and the numbers", lede: "" },
+};
+const ORDER = ["gauges", "floods", "origin", "models", "score", "serve", "recap"];
+
+// The decision behind each step: one number, one sentence, details on click.
+// Every figure here is the project's published result or setting.
+const WHY = {
+  gauges: { num: "8", text: "stations, each with hourly discharge and basin-weighted rainfall.",
+    more: ["Flashy basins go from baseflow to peak within hours, so discharge history alone gives little warning. Rainfall has to be an input.",
+      "The series on this page are illustrative, shaped after the published event figures; the project works on the stations' own hourly records."] },
+  floods: { num: "3", text: "traps, all because floods are a small fraction of each station's hourly record.",
+    more: ["A model that repeats normal conditions scores well on the full series and still misses every flood.",
+      "Flashy basins go from baseflow to peak within hours, so discharge history alone gives little warning.",
+      "Ordinary MAPE explodes near zero flow. Teus reports thresholded MAPE, scored only on hours above a station's discharge-quantile threshold."] },
+  origin: { num: "72 h", text: "of rainfall forecasts from meteorological institutions go in as input, the same input a live system would have.",
+    more: ["The project's run report for a Ridge baseline uses 168 hours of history and a 72-hour horizon, the window this walkthrough uses.",
+      "Experiments cover 1–72-hour horizons. The headline result is at 24 hours."] },
+  models: { num: "1–72 h", text: "horizons across eight stations, from Ridge baselines to a seq2seq LSTM with attention.",
+    more: ["Classical and neural models are compared on discharge and basin-weighted rainfall.",
+      "Selected events show both sides of the model: at D22A114 it matched a sharp peak closely; at D08A084, a small and flashy basin, it caught the timing but not the magnitude."] },
+  score: { num: "11% vs 38%", text: "thresholded MAPE on flood peaks 24 hours ahead: seq2seq against seasonal-naive, across all eight stations in expanding-window backtests.",
+    more: ["Ordinary MAPE divides by the observed flow, so it explodes near zero. Thresholded MAPE is scored only on hours above the station's discharge-quantile threshold.",
+      "Peak-event windows are scored separately from ordinary flow, with expanding-window backtests.",
+      "The scores in the card above are computed live on the illustrative series. The 11% and 38% are the project's measured results."] },
+  serve: { num: "5", text: "artifacts from every run: predictions, metrics, plots, the fitted model and a manifest, in one inspectable report.",
+    more: ["A run report for a Ridge baseline covers 168 hours of history, a 72-hour horizon and three event backtests. Every run produces one, so weak baselines stay as visible as strong models.",
+      "Checkpoints that pass loading and input-contract checks are served through a FastAPI forecast service.",
+      "Checkpoint serving works. An operational warning system still needs domain review and authorized use."] },
+};
+
+const ILLUS = "Illustrative series shaped after the published event figures.";
+
+/* --------------------------------------------------------------- helpers */
+
+const $ = (id) => root.getElementById(id);
+const CANCEL = Symbol("cancel");
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const cur = () => SCENARIOS[S.sc];
+const isFlood = (s) => s.group === "flood";
+const announce = (text) => { $("announce").textContent = text; };
+const pct = (p) => (p == null ? "–" : `${Math.round(p * 100)}%`);
+const flow = (v) => (v < 10 ? v.toFixed(1) : String(Math.round(v)));
+const later = (fn) => requestAnimationFrame(() => requestAnimationFrame(fn));
+const pad2 = (n) => String(n).padStart(2, "0");
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat(3)) {
+    if (kid == null || kid === false) continue;
+    el.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+
+function svg(tag, attrs, ...kids) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const [k, v] of Object.entries(attrs || {})) if (v != null) el.setAttribute(k, v);
+  for (const kid of kids) el.append(kid);
+  return el;
+}
+function text(x, y, str, attrs = {}) {
+  const t = svg("text", { x: x.toFixed(1), y: y.toFixed(1), ...attrs });
+  t.textContent = str;
+  return t;
+}
+
+function rng(seed) {
+  return () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const seedOf = (str) => [...str].reduce((a, c) => (Math.imul(a, 31) + c.charCodeAt(0)) | 0, 7);
+
+/* ------------------------------------------------------------ time axis */
+
+// Hour i of the window as a date (flood events) or a day number (ordinary weeks).
+const dayOf = (i) => Math.floor((i - E) / 24);
+const hourOf = (i) => (((i - E) % 24) + 24) % 24;
+function dayLabel(s, i) {
+  const k = dayOf(i);
+  if (!s.date) return `Day ${k + 8}`;
+  const d = new Date(Date.UTC(s.date[0], s.date[1], s.date[2] + k));
+  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+}
+const stamp = (s, i) => `${dayLabel(s, i)}, ${pad2(hourOf(i))}:00`;
+
+/* --------------------------------------------------------------- series */
+
+// A runoff pulse: quadratic rise, exponential recession.
+const pulse = (d, height, up, down) => (d < -up ? 0 : d < 0 ? height * (1 + d / up) ** 2 : height * Math.exp(-d / down));
+const RIDGE_KERNEL = [0, 0.15, 0.4, 0.75, 1, 0.8, 0.55, 0.35, 0.2, 0.1];
+const CACHE = new Map();
+
+// Synthetic hourly window around the published event shape. Seasonal-naive is
+// computed from it exactly; Ridge is a fixed linear response to the rainfall
+// forecast; seq2seq follows the traced line on the event day.
+function series(s) {
+  if (CACHE.has(s)) return CACHE.get(s);
+  const r = rng(seedOf(s.station + s.chip));
+  const ar = (k, amp) => { let n = 0; return Array.from({ length: N }, () => (n = k * n + (r() * 2 - 1) * amp)); };
+  const n1 = ar(0.9, 0.05);
+  const n2 = ar(0.75, 0.06);
+  const baseAt = (i) => s.base * (1.08 - 0.12 * i / N) * (1 + n1[i]);
+  const q = [];
+  for (let i = 0; i < N; i++) {
+    let v = baseAt(i);
+    for (const [c, height, up, down] of s.bumps) v += pulse(i - c, height, up, down);
+    q.push(v);
+  }
+  if (s.day) {
+    for (let k = 0; k < 24; k++) q[E + k] = s.day[k];
+    const last = s.day[23];
+    for (let i = E + 24; i < N; i++) q[i] = baseAt(i) + (last - baseAt(i)) * Math.exp(-(i - E - 23) / s.tau);
+  }
+  const rain = new Array(N).fill(0);
+  for (const [c, peak, w] of s.rain) {
+    for (let d = -w; d <= w; d++) if (c + d >= 0 && c + d < N) rain[c + d] += peak * (1 - Math.abs(d) / (w + 1));
+  }
+  // The rainfall forecast is a smoothed copy of the showers; it misses the drizzle.
+  const fc = rain.map((v, i) => 0.9 * (0.25 * (rain[i - 1] ?? v) + 0.5 * v + 0.25 * (rain[i + 1] ?? v)));
+  for (let i = 0; i < N; i++) if (r() < 0.05) rain[i] += 0.1 + r() * 0.5;
+
+  const naive = q.map((_, i) => (i >= 24 ? q[i - 24] : null));
+  const s2s = q.map((v, i) => {
+    if (s.day && i >= E && i < E + 24) return s.s2s[i - E];
+    const prev = q[i - 1] ?? v;
+    return Math.max(0.01, (0.7 * v + 0.3 * prev) * (1 + n2[i]) + s.bias);
+  });
+  const resp = q.map((_, i) => RIDGE_KERNEL.reduce((a, w, k) => a + w * (fc[i - k] ?? 0), 0));
+  const basePart = (i) => (i >= 24 ? 0.5 * q[i - 24] + 0.5 * baseAt(i) : q[i]);
+  let at = E;
+  for (let i = E; i < E + 24; i++) if (resp[i] > resp[at]) at = i;
+  const target = s.ridgeFrac * Math.max(...q.slice(E, E + 24));
+  const g = resp[at] > 0 ? Math.max(0, (target - basePart(at)) / resp[at]) : 0;
+  const ridge = q.map((_, i) => Math.max(0.01, basePart(i) + g * resp[i]));
+
+  const out = { q, rain, fc, naive, ridge, s2s };
+  CACHE.set(s, out);
+  return out;
+}
+
+// MAPE over the event day's hours above tau: tau = 0 is ordinary MAPE, tau at
+// the station threshold is thresholded MAPE. Null when no hour qualifies.
+function mape(s, model, tau) {
+  const d = series(s);
+  let sum = 0;
+  let n = 0;
+  for (let i = E; i < E + 24; i++) {
+    if (d.q[i] <= tau) continue;
+    sum += Math.abs(d[model][i] - d.q[i]) / d.q[i];
+    n++;
+  }
+  return n ? sum / n : null;
+}
+const floodHours = (s, from = 0, to = N) => series(s).q.slice(from, to).filter((v) => v > s.thr).length;
+const peakAt = (s) => { const q = series(s).q; return q.indexOf(Math.max(...q)); };
+
+/* ---------------------------------------------------------------- charts */
+
+const niceStep = (max) => {
+  const raw = max / 4;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  const n = raw / mag;
+  return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * mag;
+};
+const niceMax = (v) => { const st = niceStep(v * 1.08); return Math.ceil((v * 1.08) / st) * st; };
+const tickText = (v) => String(Number(v.toFixed(2)));
+
+function widthOf(el) {
+  const cs = getComputedStyle(el);
+  const w = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  return Math.max(280, Math.round(w || 640));
+}
+
+let clipN = 0;
+
+// A hydrograph: discharge below, rainfall hanging from the top. One SVG unit
+// is one CSS pixel at the width it was built for.
+function plot(o) {
+  const narrow = o.w < 480;
+  const rainH = o.rainMax ? (narrow ? 34 : 44) : 0;
+  const ht = (narrow ? 190 : 230) + rainH;
+  const pad = { l: 36, r: 8, t: rainH ? rainH + 24 : 22, b: 24 };
+  const span = Math.max(1, o.to - o.from);
+  const x = (i) => pad.l + ((i - o.from) / span) * (o.w - pad.l - pad.r);
+  const y = (v) => ht - pad.b - (Math.min(v, o.ymax) / o.ymax) * (ht - pad.b - pad.t);
+  const yr = (v) => 2 + (Math.min(v, o.rainMax) / o.rainMax) * rainH;
+  const el = svg("svg", { class: "chart", viewBox: `0 0 ${o.w} ${ht}`, role: "img", "aria-label": o.label });
+  const defs = el.appendChild(svg("defs"));
+  const layer = () => el.appendChild(svg("g"));
+  const L = { grid: layer(), under: layer(), rain: layer(), lines: layer(), over: layer() };
+
+  const step = niceStep(o.ymax);
+  for (let v = 0; v <= o.ymax + 1e-9; v += step) {
+    L.grid.append(svg("line", { class: v ? "tick" : "base", x1: pad.l, x2: o.w - pad.r, y1: y(v), y2: y(v) }),
+      text(pad.l - 6, y(v) + 4, tickText(v), { "text-anchor": "end" }));
+  }
+  L.grid.append(text(pad.l - 6, pad.t - 11, "m³/s", { "text-anchor": "end" }));
+  if (rainH) {
+    L.grid.append(svg("line", { class: "base", x1: pad.l, x2: o.w - pad.r, y1: 2, y2: 2 }),
+      text(pad.l - 6, 13, "rain", { "text-anchor": "end" }));
+  }
+  if (o.ticks === "day") {
+    for (let i = o.from; i <= o.to; i++) {
+      if (hourOf(i) !== 0) continue;
+      L.grid.append(svg("line", { class: "tick", x1: x(i), x2: x(i), y1: pad.t, y2: ht - pad.b }));
+      if (!narrow || dayOf(i) % 2 === 0) L.grid.append(text(x(i), ht - 7, dayLabel(o.s, i), { "text-anchor": "middle" }));
+    }
+  } else if (o.ticks === "rank") {
+    for (const f of [0, 0.25, 0.5, 0.75, 1]) {
+      const i = o.from + f * span;
+      L.grid.append(text(x(i), ht - 7, `${f * 100}%`, { "text-anchor": f === 0 ? "start" : f === 1 ? "end" : "middle" }));
+    }
+  } else {
+    const every = narrow ? 6 : 3;
+    for (let i = o.from; i <= o.to; i++) {
+      if (hourOf(i) % every) continue;
+      L.grid.append(svg("line", { class: "tick", x1: x(i), x2: x(i), y1: pad.t, y2: ht - pad.b }),
+        text(x(i), ht - 7, `${pad2(hourOf(i))}:00`, { "text-anchor": i === o.from ? "start" : "middle" }));
+    }
+  }
+
+  // Reveal a group left to right through a growing clip rectangle.
+  const wipe = (g, from, to, ms) => {
+    const id = `teus-clip-${++clipN}`;
+    const rect = svg("rect", { class: "wipe", x: x(from) - 3, y: 0, width: x(to) - x(from) + 6, height: ht, style: `--t:${ms}ms` });
+    defs.append(svg("clipPath", { id }, rect));
+    g.setAttribute("clip-path", `url(#${id})`);
+    if (o.instant) rect.classList.add("on");
+    return () => { if (!o.instant) later(() => rect.classList.add("on")); };
+  };
+  const pathOf = (vals, from, to) => {
+    let d = "";
+    for (let i = from; i <= to; i++) {
+      if (vals[i] == null) continue;
+      d += `${d ? "L" : "M"}${x(i).toFixed(1)},${y(vals[i]).toFixed(1)}`;
+    }
+    return d;
+  };
+  const bw = Math.max(1, (o.w - pad.l - pad.r) / span - (span > 60 ? 0.3 : 2));
+
+  return {
+    el, x, y, pad, ht,
+    line(vals, cls, from = o.from, to = o.to, ms = 1600) {
+      const g = svg("g", {}, svg("path", { class: `ln ${cls}`, d: pathOf(vals, from, to) }));
+      L.lines.append(g);
+      return { g, reveal: wipe(g, from, to, ms) };
+    },
+    bars(vals, cls, from = o.from, to = o.to, ms = 1200) {
+      const g = svg("g");
+      for (let i = from; i <= to; i++) {
+        if (!(vals[i] > 0.05)) continue;
+        g.append(svg("rect", { class: cls, x: (x(i) - bw / 2).toFixed(1), y: 2, width: bw.toFixed(1), height: (yr(vals[i]) - 2).toFixed(1) }));
+      }
+      L.rain.append(g);
+      return { g, reveal: wipe(g, from, to, ms) };
+    },
+    shade(i0, i1, cls, layerName = "under") {
+      // Whole hours, edge to edge, clipped to the plot area.
+      const half = (o.w - pad.l - pad.r) / span / 2;
+      const x0 = Math.max(pad.l, x(i0) - half);
+      const x1 = Math.min(o.w - pad.r, x(i1) + half);
+      const r = svg("rect", { class: cls, x: x0.toFixed(1), y: pad.t, width: Math.max(1, x1 - x0).toFixed(1), height: ht - pad.t - pad.b });
+      L[layerName].append(r);
+      return r;
+    },
+    hline(v, cls) {
+      const l = svg("line", { class: cls, x1: pad.l, x2: o.w - pad.r, y1: y(v), y2: y(v) });
+      L.over.append(l);
+      return l;
+    },
+    vline(i, cls, top = pad.t) {
+      const l = svg("line", { class: cls, x1: x(i), x2: x(i), y1: top, y2: ht - pad.b });
+      L.over.append(l);
+      return l;
+    },
+    label(xx, yy, str, attrs) {
+      const t = text(xx, yy, str, attrs);
+      L.over.append(t);
+      return t;
+    },
+    add(node, layerName = "over") { L[layerName].append(node); return node; },
+  };
+}
+
+// The standard window chart: discharge plus rainfall for all 240 hours.
+function windowChart(card, s, instant, label) {
+  const d = series(s);
+  const w = widthOf(card);
+  const p = plot({ w, s, from: 0, to: N - 1, ticks: "day", instant, label,
+    ymax: niceMax(Math.max(...d.q, s.thr)), rainMax: Math.max(4, ...d.rain) });
+  return { p, d };
+}
+
+const legend = (items) => h("div", { class: "legend" }, items.map(([label, c, box]) => h("span", { class: box ? "box" : null, style: `--c:${c}` }, label)));
+const illus = (extra) => h("p", { class: "illus" }, ILLUS, extra ? ` ${extra}` : null);
+
+/* ---------------------------------------------------------------- state */
+
+const S = {
+  sc: 0, phase: "intro", step: 0, reached: -1,
+  token: 0, cd: 0, fast: false, busy: false, auto: false,
+  ready: false, tried: false, tau: 0, userScrolled: false,
+};
+let I = {};  // intro elements
+let D = {};  // score elements
+
+function sleep(ms, tk) {
+  return new Promise((resolve, reject) => {
+    const end = performance.now() + ms;
+    (function tick() {
+      if (tk !== S.token) return reject(CANCEL);
+      if (S.fast || performance.now() >= end) return resolve();
+      setTimeout(tick, Math.min(50, end - performance.now()));
+    })();
+  });
+}
+// Revisited steps and reduced motion render instantly.
+function makeWait(tk, instant) {
+  const wait = (ms) => {
+    if (tk !== S.token) return Promise.reject(CANCEL);
+    return instant || reduced ? Promise.resolve() : sleep(ms, tk);
+  };
+  wait.instant = instant || reduced;
+  return wait;
+}
+
+// Keep the newest element above the pinned nav while a step the reader started
+// plays, unless they have scrolled away in the meantime.
+function show(el, last = el) {
+  if (S.userScrolled || !el.isConnected) return;
+  const top = el.getBoundingClientRect().top;
+  const bottom = last.getBoundingClientRect().bottom;
+  const progress = $("progress");
+  const topLimit = (progress.hidden ? 0 : progress.offsetHeight) + 12;
+  const bottomLimit = innerHeight - root.querySelector(".nav").offsetHeight - 12;
+  if (bottom <= bottomLimit) return;
+  const delta = Math.min(bottom - bottomLimit, top - topLimit);
+  if (delta > 0) scrollBy({ top: delta, behavior: reduced || S.fast ? "auto" : "smooth" });
+}
+
+// A new step starts at the top of the stage; if the reader has scrolled past
+// it, bring it back just under the pinned progress bar.
+function bringIntoView() {
+  const progress = $("progress");
+  const offset = $("stage").getBoundingClientRect().top - (progress.hidden ? 0 : progress.offsetHeight) - 12;
+  if (offset < 0) scrollBy({ top: offset, behavior: reduced ? "auto" : "smooth" });
+}
+
+// The gauges start replaying the first time the card is on screen.
+const visible = new Promise((resolve) => {
+  const io = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    io.disconnect();
+    resolve();
+  }, { threshold: 0.25 });
+  io.observe(host);
+});
+
+const steps = () => ORDER.map((key) => ({ key, title: META[key].title }));
+
+/* ------------------------------------------------------------- chrome */
+
+function renderPicker() {
+  const s = cur();
+  $("groups").replaceChildren(...GROUPS.map((g) => {
+    const b = h("button", { class: "opt", type: "button", "aria-pressed": String(g.id === s.group) }, g.label);
+    b.onclick = () => select(SCENARIOS.findIndex((t) => t.group === g.id));
+    return b;
+  }));
+  $("examples").replaceChildren(...SCENARIOS.map((x, i) => [x, i]).filter(([x]) => x.group === s.group).map(([x, i]) => {
+    const b = h("button", { class: "opt", type: "button", "aria-pressed": String(i === S.sc) }, x.chip);
+    b.onclick = () => select(i);
+    return b;
+  }));
+  $("blurb").textContent = s.blurb;
+}
+
+function renderProgress() {
+  const bar = $("progress");
+  bar.hidden = S.phase !== "pipeline";
+  if (bar.hidden) return;
+  const list = steps();
+  const s = cur();
+  $("prog-title").textContent = `Step ${S.step + 1} of ${list.length} · ${list[S.step].title}`;
+  $("prog-event").textContent = `${s.station} · ${s.chip}${s.date ? `, ${s.when}` : ""}`;
+  $("segs").replaceChildren(...list.map((st, i) => {
+    const state = i === S.step ? "current" : i <= S.reached ? "done" : "";
+    const b = h("button", { class: `seg ${state}`, type: "button", disabled: i > S.reached, "aria-label": `Step ${i + 1}: ${st.title}`, title: st.title, "aria-current": i === S.step ? "step" : null });
+    b.onclick = () => go(i);
+    return b;
+  }));
+}
+
+function updateNav() {
+  const back = $("back");
+  const next = $("next");
+  if (S.phase === "intro") {
+    back.disabled = true;
+    next.textContent = host.clientWidth <= 640 ? "Replay →" : "Replay the event →";
+    next.disabled = false;
+    return;
+  }
+  const list = steps();
+  const key = list[S.step].key;
+  back.disabled = S.step === 0;
+  next.disabled = false;
+  if (S.busy) next.textContent = "Skip animation";
+  else if (key === "score" && !S.tried) { next.textContent = "Move the threshold ↑"; next.disabled = true; }
+  else if (key === "recap") next.textContent = "Next example →";
+  else next.textContent = host.clientWidth <= 640 ? "Next →" : `Next: ${list[S.step + 1].title} →`;
+}
+
+function stopCountdown() {
+  S.cd++;
+  $("next").classList.remove("counting");
+}
+
+async function countdown(ms) {
+  const id = ++S.cd;
+  const btn = $("next");
+  btn.classList.remove("counting");
+  void btn.offsetWidth;
+  btn.style.setProperty("--dur", `${ms}ms`);
+  btn.classList.add("counting");
+  await new Promise((r) => setTimeout(r, ms));
+  if (id !== S.cd) return false;
+  btn.classList.remove("counting");
+  return S.auto;
+}
+
+async function autoAdvance() {
+  if (!S.auto || S.busy) return;
+  if (S.phase === "intro") {
+    if (S.ready && await countdown(2500)) start();
+    return;
+  }
+  const key = steps()[S.step].key;
+  if (key === "score" && !S.tried) {
+    if (await countdown(3500)) sweepTau();
+    return;
+  }
+  if (await countdown(key === "recap" ? 9000 : 7000)) advance();
+}
+
+function advance() {
+  if (S.phase === "intro") return start();
+  if (S.busy) {
+    S.fast = true;
+    $("stage").classList.add("fast");
+    return;
+  }
+  if (steps()[S.step].key === "recap") return select((S.sc + 1) % SCENARIOS.length);
+  go(S.step + 1);
+}
+
+/* ----------------------------------------------------------------- intro */
+
+function select(i, scroll = true) {
+  stopCountdown();
+  const tk = ++S.token;
+  Object.assign(S, { sc: i, phase: "intro", step: 0, reached: -1, ready: false, tried: false, tau: 0, busy: false, fast: false });
+  renderPicker();
+  renderProgress();
+  renderIntro();
+  updateNav();
+  if (scroll) bringIntoView();
+  replayGauges(tk).catch((e) => { if (e !== CANCEL) throw e; });
+}
+
+function renderIntro() {
+  const s = cur();
+  const g = GROUPS.find((x) => x.id === s.group);
+  const gauge = (label, unit) => {
+    const b = h("b", {}, "–");
+    return [h("div", { class: "gauge" }, h("span", {}, label), b, unit ? h("small", {}, unit) : null), b];
+  };
+  const [tBox, tVal] = gauge("Hour", null);
+  const [qBox, qVal] = gauge("Discharge", "m³/s");
+  const [rBox, rVal] = gauge("Basin rainfall", "mm/h");
+  const line = svg("path", { d: "", fill: "none", stroke: "var(--obs)", "stroke-width": 2, "vector-effect": "non-scaling-stroke", "stroke-linejoin": "round" });
+  const spark = svg("svg", { class: "spark", viewBox: `0 0 ${N - 1} 70`, preserveAspectRatio: "none", "aria-hidden": "true" }, line);
+  I = { tVal, qVal, rVal, line, start: h("button", { class: "btn primary submit", type: "button" }, "Replay the event") };
+  I.start.onclick = start;
+  $("stage").replaceChildren(
+    h("div", { class: "head reveal" },
+      h("p", { class: "eyebrow" }, "Interactive walkthrough · ", g.label),
+      h("h3", { class: "t1" }, "Forecast a river 24 hours ahead"),
+      h("p", { class: "lede" }, `Ten days of hourly readings at station ${s.station} are coming in. Replay the event, then step through how Teus forecasts it and how the forecast is scored.`)),
+    h("div", { class: "card reveal" },
+      h("div", { class: "from" }, h("span", {}, "Station ", h("span", { class: "code" }, s.station)), h("span", {}, s.date ? s.when : "An ordinary week")),
+      h("div", { class: "gauges" }, tBox, qBox, rBox),
+      spark,
+      I.start),
+    h("p", { class: "small note reveal" }, ILLUS));
+}
+
+async function replayGauges(tk) {
+  const s = cur();
+  const d = series(s);
+  const wait = makeWait(tk, false);
+  const top = Math.max(...d.q) * 1.1;
+  const yy = (v) => (70 - (v / top) * 66).toFixed(1);
+  let path = "";
+  await visible;
+  await wait(400);
+  for (let i = 0; i < N; i++) {
+    path += `${i ? "L" : "M"}${i},${yy(d.q[i])}`;
+    if (i % 2 && i < N - 1) continue;
+    I.line.setAttribute("d", path);
+    I.tVal.textContent = stamp(s, i);
+    I.qVal.textContent = flow(d.q[i]);
+    I.rVal.textContent = d.rain[i].toFixed(1);
+    await wait(16);
+  }
+  S.ready = true;
+  I.start.classList.add("pulse");
+  autoAdvance();
+}
+
+function start() {
+  if (S.phase !== "intro") return;
+  stopCountdown();
+  S.token++;
+  S.ready = true;
+  S.phase = "pipeline";
+  go(0);
+}
+
+/* ------------------------------------------------------------------ steps */
+
+async function go(i) {
+  if (S.phase !== "pipeline" || i < 0 || i > S.reached + 1 || i >= steps().length) return;
+  stopCountdown();
+  const tk = ++S.token;
+  const seen = i <= S.reached;
+  Object.assign(S, { step: i, reached: Math.max(S.reached, i), busy: true, fast: false, userScrolled: false });
+  const key = steps()[i].key;
+  renderProgress();
+  updateNav();
+  announce(`Step ${i + 1}: ${META[key].title}`);
+  const stage = $("stage");
+  stage.replaceChildren();
+  stage.classList.remove("fast");
+  bringIntoView();
+  try {
+    await RENDER[key](stage, cur(), makeWait(tk, seen));
+  } catch (e) {
+    if (e === CANCEL) return;
+    throw e;
+  }
+  if (tk !== S.token) return;
+  S.busy = false;
+  renderProgress();
+  updateNav();
+  autoAdvance();
+}
+
+const head = (key) => h("div", { class: "head reveal" },
+  h("p", { class: "eyebrow" }, `Step ${S.step + 1} · ${META[key].method}`),
+  h("h3", { class: "t2" }, META[key].title),
+  h("p", { class: "lede" }, META[key].lede));
+
+function why(key) {
+  const w = WHY[key];
+  return h("div", { class: "why reveal" },
+    h("p", { class: "why-k" }, "Why it's built this way"),
+    h("p", { class: "why-main" }, h("b", {}, w.num), h("span", {}, w.text)),
+    h("details", {}, h("summary", {}, "More"), h("div", {}, w.more.map((t) => h("p", {}, t)))));
+}
+
+const mechanics = (...kids) => h("details", { class: "mech reveal" }, h("summary", {}, "Show the mechanics"), h("div", {}, kids));
+const result = (tone, big, ...txt) => h("div", { class: `result ${tone} reveal` }, big ? h("span", { class: "big" }, big) : null, h("span", {}, txt));
+
+// Finish a step: result line, then the design note and optional mechanics.
+function finish(stage, ...parts) {
+  const kept = parts.filter(Boolean);
+  for (const p of kept) stage.append(p);
+  // Mechanics stay folded, so the result and the design note are what must fit.
+  const shown = kept.filter((p) => !p.classList.contains("mech"));
+  if (shown.length) show(shown[0], shown.at(-1));
+}
+
+// Merge consecutive hours above the threshold into runs [first, last].
+function floodRuns(s, from = 0, to = N - 1) {
+  const q = series(s).q;
+  const runs = [];
+  for (let i = from; i <= to; i++) {
+    if (q[i] <= s.thr) continue;
+    const last = runs.at(-1);
+    if (last && last[1] === i - 1) last[1] = i;
+    else runs.push([i, i]);
+  }
+  return runs;
+}
+
+function peakDot(p, s, i, v, label) {
+  p.add(svg("circle", { class: "dot reveal", cx: p.x(i).toFixed(1), cy: p.y(v).toFixed(1), r: 4 }));
+  const right = p.x(i) > p.el.viewBox.baseVal.width - 90;
+  p.label(p.x(i) + (right ? -9 : 9), p.y(v) + 4, label, { class: "mark-l", "text-anchor": right ? "end" : "start" });
+}
+
+const RENDER = {
+  async gauges(stage, s, wait) {
+    stage.append(head("gauges"));
+    const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, `Station ${s.station} · ten days, hour by hour`));
+    stage.append(card);
+    const { p, d } = windowChart(card, s, wait.instant, `Hourly discharge and rainfall at ${s.station}`);
+    const rain = p.bars(d.rain, "rain", 0, N - 1, 2200);
+    const q = p.line(d.q, "q", 0, N - 1, 2200);
+    card.append(p.el,
+      legend([["Discharge", "var(--obs)"], ["Basin-weighted rainfall, hanging from the top", "var(--rain)", true]]),
+      illus());
+    await wait(500);
+    rain.reveal();
+    q.reveal();
+    await wait(2400);
+    const pk = peakAt(s);
+    peakDot(p, s, pk, d.q[pk], `${flow(d.q[pk])} m³/s`);
+    await wait(600);
+    const top = Math.max(...d.rain);
+    const r = d.rain.indexOf(top);
+    const wA = 0.4, wB = 0.35, wC = 0.25;
+    const a = top * 1.25;
+    const b = top * 0.85;
+    const c = (top - wA * a - wB * b) / wC;
+    finish(stage,
+      s.peak
+        ? result("", s.peak[0], s.peak[1])
+        : result("", `${flow(Math.max(...d.q))} m³/s`, "at most in this window (illustrative). Rain comes and goes; the river stays low."),
+      why("gauges"),
+      mechanics(
+        h("div", {}, h("h4", {}, "1 · Discharge is a flow rate"),
+          h("p", { class: "small" }, "Cubic metres of water passing the station each second, read every hour.")),
+        h("div", {}, h("h4", {}, `2 · Rain gauges become one basin rainfall series (${stamp(s, r)}, gauges and weights illustrative)`),
+          h("p", { class: "formula" }, `${wA.toFixed(2)} × ${a.toFixed(1)} + ${wB.toFixed(2)} × ${b.toFixed(1)} + ${wC.toFixed(2)} × ${c.toFixed(1)} = ${top.toFixed(1)} mm/h`),
+          h("p", { class: "small" }, "Each gauge counts in proportion to the part of the basin it stands for, so one gauge in a corner can't dominate."))));
+  },
+
+  async floods(stage, s, wait) {
+    stage.append(head("floods"));
+    const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, `Hours above the flood threshold at ${s.station}`));
+    stage.append(card);
+    const { p, d } = windowChart(card, s, true, `Discharge with the flood threshold at ${s.thr} m³/s`);
+    p.bars(d.rain, "rain");
+    p.line(d.q, "q");
+    const n = floodHours(s);
+    const fill = h("i", { style: "--c:var(--bad)" });
+    card.append(p.el,
+      legend([["Discharge", "var(--obs)"], ["Flood threshold (level illustrative)", "var(--bad)"], ["Flood hours", "color-mix(in srgb, var(--bad) 25%, white)", true]]),
+      h("div", { class: "bars" }, h("div", { class: "bar-row" },
+        h("span", { class: "label", style: "--c:var(--bad)" }, "Flood hours"), h("span", { class: "bar" }, fill), h("span", { class: "pct" }, `${n} / ${N}`))),
+      illus());
+    await wait(600);
+    const thr = p.hline(s.thr, "thr fade hidden");
+    const lab = p.label(p.x(N - 1), p.y(s.thr) - 5, `threshold ${s.thr} m³/s`, { class: "thr-l fade hidden", "text-anchor": "end" });
+    later(() => { thr.classList.remove("hidden"); lab.classList.remove("hidden"); });
+    await wait(900);
+    for (const [i0, i1] of floodRuns(s)) {
+      p.shade(i0, i1, "flood fade hidden");
+    }
+    later(() => { for (const r of p.el.querySelectorAll(".flood")) r.classList.remove("hidden"); });
+    later(() => { fill.style.width = `${Math.max(0.6, (n / N) * 100)}%`; });
+    await wait(1000);
+    const sorted = [...d.q].sort((x, y) => y - x);
+    const fdc = plot({ w: Math.min(widthOf(card) - 32, 520), s, from: 0, to: N - 1, ticks: "rank", instant: true,
+      ymax: niceMax(Math.max(sorted[0], s.thr)), label: "Discharge sorted from highest to lowest" });
+    fdc.line(sorted, "q");
+    fdc.hline(s.thr, "thr");
+    const above = sorted.filter((v) => v > s.thr).length;
+    if (above) fdc.shade(0, above - 1, "flood");
+    finish(stage,
+      n
+        ? result("bad", `${n} h`, `of ${N} are above the threshold, and this window was picked around a flood. Across a station's whole record, the share is far smaller.`)
+        : result("", "0 h", `of ${N} are above the threshold. Nothing in this window counts toward the flood score, and most of a station's record looks like this.`),
+      why("floods"),
+      mechanics(
+        h("div", {}, h("h4", {}, "The threshold is a quantile of discharge"), fdc.el,
+          h("p", { class: "small" }, `Every hour in this window, sorted from highest flow to lowest. A discharge-quantile threshold cuts near the top of the station's whole record; the level drawn here is illustrative. ${above ? `${above} hours fall above it.` : "No hour here reaches it."}`))));
+  },
+
+  async origin(stage, s, wait) {
+    stage.append(head("origin"));
+    const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, `Forecast origin: ${stamp(s, O)}`));
+    stage.append(card);
+    const { p, d } = windowChart(card, s, wait.instant, "The forecast origin, the 168-hour history and the 72-hour rainfall forecast");
+    p.shade(0, O, "hist");
+    const rain = p.bars(d.rain, "rain", 0, O);
+    const q = p.line(d.q, "q", 0, O);
+    const fc = p.bars(d.fc, "rainfc", O + 1, N - 1, 1400);
+    p.vline(O, "origin", 0);
+    // Window labels sit on either side of the origin, above the plot; the
+    // horizon marker's label sits at the bottom, where no line is drawn yet.
+    const yt = p.pad.t + 14;
+    const lH = p.label(p.x(O) - 6, yt, "← 168 h history", { class: "brk-l fade hidden", "text-anchor": "end" });
+    const lF = p.label(p.x(O) + 6, yt, "72 h ahead →", { class: "brk-l fade hidden", "text-anchor": "start" });
+    const tgt = p.vline(O + H, "tgt-ln", yt + 8);
+    const tLab = p.label(p.x(O + H) + 6, p.ht - p.pad.b - 8, "+24 h", { class: "mark-l" });
+    const range = h("input", { type: "range", min: 1, max: 72, value: H, "aria-label": "Forecast horizon in hours", style: "width:100%;accent-color:var(--accent)" });
+    const readout = h("p", { class: "small" });
+    const setH = (hz) => {
+      const xx = p.x(O + hz);
+      tgt.setAttribute("x1", xx); tgt.setAttribute("x2", xx);
+      tLab.setAttribute("x", xx + (hz > 50 ? -6 : 6));
+      tLab.setAttribute("text-anchor", hz > 50 ? "end" : "start");
+      tLab.textContent = `+${hz} h`;
+      readout.replaceChildren(h("b", {}, `Horizon ${hz} h`), ` → the forecast for ${stamp(s, O + hz)}${O + hz === peakAt(s) ? ", the peak hour" : ""}`);
+    };
+    range.oninput = () => setH(Number(range.value));
+    setH(H);
+    for (const el of [tgt, tLab]) el.classList.add("fade", "hidden");
+    card.append(p.el,
+      legend([["Discharge, known up to the origin", "var(--obs)"], ["Observed rainfall", "var(--rain)", true], ["Rainfall forecast", "color-mix(in srgb, var(--rain-fc) 55%, white)", true]]),
+      h("div", { style: "margin-top:14px" }, range, readout),
+      illus());
+    await wait(500);
+    rain.reveal();
+    q.reveal();
+    lH.classList.remove("hidden");
+    await wait(1400);
+    fc.reveal();
+    lF.classList.remove("hidden");
+    await wait(1400);
+    tgt.classList.remove("hidden");
+    tLab.classList.remove("hidden");
+    await wait(700);
+    const fcBg = "background:color-mix(in srgb, var(--rain-fc) 22%, white)";
+    const run = (k) => h("div", { class: "fold" }, h("span", {}, `${pad2(hourOf(O - 3 + k))}:00`),
+      h("div", { class: "fold-bar", style: "background:none" },
+        h("span", { style: `width:${k * 3}%` }),
+        h("span", { class: "tr", style: "width:46%" }),
+        h("span", { style: `width:9.4%;${fcBg}` }),
+        h("span", { class: "te", style: "width:1.6%" }),
+        h("span", { style: `width:19%;${fcBg}` })));
+    finish(stage,
+      result("", "168 + 72 h", "in: the past week of discharge and rainfall, plus the rainfall forecast. Out: one discharge value for each of the next 72 hours."),
+      why("origin"),
+      mechanics(
+        h("div", {}, h("h4", {}, "From one run to a 24-hours-ahead line"),
+          h("div", { class: "folds" }, [0, 1, 2, 3].map(run)),
+          h("p", { class: "small", style: "margin-top:8px" }, "Run the model every hour and keep each run's 24th value (orange). Joined up, those values make the 24-hours-ahead line in the next step: every point was forecast a full day before it happened."))));
+  },
+
+  async models(stage, s, wait) {
+    stage.append(head("models"));
+    const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, `${dayLabel(s, E)} · each point forecast 24 hours earlier`));
+    stage.append(card);
+    const { p, d, lines } = dayChart(card, s, wait.instant);
+    const q = p.line(d.q, "q", E, E + 23, 1400);
+    const note = h("p", { class: "small", style: "min-height:2.6em;margin-top:8px" });
+    const toggles = h("div", { class: "lgs" },
+      h("span", { class: "lg", style: "--c:var(--obs)" }, "Observed"),
+      MODELS.map((m) => {
+        const b = h("button", { class: "lg", type: "button", style: `--c:${m.c}`, "aria-pressed": "true", disabled: true }, m.name);
+        b.onclick = () => {
+          const on = b.getAttribute("aria-pressed") !== "true";
+          b.setAttribute("aria-pressed", String(on));
+          lines[m.id].g.style.display = on ? "" : "none";
+        };
+        return b;
+      }));
+    card.append(p.el, toggles, note,
+      h("p", { class: "illus" }, s.day
+        ? "Observed and seq2seq lines traced from the published event figure; the seasonal-naive line is computed from the illustrative series, and Ridge is drawn as a simple linear response to rainfall. Not measured output."
+        : "All lines illustrative: seasonal-naive is computed from the series; Ridge and seq2seq are drawn to show typical behaviour, not measured output."));
+    await wait(500);
+    q.reveal();
+    await wait(1500);
+    for (const [k, m] of MODELS.entries()) {
+      lines[m.id].reveal();
+      note.replaceChildren(h("b", {}, m.name), `: ${m.note}.`);
+      toggles.children[k + 1].disabled = false;
+      await wait(1900);
+    }
+    note.replaceChildren("Click a model above to hide or show its line.");
+    const [tone, big, txt] = s.outcome;
+    finish(stage,
+      result(tone, big, txt),
+      why("models"),
+      mechanics(
+        h("div", {}, h("h4", {}, "Seq2seq LSTM with attention"),
+          h("div", { class: "flow" },
+            h("span", { class: "pill" }, "168 h discharge + rainfall"), h("span", { class: "pill" }, "72 h rainfall forecast"),
+            h("span", { class: "arrow" }, "→"), h("span", { class: "pill on" }, "Encoder"),
+            h("span", { class: "arrow" }, "→"), h("span", { class: "pill on" }, "Attention"),
+            h("span", { class: "arrow" }, "→"), h("span", { class: "pill on" }, "Decoder"),
+            h("span", { class: "arrow" }, "→"), h("span", { class: "pill" }, "72 hourly values")),
+          h("p", { class: "small", style: "margin-top:8px" }, "The encoder LSTM summarises the input hours. Attention lets each forecast hour weigh the input hours it depends on, such as a burst of rain, before the decoder LSTM writes the forecast.")),
+        h("div", {}, h("h4", {}, "The baselines"),
+          h("p", { class: "small" }, "Seasonal-naive copies the value from one season earlier; this demo uses a 24-hour season. Ridge is a regularised linear regression, the classical end of the comparison."))));
+  },
+
+  async score(stage, s) {
+    stage.append(head("score"));
+    const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, `Score ${dayLabel(s, E)}: which hours count?`));
+    stage.append(card);
+    const dayQ = series(s).q.slice(E, E + 24);
+    const top = Math.max(s.thr * 1.2, Math.max(...dayQ) * 1.05);
+    const { p, d, lines } = dayChart(card, s, true, s.thr * 1.2);
+    p.line(d.q, "q", E, E + 23);
+    for (const m of MODELS) lines[m.id].reveal();
+    const cells = [];
+    for (let i = E; i < E + 24; i++) cells.push(p.shade(i, i, "scored"));
+    const tauLine = p.hline(0, "thr");
+    const tauLab = p.label(p.pad.l + 6, 0, "", { class: "thr-l" });
+    const stepSize = top > 30 ? 1 : top > 6 ? 0.5 : 0.1;
+    const range = h("input", { type: "range", min: 0, max: (Math.ceil(top / stepSize) * stepSize).toFixed(1), step: stepSize, value: 0,
+      "aria-label": "Score only hours above this discharge, m³/s", style: "width:100%;accent-color:var(--accent)" });
+    const readout = h("p", { class: "small" });
+    const presets = h("div", { class: "opts mode", role: "group", "aria-label": "Presets" },
+      h("button", { class: "opt", type: "button", "data-t": "0" }, "All hours: MAPE"),
+      h("button", { class: "opt", type: "button", "data-t": String(s.thr) }, `Flood hours: thresholded MAPE`));
+    const rows = MODELS.map((m) => {
+      const fill = h("i", { style: `--c:${m.c}` });
+      const rank = h("span", { class: "rank" });
+      const val = h("span", { class: "pct" });
+      const row = h("div", { class: "bar-row" }, h("span", { class: "label", style: `--c:${m.c}` }, rank, m.short), h("span", { class: "bar" }, fill), val);
+      return { m, row, fill, rank, val };
+    });
+    const board = h("div", { class: "bars" }, rows.map((r) => r.row));
+    const hint = h("p", { class: "try" }, `Drag the threshold, or pick a preset. ${s.day ? "Watch the ranking." : "Watch what is left to score."}`);
+    card.append(p.el, presets, range, readout, board, hint,
+      h("p", { class: "illus" }, "Scores are computed live on the illustrative series above. They are not the project's measured results."));
+    D = { stage, s, p, cells, tauLine, tauLab, range, readout, rows, board, hint, presets };
+    range.oninput = () => setTau(Number(range.value), true);
+    for (const b of presets.children) b.onclick = () => { range.value = b.dataset.t; setTau(Number(b.dataset.t), true); };
+    setTau(S.tried ? S.tau : 0, false);
+    if (S.tried) revealScore(false);
+  },
+
+  async serve(stage, s, wait) {
+    stage.append(head("serve"));
+    const files = [
+      ["Predictions", "every forecast value"],
+      ["Metrics", "per-event RMSE and thresholded MAPE"],
+      ["Plots", "forecast against observed"],
+      ["Fitted model", "the checkpoint"],
+      ["Manifest", "what produced the run"],
+    ];
+    const grid = h("div", { class: "files" });
+    stage.append(h("div", { class: "card reveal" },
+      h("p", { class: "card-label" }, "Run report · seq2seq"),
+      grid,
+      h("p", { class: "small", style: "margin-top:12px" }, "Every run writes one, baselines included. The project's Ridge report covers 168 h of history, a 72 h horizon and three event backtests.")));
+    await wait(500);
+    for (const [name, what] of files) {
+      grid.append(h("div", { class: "file reveal" }, name, h("small", {}, what)));
+      await wait(380);
+    }
+    await wait(400);
+    const checks = [
+      "Registered as a candidate",
+      "Checkpoint loads",
+      "Inputs match the input contract",
+      "Promoted to serving champion",
+    ];
+    const gate = h("ol", { class: "gate" });
+    const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "Checkpoint checks"), gate);
+    stage.append(card);
+    show(card);
+    for (const c of checks) {
+      const li = h("li", { class: "busy reveal" }, c);
+      gate.append(li);
+      await wait(650);
+      li.className = "pass";
+    }
+    await wait(300);
+    const d = series(s);
+    const pts = d.s2s.slice(O + 1, N).map((v, k) => `${k ? "L" : "M"}${k},${(40 - (v / Math.max(...d.s2s.slice(O + 1, N))) * 36).toFixed(1)}`).join("");
+    const served = h("div", { class: "served" },
+      h("span", { class: "mark" }, "API"),
+      h("span", {}, h("b", {}, "FastAPI forecast service"),
+        h("small", {}, `Serving the champion: 72 hourly values from ${stamp(s, O)} (illustrative)`),
+        svg("svg", { class: "spark", viewBox: "0 0 71 40", preserveAspectRatio: "none", style: "height:40px;margin-top:6px", "aria-hidden": "true" },
+          svg("path", { d: pts, fill: "none", stroke: "var(--s2s)", "stroke-width": 2, "vector-effect": "non-scaling-stroke" }))));
+    card.append(served);
+    show(card);
+    await wait(700);
+    finish(stage,
+      result("", "✓", "Weak baselines stay as visible as strong models: every run gets the same report, and only checked checkpoints are served."),
+      why("serve"),
+      mechanics(h("div", {}, h("h4", {}, "Why check before serving"),
+        h("p", { class: "small" }, "A checkpoint that fails to load, or expects different inputs from the ones the service sends, stays a candidate. Only one that passes both checks answers forecast requests."))));
+  },
+
+  async recap(stage, s, wait) {
+    stage.append(h("div", { class: "head reveal" }, h("p", { class: "eyebrow" }, "Recap"), h("h3", { class: "t2" }, `What happened at ${s.station}`)));
+    const n = floodHours(s);
+    const nDay = floodHours(s, E, E + 24);
+    const rows = [
+      ["Gauges", `${N} hourly readings of discharge and basin-weighted rainfall`],
+      ["Floods", n ? `${n} hours above the flood threshold` : "No hour above the flood threshold"],
+      ["Origin", `${stamp(s, O)}: 168 h of history, 72 h of rainfall forecast`],
+      ["Models", s.recapModels],
+      ["Score", nDay ? `Flood hours: seq2seq ${pct(mape(s, "s2s", s.thr))}, seasonal-naive ${pct(mape(s, "naive", s.thr))} (illustrative)` : "Nothing above the threshold to score"],
+      ["Serve", "Report written; checkpoint checks passed"],
+    ];
+    const list = h("ol", { class: "path" });
+    stage.append(h("div", { class: "card reveal" }, list));
+    for (const [i, [k, v]] of rows.entries()) {
+      list.append(h("li", { class: "reveal" }, h("span", {}, i + 1), h("b", {}, k), h("span", {}, v)));
+      await wait(220);
+    }
+    await wait(400);
+    const tile = (big, label) => h("div", { class: "tile" }, h("b", {}, big), h("span", {}, label));
+    stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "Across the project"),
+      h("div", { class: "tiles" },
+        tile("11% vs 38%", "thresholded MAPE on flood peaks at 24 h: seq2seq vs seasonal-naive"),
+        tile("8 stations", "in expanding-window backtests"),
+        tile("1–72 h", "forecast horizons in the experiments"),
+        tile("₺4.5M", "TÜBİTAK 1832 R&D project"))));
+    await wait(400);
+    const lesson = {
+      "Sharp peak": "Selected events show both sides: this sharp peak was matched closely, while at D08A084, a small and flashy basin, the timing was right but the magnitude was not.",
+      "Flashy basin": "Small, flashy basins are the hard case: the timing was right here, the magnitude was not.",
+    }[s.chip] || "Weeks like this are most of the record. Scored on their own, they would hide the floods.";
+    stage.append(h("div", { class: "card limit reveal" }, h("p", { class: "card-label" }, "The honest limit"),
+      h("p", {}, lesson),
+      h("p", {}, "Checkpoint serving works. An operational warning system still needs domain review and authorized use.")));
+    await wait(400);
+    const others = SCENARIOS.map((x, i) => [x, i]).filter(([, i]) => i !== S.sc).map(([x, i]) => {
+      const b = h("button", { class: "pathcard", type: "button" }, h("b", {}, `${x.chip} · ${x.station}`), h("span", {}, x.blurb));
+      b.onclick = () => select(i);
+      return b;
+    });
+    finish(stage,
+      h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "Try another event"), h("div", { class: "paths" }, others)));
+  },
+};
+
+// The event day: rainfall, and one wiped line per model, ready to reveal.
+function dayChart(card, s, instant, minTop = 0) {
+  const d = series(s);
+  const peak = Math.max(...[d.q, d.naive, d.ridge, d.s2s].flatMap((a) => a.slice(E, E + 24)));
+  const p = plot({ w: widthOf(card), s, from: E, to: E + 23, ticks: "hour", instant,
+    ymax: niceMax(Math.max(peak, minTop, s.thr <= peak * 1.3 ? s.thr : 0)), rainMax: Math.max(4, ...d.rain.slice(E, E + 24)),
+    label: `Observed discharge and three 24-hours-ahead forecasts on ${dayLabel(s, E)}` });
+  p.bars(d.rain, "rain", E, E + 23).reveal();
+  const lines = {};
+  for (const m of MODELS) lines[m.id] = p.line(d[m.id], m.id, E, E + 23, 1500);
+  return { p, d, lines };
+}
+
+function setTau(t, user) {
+  const { s, p, cells, tauLine, tauLab, readout, rows, board, presets } = D;
+  S.tau = t;
+  const q = series(s).q;
+  let n = 0;
+  cells.forEach((c, k) => {
+    const on = q[E + k] > t;
+    c.style.opacity = on ? "" : "0";
+    n += on;
+  });
+  const yy = p.y(t).toFixed(1);
+  tauLine.setAttribute("y1", yy);
+  tauLine.setAttribute("y2", yy);
+  tauLine.style.opacity = t > 0 ? "" : "0";
+  tauLab.setAttribute("y", yy - 5);
+  tauLab.textContent = t > 0 ? `${tickText(t)} m³/s` : "";
+  const kind = t === 0 ? " · ordinary MAPE" : t === s.thr ? " · the station's threshold: thresholded MAPE" : "";
+  readout.replaceChildren(h("b", {}, `Hours above ${tickText(t)} m³/s: ${n} of 24`), kind);
+  for (const b of presets.children) b.setAttribute("aria-pressed", String(Number(b.dataset.t) === t));
+
+  const scored = rows.map((r) => ({ r, v: mape(s, r.m.id, t) }));
+  const max = Math.max(1, ...scored.map((x) => x.v ?? 0));
+  const order = [...scored].sort((a, b) => (a.v ?? Infinity) - (b.v ?? Infinity));
+  // FLIP: re-order the leaderboard, then slide rows from where they were.
+  const before = new Map(rows.map((r) => [r.row, r.row.getBoundingClientRect().top]));
+  board.append(...order.map((x) => x.r.row));
+  for (const [i, x] of order.entries()) {
+    const row = x.r.row;
+    const dy = before.get(row) - row.getBoundingClientRect().top;
+    if (dy) {
+      row.style.transition = "none";
+      row.style.transform = `translateY(${dy}px)`;
+      later(() => { row.style.transition = ""; row.style.transform = ""; });
+    }
+    x.r.rank.textContent = x.v == null ? "–" : `#${i + 1}`;
+    x.r.val.textContent = pct(x.v);
+    x.r.fill.style.width = x.v == null ? "0" : `${(x.v / max) * 100}%`;
+  }
+  if (user && !S.tried) {
+    stopCountdown();
+    S.tried = true;
+    revealScore(true);
+    updateNav();
+    autoAdvance();
+  }
+}
+
+function revealScore(scroll) {
+  const { stage, s, hint } = D;
+  hint.remove();
+  const best = (tau) => MODELS.map((m) => [m, mape(s, m.id, tau)]).filter(([, v]) => v != null).sort((a, b) => a[1] - b[1])[0];
+  const [mA, vA] = best(0);
+  const flood = floodHours(s, E, E + 24);
+  let out;
+  if (!flood) {
+    out = result("", "0 h", `above the station's threshold, so this day adds nothing to the flood score. On all hours, ${mA.short} looks best at ${pct(vA)}.`);
+  } else {
+    const [mF, vF] = best(s.thr);
+    const nearZero = Math.min(...series(s).q.slice(E, E + 24)) < 0.5;
+    out = mA !== mF
+      ? result("warn", "Flipped", `On all hours ${mA.short} ranks first (${pct(vA)}); on flood hours ${mF.short} does (${pct(vF)}).${nearZero ? " Near-zero flow blew up the ordinary MAPE." : ""}`)
+      : result("warn", `${pct(mape(s, "naive", 0))} → ${pct(mape(s, "naive", s.thr))}`, `Seasonal-naive's error, all hours against flood hours: the quiet hours made its miss look smaller. ${mF.short} leads either way here, at ${pct(vF)} on the flood hours.`);
+  }
+  const fold = (k) => h("div", { class: "fold" }, h("span", {}, `Fold ${k + 1}`),
+    h("div", { class: "fold-bar" }, h("span", { class: "tr", style: `width:${40 + k * 20}%` }), h("span", { class: "te", style: "width:12%" })));
+  stage.append(out, why("score"), mechanics(
+    h("div", {}, h("h4", {}, "Thresholded MAPE"),
+      h("p", { class: "formula" }, "mean over hours with yₜ > τ of |ŷₜ − yₜ| / yₜ"),
+      h("p", { class: "small", style: "margin-top:8px" }, "Ordinary MAPE is the same with τ = 0. At 0.1 m³/s, forecasting 0.3 is a 200% error that nobody downstream would notice; above the threshold, every percent is a percent of a flood.")),
+    h("div", {}, h("h4", {}, "Expanding-window backtests"),
+      h("div", { class: "folds" }, [0, 1, 2].map(fold)),
+      h("p", { class: "small", style: "margin-top:8px" }, "Train on everything before a test window (cyan), score the window (orange), then grow the training set and move on. Peak-event windows are scored separately from ordinary flow."))));
+  if (scroll) show(out, stage.querySelector(".why"));
+}
+
+// Autoplay moves the threshold for the reader.
+async function sweepTau() {
+  if (S.tried || steps()[S.step].key !== "score") return;
+  const tk = S.token;
+  const target = D.s.thr;
+  for (let k = 1; k <= 24; k++) {
+    if (tk !== S.token || S.tried) return;
+    const t = k === 24 ? target : Number(((target * k) / 24).toFixed(2));
+    D.range.value = t;
+    setTau(t, k === 24);
+    await new Promise((r) => setTimeout(r, reduced ? 0 : 45));
+  }
+}
+
+/* --------------------------------------------------------------- wiring */
+
+$("next").onclick = () => { stopCountdown(); advance(); };
+$("back").onclick = () => {
+  stopCountdown();
+  if (S.phase === "pipeline" && S.step > 0) go(S.step - 1);
+};
+$("auto").onchange = (e) => {
+  S.auto = e.target.checked;
+  if (S.auto) autoAdvance();
+  else stopCountdown();
+};
+for (const ev of ["wheel", "touchmove"]) {
+  addEventListener(ev, () => { if (S.busy) S.userScrolled = true; }, { passive: true });
+}
+// Arrow keys step through the demo only while focus is inside it, and leave
+// the sliders alone.
+host.addEventListener("keydown", (e) => {
+  const target = e.composedPath()[0];
+  if (e.altKey || e.ctrlKey || e.metaKey || target.closest?.("summary") || target.matches?.("input[type=range]")) return;
+  if (e.key === "ArrowRight" && !$("next").disabled) { e.preventDefault(); $("next").click(); }
+  if (e.key === "ArrowLeft" && !$("back").disabled) { e.preventDefault(); $("back").click(); }
+});
+
+select(0, false);
+})();
+</script>

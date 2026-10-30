@@ -5,19 +5,18 @@ date = 2025-03-20
 updated = 2026-10-14
 weight = 7
 
-[taxonomies]
-tags = ["Time Series Forecasting", "Foundation Models", "TimesFM", "Python", "Polars", "Streamlit", "Energy"]
-
 [extra]
 short_title = "Electricity Forecasting"
+monogram = "EF"
+card_description = "Zero-shot TimesFM against the official EPİAŞ demand plan: 2.39% vs 2.92% MAPE on ordinary days, 12.67% vs 4.89% on holidays."
 kind = "project"
-og_image = "assets/backtest-daily-mae.png"
 status = "Completed"
 role = "Lead AI / ML Engineer"
+showcase = true
 repo_url = "https://github.com/hhyurdagul/epias-demand-forecast"
 stack = ["Python", "Polars", "Streamlit", "TimesFM 2.5", "PyTorch", "Parquet", "Uv"]
-screenshot = "images/projects/electricity-forecasting-running.png"
-screenshot_alt = "Electricity forecasting backtest page comparing TimesFM with the EPİAŞ demand plan."
+screenshot = "images/projects/electricity-demo.png"
+screenshot_alt = "The electricity forecasting walkthrough on Eid al-Adha: actual demand, the TimesFM forecast and the EPİAŞ plan after the reader's call on which would land closer."
 +++
 
 Can a pretrained time-series foundation model, with no task-specific training,
@@ -26,6 +25,8 @@ Turkish grid? I built this forecasting and analysis application with Universal
 Software's energy team to find out.
 
 {{ figure(src="/images/projects/electricity-forecasting-running.png", alt="Streamlit backtest page with April 2026 metrics and overlaid actual, TimesFM, and EPİAŞ demand curves", caption="The backtest view for April 2026 at a 24-hour horizon: TimesFM (*predict*) against observed demand and the EPİAŞ plan over 720 scored hours, loaded from cached forecasts.") }}
+
+{{ demo(name="electricity") }}
 
 ## What it does
 

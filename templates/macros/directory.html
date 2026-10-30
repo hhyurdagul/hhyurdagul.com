@@ -4,9 +4,11 @@
 {% endmacro article_row %}
 
 {#- The screenshot is a window on a small mat. Tall captures hang from the
-    top; wide ones float in the middle, so every card reads the same. #}
+    top; wide ones float in the middle, so every card reads the same.
+    `card_image` overrides `screenshot` when the social preview and the card
+    need different crops. #}
 {% macro card(project, summary=true) %}
-{% set src = project.extra.screenshot | default(value="") %}
+{% set src = project.extra.card_image | default(value=project.extra.screenshot | default(value="")) %}
 {% if project.extra.card_description %}{% set text = project.extra.card_description %}{% else %}{% set text = project.description %}{% endif %}
 <li>
   <a class="card" href="{{ project.permalink }}">
@@ -14,7 +16,7 @@
     {% set meta = get_image_metadata(path=src) %}
     {% set preview = resize_image(path=src, width=720, op="fit_width", format="webp", quality=82) %}
     <span class="card-frame {% if meta.width / meta.height > 1.7 %}is-wide{% else %}is-tall{% endif %}">
-      <img src="{{ preview.url }}" alt="{{ project.extra.screenshot_alt | default(value='') }}" width="{{ preview.width }}" height="{{ preview.height }}" loading="lazy" decoding="async">
+      <img src="{{ preview.url }}" alt="{{ project.extra.card_image_alt | default(value=project.extra.screenshot_alt | default(value='')) }}" width="{{ preview.width }}" height="{{ preview.height }}" loading="lazy" decoding="async">
     </span>
     {% else %}
     <span class="card-frame is-text" aria-hidden="true"><span class="card-mark">{{ project.extra.short_title | default(value=project.title) }}</span></span>

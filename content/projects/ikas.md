@@ -4,18 +4,17 @@ description = "Call-volume and handling-time forecasts turned into Erlang-based 
 date = 2026-10-15
 weight = 5
 
-[taxonomies]
-tags = ["Time Series Forecasting", "Machine Learning", "FastAPI", "Python", "Operations Research"]
-
 [extra]
 short_title = "Ikas"
 monogram = "Ik"
-card_description = "Call-volume and handling-time forecasts connected to service-level targets and staffing requirements."
+card_description = "Call-volume and handling-time forecasts turned into hourly Erlang C staffing, keeping service level above 80/20 on 95% of days."
 kind = "project"
 status = "Completed"
 role = "ML consultant and developer"
 showcase = true
 stack = ["Python", "FastAPI", "Pydantic", "Polars", "TensorFlow", "Tkinter", "Streamlit"]
+screenshot = "images/projects/ikas-demo.png"
+screenshot_alt = "The Ikas walkthrough: a planner sets agents for one hour against an 85%-in-15-seconds target, with Erlang C service level, speed of answer and utilization computed live."
 +++
 
 A call-volume forecast does not tell a manager how many agents need to be
@@ -26,6 +25,8 @@ For Ikas, I built forecasting tools and APIs that connect those inputs to
 call-center staffing requirements. The engagement ran from September 2024 to
 the end of 2025 and also covered demand and revenue forecasting, with Tkinter
 and Streamlit interfaces alongside the API work.
+
+{{ demo(name="ikas") }}
 
 ## From two forecasts to one planning table
 

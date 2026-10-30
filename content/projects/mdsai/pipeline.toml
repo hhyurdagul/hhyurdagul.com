@@ -1,0 +1,36 @@
+# Steps of the MdsAI pipeline, rendered by the `pipeline` shortcode.
+# A step with `branch` splits into parallel outcomes.
+caption = "Routing and search run on CPU in under a second. Rejected drafts become next month's regression set; a new model ships only if it beats the current one."
+
+[[steps]]
+name = "Ticket arrives"
+tool = "Webhook from the ticket system"
+stat = "Error codes and amounts kept intact"
+
+[[steps]]
+name = "Route"
+tool = "EmbeddingGemma + two classifiers"
+stat = "0.89 macro-F1 · re-routing 24% → 9%"
+
+[[steps]]
+name = "Search solved cases"
+tool = "Character n-grams + EmbeddingGemma\u00A02"
+stat = "86.4% Recall@1 · 18.9K cases"
+
+[[steps]]
+  [[steps.branch]]
+  label = "68% clear the 0.60 bar"
+  name = "Draft a cited answer"
+  tool = "Gemma 4 12B, QLoRA, FP8 on vLLM"
+  stat = "One L40S · 5 s median"
+
+  [[steps.branch]]
+  label = "The rest"
+  name = "Brief the expert"
+  tool = "Docs, code and past tickets"
+  stat = "No guessed answer"
+
+[[steps]]
+name = "Expert review"
+tool = "Approve, edit or reject"
+stat = "61% sent with light or no edits"

@@ -1,0 +1,1527 @@
+<fishometry-demo><p>The interactive Fishometry walkthrough needs JavaScript.</p></fishometry-demo>
+<template id="fishometry-demo">
+<style>
+
+/* Fishometry is always light: white surfaces, one emerald accent, muted
+   pastels for landmarks. The demo lives in a shadow root, so these rules
+   never touch the page and the page's prose rules never touch the demo. */
+:host {
+  all: initial;
+  display: block;
+  container-type: inline-size;
+  color-scheme: light;
+  --page: #F6F7FB;
+  --card: #FFFFFF;
+  --surface: #F2F3F8;
+  --border: #E4E6EF;
+  --text: #1A1C2B;
+  --muted: #676C84;
+  --accent: #047857;
+  --accent-ink: #065F46;
+  --accent-soft: #ECFDF5;
+  --ok: #157F3C;
+  --ok-soft: #E9F6EE;
+  --warn: #A65B06;
+  --warn-soft: #FDF4E4;
+  --bad: #B42318;
+  --bad-soft: #FDEDEB;
+  --c-coral: #E07A5F;
+  --c-blue: #5B8DEF;
+  --c-amber: #D99A2B;
+  --c-violet: #8B7CF6;
+  --c-teal: #33A391;
+  --c-rose: #D46A93;
+  --shadow: 0 1px 2px rgb(24 26 60 / 0.04), 0 6px 20px rgb(24 26 60 / 0.06);
+  --sans: "Inter", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --col: 44rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: default; }
+:is(button, a, summary, input):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code, pre { font-family: var(--mono); }
+p { margin: 0; }
+h1, h2, h3, h4 { margin: 0; }
+
+/* The card: overflow is clipped, not scrolled, so the sticky progress and nav
+   stay sticky against the page. */
+.app {
+  overflow: clip;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--page);
+  color: var(--text);
+  font: 400 15px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  box-shadow: 0 10px 40px rgb(24 26 60 / 0.12);
+  text-align: left;
+}
+.wrap { width: 100%; max-width: var(--col); margin-inline: auto; padding-inline: 20px; }
+
+/* ------------------------------------------------------------ header */
+
+.top { background: var(--card); border-bottom: 1px solid var(--border); }
+.picker { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 14px; align-items: center; padding-block: 12px; }
+.picker-k { color: var(--muted); font-size: 12px; font-weight: 600; }
+.opts { display: grid; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; gap: 2px; padding: 3px; border-radius: 10px; background: var(--surface); }
+.opt { padding: 5px 10px; border: 0; border-radius: 8px; background: none; color: var(--muted); font-size: 13px; font-weight: 500; line-height: 1.35; }
+.opt:hover { color: var(--text); }
+.opt[aria-pressed="true"] { background: var(--card); color: var(--text); font-weight: 600; box-shadow: 0 1px 3px rgb(24 26 60 / 0.12); }
+.blurb { grid-column: 2; color: var(--muted); font-size: 12.5px; }
+
+/* The picker scrolls away; only the step progress stays pinned. */
+.progress { position: sticky; top: 0; z-index: 10; background: var(--card); border-bottom: 1px solid var(--border); }
+.progress[hidden] { display: none; }
+.prog-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-top: 9px; font-size: 13px; }
+.prog-row b { font-weight: 650; }
+.prog-row .muted { overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+.segs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 8px 0 10px; }
+.seg { height: 6px; padding: 0; border: 0; border-radius: 999px; background: var(--border); }
+.seg.done { background: color-mix(in srgb, var(--accent) 45%, white); }
+.seg.current { background: var(--accent); }
+.seg:not(:disabled):hover { outline: 2px solid var(--accent-soft); }
+
+/* ------------------------------------------------------------ main */
+
+main { min-height: 30rem; padding: 26px 0 32px; }
+.reveal { animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+.eyebrow { color: var(--accent); font-size: 12.5px; font-weight: 650; letter-spacing: 0.01em; }
+.head .t1 { margin: 6px 0 10px; font-size: 26px; font-weight: 750; letter-spacing: -0.03em; line-height: 1.2; }
+.head .t2 { margin: 6px 0 8px; font-size: 24px; font-weight: 750; letter-spacing: -0.025em; line-height: 1.2; }
+.lede { color: var(--muted); font-size: 15.5px; }
+.card { margin-top: 20px; padding: 20px; border: 1px solid var(--border); border-radius: 16px; background: var(--card); box-shadow: var(--shadow); }
+.card-label { margin-bottom: 12px; color: var(--muted); font-size: 12px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; }
+.small { color: var(--muted); font-size: 12.5px; }
+.illus { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: var(--surface); color: var(--muted); font-size: 11px; font-weight: 650; letter-spacing: 0.02em; text-transform: none; vertical-align: 1px; }
+
+.result { display: flex; align-items: center; gap: 14px; margin-top: 16px; padding: 14px 18px; border-radius: 14px; background: var(--soft-bg, var(--accent-soft)); font-size: 15px; }
+.result .big { flex: none; color: var(--ink, var(--accent-ink)); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+.result.ok { --soft-bg: var(--ok-soft); --ink: var(--ok); }
+.result.warn { --soft-bg: var(--warn-soft); --ink: var(--warn); }
+.result.bad { --soft-bg: var(--bad-soft); --ink: var(--bad); }
+
+.why { margin-top: 16px; padding: 14px 18px; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 4px 14px 14px 4px; background: var(--card); }
+.why-k { color: var(--muted); font-size: 11.5px; font-weight: 650; letter-spacing: 0.05em; text-transform: uppercase; }
+.why-main { display: flex; align-items: baseline; gap: 12px; margin-top: 4px; }
+.why-main b { flex: none; color: var(--accent-ink); font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+.why details { margin-top: 8px; }
+.why summary, .mech summary { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; list-style: none; }
+.why summary::-webkit-details-marker, .mech summary::-webkit-details-marker { display: none; }
+.why summary::after, .mech summary::after { content: "▾"; font-size: 11px; transition: transform 0.2s; }
+details[open] > summary::after { transform: rotate(180deg); }
+.why details > div { display: grid; gap: 10px; margin-top: 10px; color: var(--muted); font-size: 14px; }
+.mech { margin-top: 14px; }
+.mech > div { display: grid; gap: 14px; margin-top: 12px; padding: 16px; border-radius: 14px; background: var(--surface); }
+.mech h4 { margin-bottom: 8px; font-size: 13px; font-weight: 650; }
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s, box-shadow 0.2s, opacity 0.2s;
+}
+.btn:hover:not(:disabled) { background: var(--surface); }
+.btn:disabled { opacity: 0.45; }
+.btn.primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+.btn.primary:hover:not(:disabled) { background: var(--accent-ink); }
+.btn.counting::after { content: ""; position: absolute; inset: auto 0 0 0; height: 3px; background: rgb(255 255 255 / 0.8); transform-origin: left; animation: count var(--dur, 6s) linear forwards; }
+@keyframes count { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.pulse { animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px var(--accent-soft); } }
+.note { margin-top: 16px; }
+.try { margin-top: 14px; color: var(--accent-ink); font-size: 14px; font-weight: 600; }
+
+/* photo: every scene is an inline SVG in a rounded frame */
+.photo { position: relative; overflow: hidden; border-radius: 12px; background: #DCE3EA; line-height: 0; }
+.photo svg { display: block; width: 100%; height: auto; }
+.photo .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.photo .flash.go { animation: flash 0.5s ease-out; }
+@keyframes flash { 0% { opacity: 0.95; } 100% { opacity: 0; } }
+.vf { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; opacity: 0.9; }
+.shoot { width: 100%; margin-top: 14px; padding: 11px; font-size: 15px; }
+.cap-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; margin-top: 10px; color: var(--muted); font-size: 12.5px; }
+
+/* landmarks */
+.box rect { fill: none; stroke: var(--c); stroke-width: 2.5; transform-box: fill-box; transform-origin: center; animation: pop 0.45s cubic-bezier(0.2, 0.9, 0.2, 1.2) both; }
+.box .tag { fill: var(--c); }
+.box text { fill: #fff; font: 700 14px var(--sans); }
+@keyframes pop { from { opacity: 0; transform: scale(1.25); } }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 12px; color: var(--muted); font-size: 12.5px; }
+.legend span::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 3px; background: var(--c); }
+.coords { width: 100%; border-collapse: collapse; font-size: 13px; }
+.coords th { color: var(--muted); font-size: 11.5px; font-weight: 650; text-align: left; }
+.coords td, .coords th { padding: 4px 8px 4px 0; border-bottom: 1px solid var(--border); }
+.coords td.n { font: 500 12.5px var(--mono); }
+
+/* depth */
+.depth-layer { opacity: 0; transition: opacity 1.2s ease; }
+.depth-layer.on { opacity: 0.92; }
+.probe circle { fill: #fff; stroke: var(--text); stroke-width: 2; }
+.probe .lab { fill: var(--text); font: 700 14px var(--mono); }
+.probe .lab-bg { fill: rgb(255 255 255 / 0.92); }
+.scale-bar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; margin-top: 12px; color: var(--muted); font-size: 12px; }
+.scale-bar i { height: 8px; border-radius: 999px; background: linear-gradient(90deg, #2B1B54, #7B2E7F, #D2495E, #F59A3D, #F8E16C); }
+.samples { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.sample { padding: 10px 12px; border-radius: 12px; background: var(--surface); }
+.sample b { display: block; font: 700 18px var(--mono); }
+.sample span { color: var(--muted); font-size: 12.5px; }
+.callout { margin-top: 14px; padding: 10px 14px; border-radius: 12px; background: var(--warn-soft); color: #6B3D05; font-size: 14px; }
+
+/* outline */
+.mask-path { fill: var(--accent); fill-opacity: 0.35; stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 6 4; animation: mask 1.4s ease both; }
+@keyframes mask { from { fill-opacity: 0; stroke-dashoffset: 400; } }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { padding: 3px 10px; border-radius: 999px; background: var(--surface); font-size: 13px; }
+.chip.key { background: var(--accent-soft); color: var(--accent-ink); font-weight: 650; }
+.annot { display: grid; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.annot-k { color: var(--muted); font-size: 12px; font-weight: 650; }
+.minimask { display: block; width: 100%; max-width: 360px; height: auto; border-radius: 8px; }
+
+/* model */
+.fams { display: grid; gap: 8px; }
+.fam { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 14px; border: 1px solid var(--border); border-radius: 12px; font-size: 14px; transition: border-color 0.3s, background 0.3s, box-shadow 0.3s; }
+.fam small { display: block; color: var(--muted); font-size: 12.5px; }
+.fam .dep { display: flex; gap: 4px; }
+.fam .dep span { padding: 1px 8px; border-radius: 999px; background: var(--surface); color: var(--muted); font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+.fam.win { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px var(--accent-soft); }
+.fam.win .dep span.on { background: var(--accent); color: #fff; }
+.badge { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; vertical-align: 1px; }
+.split { display: grid; grid-template-columns: 70fr 15fr 15fr; gap: 4px; }
+.split > div { display: grid; gap: 6px; align-content: start; padding: 8px 10px; border-radius: 10px; background: var(--surface); font-size: 12.5px; }
+.split b { font-size: 13px; }
+.split .dots { display: flex; flex-wrap: wrap; gap: 3px; }
+.split .dots i { width: 7px; height: 7px; border-radius: 2px; background: var(--c, var(--muted)); animation: rise 0.3s both; }
+.split .dots i.trio { width: 21px; background: linear-gradient(90deg, var(--c) 0 6px, transparent 6px 7px, var(--c) 7px 13px, transparent 13px 14px, var(--c) 14px); }
+.split .test { background: var(--accent-soft); }
+.rules { display: grid; gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; font-size: 14px; }
+.rules li { display: flex; gap: 10px; align-items: baseline; }
+.rules li::before { content: "✓"; display: grid; flex: none; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); font-size: 11px; font-weight: 800; }
+
+/* gets / doesn't get */
+.gets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 16px; margin: 14px 0 0; padding: 0; list-style: none; font-size: 14px; }
+.gets li { display: flex; gap: 8px; align-items: baseline; }
+.gets li::before { content: "✓"; display: grid; flex: none; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--ok-soft); color: var(--ok); font-size: 11px; font-weight: 800; }
+.gets li.no { color: var(--muted); }
+.gets li.no::before { content: "✕"; background: var(--bad-soft); color: var(--bad); }
+
+/* hidden ruler */
+.slider { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; margin-top: 14px; font-size: 13px; }
+.slider input { width: 100%; accent-color: var(--accent); }
+.slider output { min-width: 3.4em; font: 700 15px var(--mono); text-align: right; }
+.readouts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.readout { padding: 10px 12px; border-radius: 12px; background: var(--surface); transition: background 0.3s; }
+.readout b { display: block; font: 700 18px var(--mono); white-space: nowrap; }
+.readout span { color: var(--muted); font-size: 12.5px; }
+.readout.off { background: var(--bad-soft); }
+.readout.off b { color: var(--bad); }
+.plot { display: block; width: 100%; height: auto; margin-top: 14px; }
+.plot .ax { stroke: #C9CCD8; stroke-width: 1; }
+.plot .grid { stroke: var(--border); stroke-width: 1; }
+.plot .tick { fill: var(--muted); font: 500 12px var(--sans); }
+.plot .pt { fill: var(--accent); opacity: 0.45; }
+.plot .fit { stroke: var(--accent-ink); stroke-width: 2.5; }
+.plot .gap { stroke: var(--bad); stroke-width: 2; stroke-dasharray: 4 3; }
+.plot .truth { fill: var(--text); stroke: #fff; stroke-width: 2; }
+.plot .pred { fill: var(--bad); stroke: #fff; stroke-width: 2; }
+.plot .lab { font: 600 13px var(--sans); paint-order: stroke; stroke: #fff; stroke-width: 4px; stroke-linejoin: round; }
+.span-lab rect { fill: rgb(26 28 43 / 0.78); }
+.span-lab text { fill: #fff; font: 700 14px var(--mono); }
+
+/* bars */
+.bars { display: grid; gap: 10px; }
+.bar-row { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) 4.4rem; gap: 12px; align-items: center; font-size: 14px; }
+.bar-row .label small { display: block; color: var(--muted); font-size: 12px; }
+.bar { position: relative; height: 8px; border-radius: 999px; background: var(--surface); }
+.bar > i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--c, var(--accent)); transition: width 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.num { font: 600 13px var(--mono); text-align: right; white-space: nowrap; }
+.seg-toggle { display: inline-grid; grid-auto-flow: column; gap: 2px; margin-top: 4px; padding: 3px; border-radius: 10px; background: var(--surface); }
+
+/* recap */
+.path { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.path li { display: grid; grid-template-columns: 26px 7rem minmax(0, 1fr); gap: 12px; align-items: center; font-size: 14.5px; }
+.path li > span:first-child { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); font-size: 12px; font-weight: 700; }
+.path li > b { color: var(--muted); font-weight: 600; }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tile { padding: 14px 16px; border-radius: 12px; background: var(--accent-soft); }
+.tile b { display: block; color: var(--accent-ink); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; }
+.tile span { color: var(--muted); font-size: 13px; }
+.paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.pathcard { display: grid; gap: 4px; padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); text-align: left; transition: border-color 0.15s, box-shadow 0.15s; }
+.pathcard:hover { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.pathcard b { font-size: 14.5px; }
+.pathcard span { color: var(--muted); font-size: 13px; }
+
+/* ------------------------------------------------------------ nav */
+
+.nav { position: sticky; bottom: 0; z-index: 10; background: rgb(255 255 255 / 0.94); border-top: 1px solid var(--border); backdrop-filter: blur(8px); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
+.switch { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; cursor: pointer; user-select: none; }
+.switch input { position: absolute; opacity: 0; pointer-events: none; }
+.switch span { position: relative; width: 32px; height: 18px; border-radius: 999px; background: #D3D6E2; transition: background 0.2s; }
+.switch span::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / 0.25); transition: transform 0.2s; }
+.switch input:checked + span { background: var(--accent); }
+.switch input:checked + span::after { transform: translateX(14px); }
+.switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@container (max-width: 640px) {
+  .picker { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .blurb { grid-column: auto; }
+  .opt { padding: 5px 6px; font-size: 12.5px; }
+  .prog-row .muted { display: none; }
+  .wrap { padding-inline: 14px; }
+  .card { padding: 16px; }
+  .head .t1 { font-size: 22px; }
+  .head .t2 { font-size: 21px; }
+  .paths, .gets { grid-template-columns: minmax(0, 1fr); }
+  .bar-row { grid-template-columns: minmax(0, 1fr) 4.2rem; gap: 4px 10px; font-size: 13px; }
+  .bar-row .label { grid-column: 1 / -1; }
+  .readouts, .samples { gap: 6px; }
+  .readout, .sample { padding: 8px; }
+  .readout b, .sample b { font-size: 15px; }
+  .readout span, .sample span { font-size: 11.5px; }
+  .split > div { padding: 6px; font-size: 11.5px; }
+  .path li { grid-template-columns: 26px minmax(0, 1fr); }
+  .path li > b { display: none; }
+  .why-main { flex-direction: column; gap: 2px; }
+  .tile b { font-size: 18px; }
+  .plot .tick { font-size: 18px; }
+  .plot .lab { font-size: 19px; }
+  .fam { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+<div class="app">
+  <header class="top">
+    <div class="wrap picker">
+      <span class="picker-k" id="groups-k">Dataset</span>
+      <div class="opts" role="group" aria-labelledby="groups-k" id="groups"></div>
+      <span class="picker-k" id="examples-k">Photo</span>
+      <div class="opts" role="group" aria-labelledby="examples-k" id="examples"></div>
+      <p class="blurb" id="blurb"></p>
+    </div>
+  </header>
+  <div class="progress" id="progress" hidden>
+    <div class="wrap">
+      <div class="prog-row"><b id="prog-title"></b><span class="muted" id="prog-photo"></span></div>
+      <div class="segs" id="segs" role="group" aria-label="Steps"></div>
+    </div>
+  </div>
+
+  <main><div class="wrap" id="stage"></div></main>
+
+  <nav class="nav" aria-label="Walkthrough controls">
+    <div class="wrap">
+      <button class="btn" id="back" type="button">← Back</button>
+      <label class="switch"><input type="checkbox" id="auto"><span></span>Autoplay</label>
+      <button class="btn primary" id="next" type="button"></button>
+    </div>
+  </nav>
+  <p class="sr" aria-live="polite" id="announce"></p>
+</div>
+</template>
+<script>
+(() => {
+"use strict";
+
+const host = document.querySelector("fishometry-demo");
+const template = document.getElementById("fishometry-demo");
+if (!host || !template || !host.attachShadow) return;
+const root = host.attachShadow({ mode: "open" });
+root.append(template.content.cloneNode(true));
+
+/* ------------------------------------------------------------------ data */
+
+// Pixels per centimetre at the controlled set's fixed camera distance, in
+// this demo's 480-px-wide drawings. Illustrative, like every photo here.
+const K = 8;
+
+const GROUPS = [
+  { id: "controlled", label: "Controlled",
+    blurb: "One species, one fixed camera distance. The setup itself turns out to be a ruler." },
+  { id: "zoomed", label: "Zoomed",
+    blurb: "The same photos original, zoomed in and zoomed out: same fish, different pixel lengths." },
+  { id: "outdoor", label: "Outdoor",
+    blurb: "Angling photos with the species from the catch record. No fixed setup at all." },
+];
+
+// Photos are drawings; lengths and predictions per photo are illustrative.
+// Only dataset-level results (WHY, recap tiles, result bars) are measured.
+const SCENARIOS = [
+  { group: "controlled", chip: "Smaller fish", ref: "Photo A",
+    scene: "tray", len: 19.6, zoom: 1, rot: 0 },
+  { group: "controlled", chip: "Larger fish", ref: "Photo B",
+    scene: "tray", len: 28.4, zoom: 1, rot: -2 },
+  { group: "zoomed", chip: "Zoomed in", ref: "Photo C, zoomed in",
+    scene: "tray", len: 23.0, zoom: 1.5, rot: 0, pred: 23.5 },
+  { group: "zoomed", chip: "Zoomed out", ref: "Photo D, zoomed out",
+    scene: "tray", len: 25.6, zoom: 0.65, rot: 1, pred: 24.9 },
+  { group: "outdoor", chip: "Shore catch", ref: "Shore photo",
+    scene: "shore", species: "Sea bass", len: 42.0, px: 250, rot: -8, base: 38.5, pred: 44.1,
+    notes: ["fish lying on a flat rock", "sea and sky behind", "daylight, fish fully in frame"] },
+  { group: "outdoor", chip: "Boat catch", ref: "Boat photo",
+    scene: "boat", species: "Bluefish", len: 31.0, px: 236, rot: 6, base: 36.0, pred: 33.4,
+    notes: ["fish on a boat deck", "open water behind", "slight angle to the camera"] },
+];
+
+// Landmark classes the YOLO11 model detects.
+const LM = {
+  fish: ["Fish", "var(--accent)"],
+  head: ["Head", "var(--c-blue)"],
+  tail: ["Tail", "var(--c-amber)"],
+  eye:  ["Eye", "var(--c-rose)"],
+};
+
+const META = {
+  photo:     { title: "One photo, nothing else", method: "Input",
+    lede: "The model gets a single photo. No ruler, no reference object, no camera calibration: whatever it learns about length has to come from the pixels." },
+  landmarks: { title: "Find the landmarks", method: "YOLO11, trained for this study",
+    lede: "A detector trained for this study boxes the fish, its head, its tail and its eye. Their coordinates become the first features." },
+  depth:     { title: "Estimate relative depth", method: "Depth Anything V2",
+    lede: "A monocular depth model estimates how near each part of the scene is, and the pipeline samples it at the head, body and tail." },
+  outline:   { title: "Cut out the fish", method: "Segment Anything",
+    lede: "Segment Anything isolates the fish outline from everything else in the frame." },
+  model:     { title: "Train and select a model", method: "Seven model families · protected split",
+    lede: "Every model family runs with and without depth, on a split that was fixed before any of the steps above ran." },
+  result:    { title: "Test result", method: "Held-out test set", lede: "" },
+  recap:     { title: "Recap", method: "What happened, and the numbers", lede: "" },
+};
+
+const RESULT_META = {
+  controlled: { title: "Find the hidden ruler", method: "Held-out test set · then you zoom",
+    lede: "At one fixed camera distance, a straight line from pixels to centimetres does almost everything. Find out why, then break it." },
+  zoomed:     { title: "Break the hidden ruler", method: "Zoom-derived test set · you zoom",
+    lede: "A rule fitted at the fixed distance only knows pixels. Zoom the photo and watch what it says about a fish that hasn't changed." },
+  outdoor:    { title: "Score on the test set", method: "Held-out test set · DINOv2 + ridge",
+    lede: "Outdoors there is no hidden ruler left. Compare what the species average guesses with what the photo adds." },
+};
+const OUTLINE_LEDE_OUTDOOR = "Segment Anything isolates the fish outline. Outdoor photos also get vision-language scene annotations and the species named in the angler's catch record.";
+
+// The decision behind each step: one number, one sentence, details on click.
+// Every figure is a dataset-level thesis result.
+const WHY = {
+  photo: {
+    controlled: { num: "302", text: "photos of one species, all taken at a fixed camera distance." },
+    zoomed: { num: "906", text: "photos: each photo original, zoomed in and zoomed out. Same fish, three pixel lengths." },
+    outdoor: { num: "2,391", text: "angling photos of 13 species, from 7 to 127 cm long." },
+    more: ["One uncalibrated photo cannot uniquely recover physical scale: a small fish close to the camera fills the same pixels as a large one farther away.",
+      "So the real question is how much length information learned features recover within a known distribution of photos, and whether that survives changes in scale and scene."] },
+  landmarks: { num: "4", text: "parts detected by a YOLO11 model trained for this study: fish, head, tail and eye.",
+    more: ["Their box coordinates are the inputs of the simplest models. On the controlled photos, linear regression on coordinates was the best model of all.",
+      "Nine outdoor test images failed preprocessing; they are excluded from the outdoor result rather than guessed."] },
+  depth: { num: "60%", text: "lower boosted-tree error on the zoom-derived photos when relative depth is added.",
+    more: ["Depth Anything V2 returns relative depth, not metric depth: it orders the scene from near to far, with no unit attached.",
+      "So depth cannot turn pixels into centimetres on its own. It is one more input, and every model family is run with and without it."] },
+  outline: { num: "13", text: "species in the outdoor photos, from 7 to 127 cm long.",
+    more: ["Segment Anything isolates the fish outline from the rest of the photo.",
+      "Outdoor photos add vision-language scene annotations and the species named in the angler's catch record. The species-mean baseline receives the species identity too, so the comparison is like for like."] },
+  model: { num: "70/15/15", text: "split, fixed before any preprocessing. Models are selected on validation MAE; the test set is used once.",
+    more: ["Seven model families, from a species-average baseline and linear regression to gradient-boosted trees, a ResNet-18, and EfficientNet-B3 or DINOv2 embeddings with ridge regression, each run with and without depth.",
+      "Zoomed versions stay in their source photo's split, so no zoomed copy of a training photo can reach the test set."] },
+  result: {
+    controlled: { num: "2.01 cm", text: "for the same linear model on the zoom-derived photos, up from 0.12 cm here. The fixed distance was doing the measuring.",
+      more: ["In controlled photos the fixed geometry acts as a hidden ruler: at one camera distance, pixel length and real length move together.",
+        "The zoom-derived dataset exists to break exactly that: 906 photos, each one original, zoomed in and zoomed out."] },
+    zoomed: { num: "0.71 cm", text: "mean absolute error for boosted trees with relative depth, the best model on the zoom-derived test set.",
+      more: ["The same linear model that reached 0.12 cm on controlled photos rises to 2.01 cm here. Relative depth cuts the boosted-tree error by 60%.",
+        "Zoomed versions stay in their source photo's split, so no model is tested on a zoomed copy of a photo it trained on."] },
+    outdoor: { num: "36.9%", text: "lower error than the 8.76 cm species-mean baseline: DINOv2 + ridge reaches 5.53 cm MAE (14.0% MAPE).",
+      more: ["Measured on 348 processed test images. Both models receive the species identity; nine test images that failed preprocessing are excluded.",
+        "Outdoors, the whole photograph helps most. DINOv2 was chosen on validation MAE, like every model."] },
+  },
+};
+
+/* --------------------------------------------------------------- helpers */
+
+const $ = (id) => root.getElementById(id);
+const CANCEL = Symbol("cancel");
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const cur = () => SCENARIOS[S.sc];
+const groupOf = (s) => GROUPS.find((g) => g.id === s.group);
+const cm = (x) => `${x.toFixed(1)} cm`;
+const announce = (text) => { $("announce").textContent = text; };
+const illus = (text = "illustrative") => h("span", { class: "illus" }, text);
+
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat(3)) {
+    if (kid == null || kid === false) continue;
+    el.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+
+function svg(tag, attrs, ...kids) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
+  for (const kid of kids.flat(2)) {
+    if (kid == null || kid === false) continue;
+    el.append(typeof kid === "string" ? document.createTextNode(kid) : kid);
+  }
+  return el;
+}
+
+function rng(seed) {
+  return () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function grow(fills) {
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    for (const [fill, p] of fills) fill.style.width = `${Math.round(p * 100)}%`;
+  }));
+}
+// Horizontal bars for error values; the longest bar spans the track.
+function bars(rows) {
+  const max = Math.max(...rows.map((r) => r.v));
+  const fills = [];
+  const box = h("div", { class: "bars" }, rows.map((r) => {
+    const fill = h("i", { style: `--c:${r.c || "var(--accent)"}` });
+    fills.push([fill, r.v / max]);
+    return h("div", { class: "bar-row" },
+      h("span", { class: "label" }, r.label, r.sub ? h("small", {}, r.sub) : null),
+      h("span", { class: "bar" }, fill), h("span", { class: "num" }, r.text));
+  }));
+  grow(fills);
+  return box;
+}
+
+/* ------------------------------------------------- the hidden ruler, fitted */
+
+// Illustrative training photos at the fixed distance: true length (cm) and
+// nose-to-tail span (px) with a little detection noise. The rule
+// cm = a·px + b is fitted to them by ordinary least squares, live.
+const TRAIN = (() => {
+  const r = rng(302);
+  return Array.from({ length: 24 }, () => {
+    const len = 14 + r() * 20;
+    return { len, px: K * len * (1 + (r() - 0.5) * 0.04) };
+  });
+})();
+const FIT = (() => {
+  const n = TRAIN.length;
+  const mx = TRAIN.reduce((a, p) => a + p.px, 0) / n;
+  const my = TRAIN.reduce((a, p) => a + p.len, 0) / n;
+  let sxy = 0, sxx = 0;
+  for (const p of TRAIN) { sxy += (p.px - mx) * (p.len - my); sxx += (p.px - mx) ** 2; }
+  const a = sxy / sxx;
+  return { a, b: my - a * mx };
+})();
+const rule = (px) => FIT.a * px + FIT.b;
+
+/* ---------------------------------------------------------------- state */
+
+const S = {
+  sc: 0, phase: "shoot", step: 0, reached: -1,
+  token: 0, cd: 0, fast: false, busy: false, auto: false,
+  ready: false, tried: false, zoom: 1, userScrolled: false,
+};
+let Z = {};  // hidden-ruler elements
+
+function sleep(ms, tk) {
+  return new Promise((resolve, reject) => {
+    const end = performance.now() + ms;
+    (function tick() {
+      if (tk !== S.token) return reject(CANCEL);
+      if (S.fast || performance.now() >= end) return resolve();
+      setTimeout(tick, Math.min(50, end - performance.now()));
+    })();
+  });
+}
+// Revisited steps and reduced motion render instantly.
+function makeWait(tk, instant) {
+  return (ms) => {
+    if (tk !== S.token) return Promise.reject(CANCEL);
+    return instant || reduced ? Promise.resolve() : sleep(ms, tk);
+  };
+}
+
+// Keep the newest element above the pinned nav while a step the reader started
+// plays, unless they have scrolled away in the meantime.
+function show(el, last = el) {
+  if (S.userScrolled || !el.isConnected) return;
+  const top = el.getBoundingClientRect().top;
+  const bottom = last.getBoundingClientRect().bottom;
+  const progress = $("progress");
+  const topLimit = (progress.hidden ? 0 : progress.offsetHeight) + 12;
+  const bottomLimit = innerHeight - root.querySelector(".nav").offsetHeight - 12;
+  if (bottom <= bottomLimit) return;
+  const delta = Math.min(bottom - bottomLimit, top - topLimit);
+  if (delta > 0) scrollBy({ top: delta, behavior: reduced || S.fast ? "auto" : "smooth" });
+}
+
+// A new step starts at the top of the stage; if the reader has scrolled past
+// it, bring it back just under the pinned progress bar.
+function bringIntoView() {
+  const progress = $("progress");
+  const offset = $("stage").getBoundingClientRect().top - (progress.hidden ? 0 : progress.offsetHeight) - 12;
+  if (offset < 0) scrollBy({ top: offset, behavior: reduced ? "auto" : "smooth" });
+}
+
+// The first scene animates in the first time the demo is on screen.
+const visible = new Promise((resolve) => {
+  const io = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    io.disconnect();
+    resolve();
+  }, { threshold: 0.25 });
+  io.observe(host);
+});
+
+const KEYS = ["photo", "landmarks", "depth", "outline", "model", "result", "recap"];
+function steps() {
+  const r = RESULT_META[cur().group];
+  return KEYS.map((key) => ({ key, title: key === "result" ? r.title : META[key].title }));
+}
+// The hidden-ruler step waits for the reader to zoom.
+const gated = () => S.phase === "pipeline" && steps()[S.step].key === "result" && cur().group !== "outdoor" && !S.tried;
+
+/* ------------------------------------------------------------- chrome */
+
+function renderPicker() {
+  const s = cur();
+  $("groups").replaceChildren(...GROUPS.map((g) => {
+    const b = h("button", { class: "opt", type: "button", "aria-pressed": String(g.id === s.group) }, g.label);
+    b.onclick = () => select(SCENARIOS.findIndex((t) => t.group === g.id));
+    return b;
+  }));
+  $("examples").replaceChildren(...SCENARIOS.map((x, i) => [x, i]).filter(([x]) => x.group === s.group).map(([x, i]) => {
+    const b = h("button", { class: "opt", type: "button", "aria-pressed": String(i === S.sc) }, x.chip);
+    b.onclick = () => select(i);
+    return b;
+  }));
+  $("blurb").textContent = groupOf(s).blurb;
+}
+
+function renderProgress() {
+  const bar = $("progress");
+  bar.hidden = S.phase !== "pipeline";
+  if (bar.hidden) return;
+  const list = steps();
+  const s = cur();
+  $("prog-title").textContent = `Step ${S.step + 1} of ${list.length} · ${list[S.step].title}`;
+  $("prog-photo").textContent = `${groupOf(s).label} · ${s.ref}`;
+  $("segs").replaceChildren(...list.map((st, i) => {
+    const state = i === S.step ? "current" : i <= S.reached ? "done" : "";
+    const b = h("button", { class: `seg ${state}`, type: "button", disabled: i > S.reached, "aria-label": `Step ${i + 1}: ${st.title}`, title: st.title, "aria-current": i === S.step ? "step" : null });
+    b.onclick = () => go(i);
+    return b;
+  }));
+}
+
+function updateNav() {
+  const back = $("back");
+  const next = $("next");
+  if (S.phase === "shoot") {
+    back.disabled = true;
+    next.textContent = host.clientWidth <= 440 ? "Start →" : cur().group === "zoomed" ? "Use this copy →" : "Take the photo →";
+    next.disabled = false;
+    return;
+  }
+  const list = steps();
+  const key = list[S.step].key;
+  back.disabled = S.step === 0;
+  next.disabled = false;
+  if (S.busy) next.textContent = "Skip animation";
+  else if (gated()) { next.textContent = "Try the zoom ↑"; next.disabled = true; }
+  else if (key === "recap") next.textContent = host.clientWidth <= 440 ? "Next photo →" : "Next example →";
+  else next.textContent = host.clientWidth <= 640 ? "Next →" : `Next: ${list[S.step + 1].title} →`;
+}
+
+function stopCountdown() {
+  S.cd++;
+  $("next").classList.remove("counting");
+}
+
+async function countdown(ms) {
+  const id = ++S.cd;
+  const btn = $("next");
+  btn.classList.remove("counting");
+  void btn.offsetWidth;
+  btn.style.setProperty("--dur", `${ms}ms`);
+  btn.classList.add("counting");
+  await new Promise((r) => setTimeout(r, ms));
+  if (id !== S.cd) return false;
+  btn.classList.remove("counting");
+  return S.auto;
+}
+
+async function autoAdvance() {
+  if (!S.auto || S.busy) return;
+  if (S.phase === "shoot") {
+    if (S.ready && await countdown(2500)) shoot();
+    return;
+  }
+  if (gated()) {
+    if (await countdown(4000)) autoZoom();
+    return;
+  }
+  const key = steps()[S.step].key;
+  if (await countdown(key === "recap" ? 9000 : 7000)) advance();
+}
+
+function advance() {
+  if (S.phase === "shoot") return shoot();
+  if (S.busy) {
+    S.fast = true;
+    return;
+  }
+  if (steps()[S.step].key === "recap") return select((S.sc + 1) % SCENARIOS.length);
+  go(S.step + 1);
+}
+
+/* ------------------------------------------------------------- drawing */
+
+// Every photo is a 480 × 300 drawing; the fish lies centred at (240, 152),
+// lower in outdoor scenes so it rests on the rock or deck.
+const W = 480, HGT = 300, CX = 240, CY = 152;
+const cyOf = (s) => ({ shore: 200, boat: 205 })[s.scene] || CY;
+let uid = 0;
+const nid = (p) => `${p}${++uid}`;
+
+const FISH_C = {
+  tray: ["#6F8F82", "#D5E1DA", "#5A7569"],
+  "Sea bass": ["#6E7C88", "#E4E9ED", "#56636E"],
+  Bluefish: ["#3F7383", "#D5E3E1", "#305C69"],
+};
+
+// Fish outline in its own frame: nose at (0, 0), tail tip at (L, 0).
+function fishPaths(L) {
+  const H = 0.27 * L;
+  const p = (x, y) => `${(x * L).toFixed(1)} ${(y * H).toFixed(1)}`;
+  return {
+    H,
+    body: `M0 0 C${p(0.06, -0.3)} ${p(0.22, -0.5)} ${p(0.4, -0.5)} C${p(0.58, -0.5)} ${p(0.72, -0.22)} ${p(0.8, -0.09)} L${p(1, -0.42)} Q${p(0.87, 0)} ${p(1, 0.42)} L${p(0.8, 0.09)} C${p(0.7, 0.24)} ${p(0.56, 0.46)} ${p(0.38, 0.46)} C${p(0.2, 0.46)} ${p(0.05, 0.28)} 0 0Z`,
+    fins: [
+      `M${p(0.3, -0.47)} Q${p(0.4, -0.86)} ${p(0.6, -0.4)}Z`,
+      `M${p(0.56, 0.4)} Q${p(0.63, 0.7)} ${p(0.7, 0.26)}Z`,
+      `M${p(0.25, 0.1)} Q${p(0.33, 0.32)} ${p(0.35, 0.06)}Z`,
+    ],
+    gill: `M${p(0.21, -0.36)} Q${p(0.26, 0)} ${p(0.21, 0.36)}`,
+    lateral: `M${p(0.22, -0.06)} Q${p(0.5, -0.14)} ${p(0.82, -0.02)}`,
+    eye: { cx: 0.09 * L, cy: -0.1 * H, r: Math.max(2.5, 0.028 * L) },
+  };
+}
+
+// Geometry of the fish in a scene at a given zoom: where its parts land in
+// photo pixels, and the axis-aligned boxes a detector would draw.
+function geom(s, zoom = s.zoom || 1) {
+  const L = s.scene === "tray" ? K * s.len : s.px;
+  const H = 0.27 * L;
+  const a = (s.rot * Math.PI) / 180;
+  const place = ([x, y]) => {
+    const lx = x - L / 2;
+    const px = CX + lx * Math.cos(a) - y * Math.sin(a);
+    const py = cyOf(s) + lx * Math.sin(a) + y * Math.cos(a);
+    return [W / 2 + (px - W / 2) * zoom, HGT / 2 + (py - HGT / 2) * zoom];
+  };
+  const box = (x0, x1, y0, y1) => {
+    const pts = [[x0, y0], [x1, y0], [x0, y1], [x1, y1]].map(place);
+    const xs = pts.map((q) => q[0]);
+    const ys = pts.map((q) => q[1]);
+    return { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+  };
+  const e = 0.045 * L;
+  return {
+    L, H, zoom, place,
+    span: L * zoom,
+    boxes: {
+      fish: box(0, L, -0.68 * H, 0.58 * H),
+      head: box(0, 0.25 * L, -0.48 * H, 0.48 * H),
+      tail: box(0.8 * L, L, -0.44 * H, 0.44 * H),
+      eye: box(0.09 * L - e, 0.09 * L + e, -0.1 * H - e, -0.1 * H + e),
+    },
+  };
+}
+
+// The fish group, placed in the scene's unzoomed frame.
+function fishG(s, paint) {
+  const L = s.scene === "tray" ? K * s.len : s.px;
+  const f = fishPaths(L);
+  const [top, belly, ink] = FISH_C[s.scene === "tray" ? "tray" : s.species];
+  const gid = nid("fg");
+  const fill = paint || `url(#${gid})`;
+  return svg("g", { transform: `translate(${CX} ${cyOf(s)}) rotate(${s.rot}) translate(${-L / 2} 0)` },
+    paint ? null : svg("defs", {}, svg("linearGradient", { id: gid, x1: 0, y1: 0, x2: 0, y2: 1 },
+      svg("stop", { offset: 0, "stop-color": top }), svg("stop", { offset: 0.55, "stop-color": belly }), svg("stop", { offset: 1, "stop-color": "#F4F6F5" }))),
+    f.fins.map((d) => svg("path", { d, fill: paint || ink, opacity: paint ? 1 : 0.85 })),
+    svg("path", { d: f.body, fill, stroke: paint ? "none" : ink, "stroke-width": 1.2 }),
+    paint ? null : [
+      svg("path", { d: f.gill, fill: "none", stroke: ink, "stroke-width": 1.4, opacity: 0.7 }),
+      svg("path", { d: f.lateral, fill: "none", stroke: ink, "stroke-width": 1, opacity: 0.45 }),
+      svg("circle", { cx: f.eye.cx, cy: f.eye.cy, r: f.eye.r, fill: "#fff", stroke: ink, "stroke-width": 1 }),
+      svg("circle", { cx: f.eye.cx + 0.3, cy: f.eye.cy, r: f.eye.r * 0.55, fill: "#1A1C2B" }),
+    ]);
+}
+
+// Background of each scene, drawn in the unzoomed frame. Tray scenes extend
+// well past the frame so zooming out reveals more table.
+function sceneBg(s) {
+  if (s.scene === "tray") {
+    const grain = Array.from({ length: 14 }, (_, i) => svg("path", { d: `M-480 ${-280 + i * 62} C0 ${-300 + i * 62} 480 ${-250 + i * 62} 960 ${-275 + i * 62}`, fill: "none", stroke: "#B8A58A", "stroke-width": 2, opacity: 0.6 }));
+    return [
+      svg("rect", { x: -480, y: -300, width: 1440, height: 900, fill: "#CDBDA3" }), grain,
+      svg("rect", { x: 26, y: 24, width: 428, height: 252, rx: 16, fill: "#E3E9EC", stroke: "#AFBAC2", "stroke-width": 4 }),
+      svg("rect", { x: 40, y: 38, width: 400, height: 224, rx: 10, fill: "#EBF0F2" }),
+    ];
+  }
+  const sky = nid("sky");
+  const defs = svg("defs", {}, svg("linearGradient", { id: sky, x1: 0, y1: 0, x2: 0, y2: 1 },
+    svg("stop", { offset: 0, "stop-color": "#A9D3EC" }), svg("stop", { offset: 1, "stop-color": "#E6F3FA" })));
+  if (s.scene === "shore") {
+    return [defs,
+      svg("rect", { width: W, height: 120, fill: `url(#${sky})` }),
+      svg("circle", { cx: 400, cy: 40, r: 18, fill: "#FFF4C8" }),
+      svg("rect", { y: 104, width: W, height: 80, fill: "#5C9BB5" }),
+      [118, 134, 152].map((y, i) => svg("path", { d: `M${20 + i * 30} ${y} q12 -4 24 0 M${200 + i * 40} ${y + 6} q12 -4 24 0 M${360 - i * 20} ${y + 2} q12 -4 24 0`, fill: "none", stroke: "#DDF0F7", "stroke-width": 2, opacity: 0.8 })),
+      svg("path", { d: "M-10 300 L-10 160 C60 130 150 142 240 136 C330 130 420 140 490 168 L490 300Z", fill: "#8D8577" }),
+      svg("path", { d: "M30 170 C110 150 200 154 260 150 C330 146 400 152 450 168", fill: "none", stroke: "#A69E90", "stroke-width": 6, "stroke-linecap": "round" }),
+      svg("ellipse", { cx: 70, cy: 262, rx: 26, ry: 10, fill: "#7A7366" }),
+      svg("ellipse", { cx: 410, cy: 270, rx: 34, ry: 12, fill: "#7A7366" }),
+    ];
+  }
+  const planks = Array.from({ length: 9 }, (_, i) => svg("line", { x1: 240 + (i - 4) * 70, y1: 130, x2: 240 + (i - 4) * 150, y2: 300, stroke: "#9C7149", "stroke-width": 2 }));
+  return [defs,
+    svg("rect", { width: W, height: 80, fill: `url(#${sky})` }),
+    svg("rect", { y: 72, width: W, height: 50, fill: "#4E8DA8" }),
+    svg("path", { d: "M0 96 q30 -5 60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0", fill: "none", stroke: "#CBE5EF", "stroke-width": 1.5, opacity: 0.7 }),
+    svg("rect", { y: 114, width: W, height: 18, fill: "#F2F2EF" }),
+    svg("rect", { y: 130, width: W, height: 170, fill: "#B88B5F" }), planks,
+    svg("rect", { y: 128, width: W, height: 4, fill: "#D7D5CE" }),
+  ];
+}
+
+/* relative depth: near = 1, far = 0, no unit */
+
+const CMAP = ["#2B1B54", "#7B2E7F", "#D2495E", "#F59A3D", "#F8E16C"];
+function cmap(v) {
+  const t = Math.min(1, Math.max(0, v)) * (CMAP.length - 1);
+  const i = Math.min(CMAP.length - 2, Math.floor(t));
+  const mix = (a, b, k) => Math.round(a + (b - a) * k);
+  const [a, b] = [CMAP[i], CMAP[i + 1]].map((c) => [1, 3, 5].map((j) => parseInt(c.slice(j, j + 2), 16)));
+  return `rgb(${mix(a[0], b[0], t - i)} ${mix(a[1], b[1], t - i)} ${mix(a[2], b[2], t - i)})`;
+}
+// Depth along the fish (t = 0 at the nose, 1 at the tail tip) in this drawing.
+function fishDepth(s, t) {
+  const base = { tray: 0.6, shore: 0.7, boat: 0.66 }[s.scene];
+  return base + 0.1 * Math.sin(Math.PI * t) + 0.04 * (1 - t) + (s.rot / 120) * (t - 0.5);
+}
+// Background depth by height in the frame, as gradient stops.
+function bgStops(s) {
+  if (s.scene === "tray") return [[0, 0.33], [1, 0.4]];
+  if (s.scene === "shore") return [[0, 0.02], [0.34, 0.04], [0.35, 0.1], [0.5, 0.3], [0.52, 0.5], [1, 0.9]];
+  return [[0, 0.02], [0.24, 0.04], [0.25, 0.12], [0.38, 0.28], [0.43, 0.45], [1, 0.92]];
+}
+function depthLayer(s) {
+  const bg = nid("dbg");
+  const fg = nid("dfg");
+  const defs = svg("defs", {},
+    svg("linearGradient", { id: bg, x1: 0, y1: 0, x2: 0, y2: 1 }, bgStops(s).map(([o, v]) => svg("stop", { offset: o, "stop-color": cmap(v) }))),
+    svg("linearGradient", { id: fg, x1: 0, y1: 0, x2: 1, y2: 0 }, [0, 0.25, 0.5, 0.75, 1].map((t) => svg("stop", { offset: t, "stop-color": cmap(fishDepth(s, t)) }))));
+  const back = s.scene === "tray"
+    ? [svg("rect", { x: -480, y: -300, width: 1440, height: 900, fill: cmap(0.26) }),
+      svg("rect", { x: 26, y: 24, width: 428, height: 252, rx: 16, fill: `url(#${bg})` })]
+    : svg("rect", { width: W, height: HGT, fill: `url(#${bg})` });
+  return svg("g", { class: "depth-layer" }, defs, back, fishG(s, `url(#${fg})`));
+}
+
+// A photo: scene + fish inside a zoom group, clipped to the frame. Overlays in
+// the scene's own frame (depth, mask) go into `zg`; overlays in photo pixels
+// (detector boxes, depth probes) go into `top`.
+function photo(s, { zoom = s.zoom || 1, label } = {}) {
+  const clip = nid("clip");
+  const zg = svg("g", {}, sceneBg(s), fishG(s));
+  setZoom(zg, zoom);
+  const top = svg("g", { "clip-path": `url(#${clip})` }, zg);
+  const el = svg("svg", { viewBox: `0 0 ${W} ${HGT}`, role: "img", "aria-label": label || `Illustrative photo: ${s.ref}` },
+    svg("defs", {}, svg("clipPath", { id: clip }, svg("rect", { width: W, height: HGT }))), top);
+  return { el, zg, top };
+}
+// Zoom about the frame centre, as a CSS transform so it can animate.
+function setZoom(g, z) {
+  g.style.transformBox = "view-box";
+  g.style.transformOrigin = `${W / 2}px ${HGT / 2}px`;
+  g.style.transform = `scale(${z})`;
+}
+const frame = (el, ...extra) => h("div", { class: "photo" }, el, extra);
+// Photos shrink to fit narrow screens; labels drawn on them grow to stay legible.
+const labelScale = () => (host.clientWidth <= 640 ? 1.5 : 1);
+
+// Detector boxes with labelled tags; tags for head, eye and tail share a row
+// under the fish so they never cover each other.
+function landmarkBoxes(g) {
+  const b = g.boxes;
+  const k = labelScale();
+  const tagW = (t) => (t.length * 8.6 + 12) * k;
+  const tagH = 20 * k;
+  const below = Math.min(HGT - tagH - 2, b.fish.y + b.fish.h + 4);
+  const above = Math.max(2, b.fish.y - tagH - 4);
+  const clampX = (x, w) => Math.max(2, Math.min(W - w - 2, x));
+  const headX = clampX(b.head.x, tagW("Head"));
+  const tags = {
+    fish: [clampX(b.fish.x, tagW("Fish")), above],
+    head: [headX, below],
+    eye: [clampX(headX + tagW("Head") + 4, tagW("Eye")), below],
+  };
+  const eyeEnd = tags.eye[0] + tagW("Eye") + 4;
+  tags.tail = [clampX(Math.max(eyeEnd, b.tail.x + b.tail.w - tagW("Tail")), tagW("Tail")), below];
+  return ["fish", "head", "tail", "eye"].map((k) => {
+    const r = b[k];
+    const [name, c] = LM[k];
+    const [tx, ty] = tags[k];
+    return svg("g", { class: "box", style: `--c:${c}` },
+      svg("rect", { x: r.x.toFixed(1), y: r.y.toFixed(1), width: r.w.toFixed(1), height: r.h.toFixed(1), rx: 3 }),
+      svg("rect", { class: "tag", x: tx.toFixed(1), y: ty, width: tagW(name), height: tagH, rx: 4 }),
+      svg("text", { x: (tx + 6 * k).toFixed(1), y: ty + 15 * k, style: `font-size:${14 * k}px` }, name));
+  });
+}
+
+// A small fish close to the camera and a large one far away fill the same
+// span on the sensor.
+function ambiguity() {
+  const camX = 58, camY = 95, slope = 62 / 400;
+  const at = (x) => (x - camX) * slope;
+  const vfish = (x) => {
+    const L = 2 * at(x);
+    const f = fishPaths(L);
+    return svg("g", { transform: `translate(${x} ${camY + L / 2}) rotate(-90)`, fill: "var(--accent)" },
+      f.fins.map((d) => svg("path", { d })), svg("path", { d: f.body }));
+  };
+  const t = (x, y, text, anchor = "middle") => svg("text", { x, y, "text-anchor": anchor, class: "lab", fill: "var(--text)" }, text);
+  return svg("svg", { class: "plot", viewBox: "0 0 480 200", role: "img", "aria-label": "A small fish near the camera and a large fish far away fill the same span in the photo" },
+    svg("line", { x1: camX, y1: camY, x2: 470, y2: camY - at(470), stroke: "var(--muted)", "stroke-dasharray": "4 4", "stroke-width": 1.5 }),
+    svg("line", { x1: camX, y1: camY, x2: 470, y2: camY + at(470), stroke: "var(--muted)", "stroke-dasharray": "4 4", "stroke-width": 1.5 }),
+    svg("rect", { x: 14, y: camY - 16, width: 36, height: 32, rx: 6, fill: "var(--text)" }),
+    svg("rect", { x: 48, y: camY - 9, width: 12, height: 18, rx: 2, fill: "var(--text)" }),
+    svg("line", { x1: 8, y1: camY - 14, x2: 8, y2: camY + 14, stroke: "var(--bad)", "stroke-width": 4, "stroke-linecap": "round" }),
+    vfish(150), vfish(410),
+    t(150, camY + at(150) + 34, "small, close"), t(410, 192, "large, far"),
+    t(16, 22, "same span on the sensor", "start"));
+}
+
+/* ----------------------------------------------------------------- shoot */
+
+const zoomWord = (z) => (z > 1 ? "zoomed in" : "zoomed out");
+
+function select(i, scroll = true) {
+  stopCountdown();
+  const tk = ++S.token;
+  Object.assign(S, { sc: i, phase: "shoot", step: 0, reached: -1, ready: false, tried: false, zoom: SCENARIOS[i].zoom || 1, busy: false, fast: false });
+  renderPicker();
+  renderProgress();
+  const view = renderShoot();
+  updateNav();
+  if (scroll) bringIntoView();
+  playShoot(tk, view).catch((e) => { if (e !== CANCEL) throw e; });
+}
+
+function renderShoot() {
+  const s = cur();
+  const g = groupOf(s);
+  const zoomed = s.group === "zoomed";
+  const p = photo(s, { zoom: 1 });
+  p.zg.style.transition = "transform 1.4s cubic-bezier(0.3, 0.9, 0.25, 1), opacity 0.6s";
+  p.zg.style.opacity = "0.25";
+  const vf = [[16, 16, 1, 1], [464, 16, -1, 1], [16, 284, 1, -1], [464, 284, -1, -1]]
+    .map(([x, y, dx, dy]) => svg("path", { class: "vf", d: `M${x} ${y + dy * 26} V${y} H${x + dx * 26}` }));
+  p.el.append(...vf);
+  const btn = h("button", { class: "btn primary shoot", type: "button" }, zoomed ? `Use the ${s.zoom}× copy` : "Take the photo");
+  btn.onclick = shoot;
+  const caption = h("span", {}, zoomed ? "Original photo" : s.ref);
+  $("stage").replaceChildren(
+    h("div", { class: "head reveal" },
+      h("p", { class: "eyebrow" }, "Interactive walkthrough · ", g.label),
+      h("h3", { class: "t1" }, "Measure a fish from one photo"),
+      h("p", { class: "lede" }, zoomed
+        ? "Zoom-derived photos are copies of one photo, zoomed in or out. Make the copy, then follow what each model extracts from it."
+        : "Take the photo below, then follow what each model extracts from it and how the length is estimated.")),
+    h("div", { class: "card reveal" }, frame(p.el),
+      h("div", { class: "cap-row" }, caption, h("span", {}, "Drawn scene ", illus())), btn),
+    h("p", { class: "small note reveal" }, "Scenes are drawings, and the lengths and predictions for these example photos are illustrative. Every dataset result quoted is from the thesis."));
+  return { p, btn, caption };
+}
+
+async function playShoot(tk, { p, btn, caption }) {
+  const s = cur();
+  const wait = makeWait(tk, false);
+  await visible;
+  await wait(300);
+  p.zg.style.opacity = "1";
+  await wait(900);
+  if (s.group === "zoomed") {
+    setZoom(p.zg, s.zoom);
+    caption.textContent = `${s.zoom}× copy, ${zoomWord(s.zoom)}`;
+    await wait(1400);
+  }
+  S.ready = true;
+  btn.classList.add("pulse");
+  autoAdvance();
+}
+
+function shoot() {
+  if (S.phase !== "shoot") return;
+  stopCountdown();
+  S.token++;
+  S.ready = true;
+  S.phase = "pipeline";
+  go(0);
+}
+
+/* ------------------------------------------------------------------ steps */
+
+async function go(i) {
+  if (S.phase !== "pipeline" || i < 0 || i > S.reached + 1 || i >= steps().length) return;
+  stopCountdown();
+  const tk = ++S.token;
+  const seen = i <= S.reached;
+  Object.assign(S, { step: i, reached: Math.max(S.reached, i), busy: true, fast: false, userScrolled: false });
+  const key = steps()[i].key;
+  renderProgress();
+  updateNav();
+  announce(`Step ${i + 1}: ${steps()[i].title}`);
+  const stage = $("stage");
+  stage.replaceChildren();
+  bringIntoView();
+  try {
+    await RENDER[key](stage, cur(), makeWait(tk, seen), seen);
+  } catch (e) {
+    if (e === CANCEL) return;
+    throw e;
+  }
+  if (tk !== S.token) return;
+  S.busy = false;
+  renderProgress();
+  updateNav();
+  autoAdvance();
+}
+
+function head(key) {
+  const s = cur();
+  const m = key === "result" ? RESULT_META[s.group] : META[key];
+  const lede = key === "outline" && s.group === "outdoor" ? OUTLINE_LEDE_OUTDOOR : m.lede;
+  return h("div", { class: "head reveal" },
+    h("p", { class: "eyebrow" }, `Step ${S.step + 1} · ${m.method}`),
+    h("h3", { class: "t2" }, m.title),
+    lede ? h("p", { class: "lede" }, lede) : null);
+}
+
+function why(key) {
+  const w = WHY[key];
+  const g = cur().group;
+  const main = w[g] || w;
+  const more = main.more || w.more;
+  return h("div", { class: "why reveal" },
+    h("p", { class: "why-k" }, "Why it's built this way"),
+    h("p", { class: "why-main" }, h("b", {}, main.num), h("span", {}, main.text)),
+    h("details", {}, h("summary", {}, "More"), h("div", {}, more.map((t) => h("p", {}, t)))));
+}
+
+const mechanics = (...kids) => h("details", { class: "mech reveal" }, h("summary", {}, "Show the mechanics"), h("div", {}, kids));
+const result = (tone, big, ...text) => h("div", { class: `result ${tone} reveal` }, big ? h("span", { class: "big" }, big) : null, h("span", {}, text));
+
+// Finish a step: result line, then the design note and optional mechanics.
+function finish(stage, ...parts) {
+  const kept = parts.filter(Boolean);
+  for (const p of kept) stage.append(p);
+  // Mechanics stay folded, so the result and the design note are what must fit.
+  const shown = kept.filter((p) => !p.classList.contains("mech"));
+  show(shown[0], shown.at(-1));
+}
+
+const label = (text, ...extra) => h("p", { class: "card-label" }, text, extra);
+const px = (v) => `${Math.round(v)} px`;
+
+const WINNER = { controlled: "linear", zoomed: "trees", outdoor: "dino" };
+const FAMILIES = [
+  { id: "base", name: "Species-average baseline", sub: "predicts the species' mean length" },
+  { id: "linear", name: "Linear regression", sub: "on landmark coordinates" },
+  { id: "trees", name: "Gradient-boosted trees", sub: "XGBoost on coordinates" },
+  { id: "resnet", name: "ResNet-18", sub: "an image network" },
+  { id: "dino", name: "EfficientNet-B3 or DINOv2 embeddings + ridge", sub: "whole-image features, ridge regression" },
+];
+const WIN_TEXT = {
+  controlled: "linear regression on coordinates",
+  zoomed: "boosted trees with relative depth",
+  outdoor: "DINOv2 embeddings + ridge",
+};
+
+const RENDER = {
+  async photo(stage, s, wait, seen) {
+    stage.append(head("photo"));
+    const p = photo(s);
+    const flash = h("i", { class: "flash" });
+    const list = h("ul", { class: "gets" });
+    stage.append(h("div", { class: "card reveal" }, label("What the model gets", illus("drawn photo")), frame(p.el, flash), list));
+    if (!seen) flash.classList.add("go");
+    await wait(700);
+    const items = [
+      [true, s.group === "zoomed" ? `This photo, ${zoomWord(s.zoom)}` : "This photo"],
+      s.group === "outdoor" ? [true, `Species: ${s.species}, from the catch record`] : null,
+      [false, "No ruler"],
+      [false, "No reference object"],
+      [false, "No camera calibration"],
+    ].filter(Boolean);
+    for (const [ok, text] of items) {
+      list.append(h("li", { class: `reveal ${ok ? "" : "no"}` }, text));
+      await wait(380);
+    }
+    await wait(400);
+    const g = geom(s);
+    const res = s.group === "zoomed"
+      ? result("", null, "The fish spans ", h("b", {}, px(g.span)), ` here and ${px(geom(s, 1).span)} in the original. Same fish, different pixels.`)
+      : s.group === "outdoor"
+        ? result("", null, "The species is known. Its length, the camera's distance and its lens are not.")
+        : result("", null, "The fish spans ", h("b", {}, px(g.span)), " in this photo. Nothing in the frame has a known size.");
+    finish(stage, res, why("photo"),
+      mechanics(h("div", {}, h("h4", {}, "Why one photo is ambiguous"), ambiguity(),
+        h("p", { class: "small" }, "A small fish close to the lens and a large one farther away cover the same angle, so they fill the same pixels."))));
+  },
+
+  async landmarks(stage, s, wait) {
+    stage.append(head("landmarks"));
+    const p = photo(s);
+    const g = geom(s);
+    stage.append(h("div", { class: "card reveal" }, label("YOLO11 detections", illus("drawn photo")), frame(p.el),
+      h("div", { class: "legend" }, Object.values(LM).map(([n, c]) => h("span", { style: `--c:${c}` }, n)))));
+    await wait(700);
+    for (const box of landmarkBoxes(g)) {
+      p.top.append(box);
+      await wait(650);
+    }
+    await wait(400);
+    const rows = ["fish", "head", "tail", "eye"].map((k) => {
+      const b = g.boxes[k];
+      return h("tr", {}, h("td", {}, LM[k][0]), [b.x + b.w / 2, b.y + b.h / 2, b.w, b.h].map((v) => h("td", { class: "n" }, Math.round(v))));
+    });
+    finish(stage,
+      result("", null, "Four boxes, 16 numbers. The fish box is ", h("b", {}, `${Math.round(g.boxes.fish.w)} × ${Math.round(g.boxes.fish.h)} px`), " in this photo."),
+      why("landmarks"),
+      mechanics(h("div", {}, h("h4", {}, "The coordinates, in pixels of this 480 × 300 drawing"),
+        h("table", { class: "coords" }, h("tr", {}, ["Box", "Centre x", "Centre y", "Width", "Height"].map((t) => h("th", {}, t))), rows))));
+  },
+
+  async depth(stage, s, wait) {
+    stage.append(head("depth"));
+    const p = photo(s);
+    const g = geom(s);
+    const layer = depthLayer(s);
+    p.zg.append(layer);
+    const samples = h("div", { class: "samples" });
+    stage.append(h("div", { class: "card reveal" }, label("Relative depth map", illus("drawn photo")), frame(p.el),
+      h("div", { class: "scale-bar" }, h("span", {}, "far"), h("i"), h("span", {}, "near")), samples));
+    await wait(600);
+    requestAnimationFrame(() => requestAnimationFrame(() => layer.classList.add("on")));
+    await wait(1400);
+    const pts = [["Head", 0.12, -1], ["Body", 0.45, 1], ["Tail", 0.88, -1]];
+    for (const [name, t, side] of pts) {
+      const v = fishDepth(s, t).toFixed(2);
+      const [x, y] = g.place([t * g.L, 0]);
+      const k = labelScale();
+      const ly = y + side * 30 * k;
+      p.top.append(svg("g", { class: "probe reveal" },
+        svg("line", { x1: x, y1: y, x2: x, y2: ly, stroke: "#fff", "stroke-width": 2 }),
+        svg("rect", { class: "lab-bg", x: x - 24 * k, y: ly - 12 * k, width: 48 * k, height: 22 * k, rx: 5 }),
+        svg("text", { class: "lab", x, y: ly + 4 * k, "text-anchor": "middle", style: `font-size:${14 * k}px` }, v),
+        svg("circle", { cx: x, cy: y, r: 5 })));
+      samples.append(h("div", { class: "sample reveal" }, h("b", {}, v), h("span", {}, name)));
+      await wait(600);
+    }
+    await wait(300);
+    finish(stage,
+      h("p", { class: "callout reveal" }, h("b", {}, "Relative, not metric. "), "These values only rank points from far to near within this photo. They are not distances, and they carry no unit."),
+      why("depth"));
+  },
+
+  async outline(stage, s, wait) {
+    stage.append(head("outline"));
+    const p = photo(s);
+    const card = h("div", { class: "card reveal" }, label("Segment Anything mask", illus("drawn photo")), frame(p.el));
+    stage.append(card);
+    await wait(700);
+    const L = s.scene === "tray" ? K * s.len : s.px;
+    const f = fishPaths(L);
+    p.zg.append(svg("g", { transform: `translate(${CX} ${cyOf(s)}) rotate(${s.rot}) translate(${-L / 2} 0)` },
+      svg("path", { class: "mask-path", d: [f.body, ...f.fins.slice(0, 2)].join(" ") })));
+    await wait(1500);
+    if (s.group === "outdoor") {
+      const chips = h("div", { class: "chips" });
+      card.append(h("div", { class: "annot reveal" },
+        h("p", { class: "annot-k" }, "Species, from the catch record ", illus()), h("div", { class: "chips" }, h("span", { class: "chip key" }, s.species)),
+        h("p", { class: "annot-k" }, "Scene annotations, vision-language model ", illus()), chips));
+      show(card);
+      await wait(600);
+      for (const n of s.notes) {
+        chips.append(h("span", { class: "chip reveal" }, n));
+        await wait(450);
+      }
+      await wait(300);
+    }
+    const mini = photo(s);
+    mini.zg.replaceChildren(svg("rect", { x: -480, y: -300, width: 1440, height: 900, fill: "#111" }), fishG(s, "#fff"));
+    mini.el.setAttribute("class", "minimask");
+    mini.el.setAttribute("aria-label", "Binary mask of the fish");
+    finish(stage,
+      s.group === "outdoor"
+        ? result("", null, "Outline, species and scene notes are ready. The species-mean baseline and DINOv2 + ridge both receive the species.")
+        : result("", null, "The fish is separated from the tray: one outline, one binary mask."),
+      why("outline"),
+      mechanics(h("div", {}, h("h4", {}, "The mask, as a binary image"), mini.el,
+        h("p", { class: "small" }, "Fish pixels white, everything else black."))));
+  },
+
+  async model(stage, s, wait) {
+    stage.append(head("model"));
+    const trio = s.group === "zoomed";
+    const col = (name, share, n, cls = "") => {
+      const dots = h("div", { class: "dots" });
+      return { el: h("div", { class: cls }, h("b", {}, name), h("span", {}, share), dots), dots, n };
+    };
+    const cols = [col("Train", "70%", 14), col("Val.", "15%", 3), col("Test", "15%", 3, "test")];
+    const rules = h("ul", { class: "rules" });
+    stage.append(h("div", { class: "card reveal" }, label("The split, fixed first"), h("div", { class: "split" }, cols.map((c) => c.el)), rules,
+      h("p", { class: "small note" }, trio ? "Each trio is one photo with its zoomed-in and zoomed-out copies." : "Each square stands for a group of photos.")));
+    await wait(600);
+    for (const c of cols) {
+      for (let i = 0; i < c.n; i++) c.dots.append(h("i", { class: trio ? "trio" : "", style: `--c:${c.el.classList.contains("test") ? "var(--accent)" : "#9AA0B4"}; animation-delay:${i * 40}ms` }));
+      await wait(350);
+    }
+    const ruleText = ["Fixed before any preprocessing", trio ? "Zoomed copies stay in their source photo's split" : null, "Models selected on validation MAE", "Test set used once"].filter(Boolean);
+    for (const t of ruleText) {
+      rules.append(h("li", { class: "reveal" }, t));
+      await wait(350);
+    }
+    const fams = h("div", { class: "fams" });
+    const famCard = h("div", { class: "card reveal" }, label("Model families, each with and without depth"), fams,
+      h("p", { class: "small note" }, "Seven families in the experiment matrix; listed as the write-up names them."));
+    stage.append(famCard);
+    show(famCard);
+    await wait(500);
+    const rows = {};
+    for (const f of FAMILIES) {
+      rows[f.id] = h("div", { class: "fam reveal" }, h("span", {}, f.name, h("small", {}, f.sub)),
+        h("span", { class: "dep" }, h("span", {}, "− depth"), h("span", { "data-d": "+" }, "+ depth")));
+      fams.append(rows[f.id]);
+      await wait(300);
+    }
+    await wait(700);
+    const win = rows[WINNER[s.group]];
+    win.classList.add("win");
+    win.firstChild.firstChild.after(h("span", { class: "badge" }, "Selected"));
+    if (s.group === "zoomed") win.querySelector("[data-d]").classList.add("on");
+    await wait(500);
+    finish(stage,
+      result("ok", "✓", "Selected on validation MAE: ", h("b", {}, WIN_TEXT[s.group]), ". It meets the test set once, next."),
+      why("model"));
+  },
+};
+
+/* ------------------------------------------------------ the hidden ruler */
+
+const PLOT = { x0: 56, x1: 462, y0: 196, y1: 18, pxMax: 480, cmMax: 60 };
+const sx = (v) => PLOT.x0 + (v / PLOT.pxMax) * (PLOT.x1 - PLOT.x0);
+const sy = (v) => PLOT.y0 - (v / PLOT.cmMax) * (PLOT.y0 - PLOT.y1);
+
+function rulerPlot() {
+  const t = (x, y, text, anchor = "middle", cls = "tick") => svg("text", { x, y, "text-anchor": anchor, class: cls }, text);
+  const grid = [];
+  for (let v = 0; v <= PLOT.cmMax; v += 20) grid.push(svg("line", { class: "grid", x1: PLOT.x0, x2: PLOT.x1, y1: sy(v), y2: sy(v) }), t(PLOT.x0 - 8, sy(v) + 4, v, "end"));
+  for (let v = 0; v <= 400; v += 100) grid.push(t(sx(v), PLOT.y0 + 18, v));
+  const fit = svg("line", { class: "fit", x1: sx(60), y1: sy(rule(60)), x2: sx(PLOT.pxMax), y2: sy(rule(PLOT.pxMax)) });
+  const gap = svg("line", { class: "gap" });
+  const truth = svg("circle", { class: "truth", r: 7 });
+  const pred = svg("circle", { class: "pred", r: 7 });
+  const predLab = t(0, 0, "", "start", "lab");
+  predLab.setAttribute("fill", "var(--bad)");
+  const truthLab = t(0, 0, "", "start", "lab");
+  truthLab.setAttribute("fill", "var(--text)");
+  const el = svg("svg", { class: "plot", viewBox: "0 0 480 250", role: "img", "aria-label": "Training photos, the fitted pixels-to-centimetres line, and this fish" },
+    grid,
+    svg("line", { class: "ax", x1: PLOT.x0, x2: PLOT.x1, y1: PLOT.y0, y2: PLOT.y0 }),
+    svg("line", { class: "ax", x1: PLOT.x0, x2: PLOT.x0, y1: PLOT.y0, y2: PLOT.y1 }),
+    TRAIN.map((p) => svg("circle", { class: "pt", cx: sx(p.px).toFixed(1), cy: sy(p.len).toFixed(1), r: 4 })),
+    fit, gap, truth, pred, truthLab, predLab,
+    t(PLOT.x1, PLOT.y0 + 46, "fish length in pixels →", "end"),
+    t(PLOT.x0 + 6, PLOT.y1 + 4, "cm", "start"));
+  return { el, gap, truth, pred, predLab, truthLab };
+}
+
+function rulerCard(s) {
+  const p = photo(s, { zoom: S.zoom });
+  const span = svg("line", { stroke: "#fff", "stroke-width": 3, "stroke-linecap": "round", "stroke-dasharray": "2 6" });
+  const k = labelScale();
+  const spanBg = svg("rect", { rx: 5, height: 22 * k });
+  const spanTxt = svg("text", { "text-anchor": "middle", style: `font-size:${14 * k}px` });
+  p.top.append(span, svg("g", { class: "span-lab" }, spanBg, spanTxt));
+  const slider = h("input", { type: "range", min: 0.5, max: 2, step: 0.05, value: S.zoom, "aria-label": "Zoom" });
+  const out = h("output", {});
+  const ro = (name) => {
+    const b = h("b");
+    const el = h("div", { class: "readout" }, b, h("span", {}, name));
+    return { el, b };
+  };
+  const r = { px: ro("fish in pixels"), len: ro("true length"), rule: ro("the rule says") };
+  const plot = rulerPlot();
+  const card = h("div", { class: "card reveal" },
+    label("Zoom the photo", illus("drawn photo, illustrative fit")), frame(p.el),
+    h("label", { class: "slider" }, h("span", {}, "Zoom"), slider, out),
+    h("div", { class: "readouts" }, r.px.el, r.len.el, r.rule.el), plot.el,
+    h("p", { class: "small" }, `Dots: ${TRAIN.length} illustrative photos at the fixed distance. Line: cm = ${FIT.a.toFixed(3)} × px ${FIT.b < 0 ? "−" : "+"} ${Math.abs(FIT.b).toFixed(2)}, fitted by least squares in your browser.`));
+  const update = () => {
+    const z = S.zoom;
+    const g = geom(s, z);
+    setZoom(p.zg, z);
+    const [a, b] = [g.place([0, 0]), g.place([g.L, 0])];
+    const lift = -0.75 * g.H * z;
+    span.setAttribute("x1", a[0]); span.setAttribute("x2", b[0]);
+    span.setAttribute("y1", a[1] + lift); span.setAttribute("y2", b[1] + lift);
+    const spanText = px(g.span);
+    const [mx, my] = [(a[0] + b[0]) / 2, Math.max(14, (a[1] + b[1]) / 2 + lift - 16)];
+    spanTxt.textContent = spanText;
+    spanTxt.setAttribute("x", mx); spanTxt.setAttribute("y", my + 5 * k);
+    spanBg.setAttribute("x", mx - (spanText.length * 4.6 + 8) * k); spanBg.setAttribute("y", my - 11 * k);
+    spanBg.setAttribute("width", (spanText.length * 9.2 + 16) * k);
+    out.textContent = `${z.toFixed(2)}×`;
+    const said = rule(g.span);
+    r.px.b.textContent = px(g.span);
+    r.len.b.textContent = cm(s.len);
+    r.rule.b.textContent = cm(said);
+    Z.live?.(z, said);
+    r.rule.el.classList.toggle("off", Math.abs(said - s.len) > 1);
+    const x = sx(Math.min(g.span, PLOT.pxMax));
+    plot.truth.setAttribute("cx", x); plot.truth.setAttribute("cy", sy(s.len));
+    plot.pred.setAttribute("cx", x); plot.pred.setAttribute("cy", sy(said));
+    plot.gap.setAttribute("x1", x); plot.gap.setAttribute("x2", x);
+    plot.gap.setAttribute("y1", sy(s.len)); plot.gap.setAttribute("y2", sy(said));
+    const right = x > 330;
+    for (const [lab, y, text] of [[plot.truthLab, sy(s.len), `true ${cm(s.len)}`], [plot.predLab, sy(said), `rule ${cm(said)}`]]) {
+      lab.textContent = text;
+      lab.setAttribute("x", right ? x - 12 : x + 12);
+      lab.setAttribute("text-anchor", right ? "end" : "start");
+      lab.setAttribute("y", y + 5);
+    }
+    // Keep the two labels apart when the points nearly coincide: the upper
+    // point's label goes above, the lower one's below.
+    if (Math.abs(sy(said) - sy(s.len)) < 24) {
+      const [up, down] = sy(said) < sy(s.len) ? [plot.predLab, plot.truthLab] : [plot.truthLab, plot.predLab];
+      up.setAttribute("y", Math.min(sy(said), sy(s.len)) - 12);
+      down.setAttribute("y", Math.max(sy(said), sy(s.len)) + 24);
+    }
+  };
+  slider.oninput = () => {
+    S.zoom = Number(slider.value);
+    update();
+    if (!S.tried && Math.abs(S.zoom - s.zoom) >= 0.3) tried();
+  };
+  update();
+  Z = { card, slider, update };
+  return card;
+}
+
+// Autoplay drags the slider for the reader.
+function autoZoom() {
+  if (!gated()) return;
+  const tk = S.token;
+  const from = S.zoom, to = 2, t0 = performance.now(), dur = reduced ? 0 : 1400;
+  (function frame() {
+    if (tk !== S.token) return;
+    const k = dur ? Math.min(1, (performance.now() - t0) / dur) : 1;
+    S.zoom = Math.round((from + (to - from) * (1 - (1 - k) ** 3)) * 20) / 20;
+    Z.slider.value = S.zoom;
+    Z.update();
+    if (k < 1) requestAnimationFrame(frame);
+    else tried();
+  })();
+}
+
+function tried() {
+  if (S.tried || !gated()) return;
+  stopCountdown();
+  S.tried = true;
+  Z.hint?.remove();
+  const parts = lesson(cur());
+  finish($("stage"), ...parts);
+  updateNav();
+  autoAdvance();
+}
+
+// What the zoom shows, then the dataset-level numbers.
+function lesson(s) {
+  const said = rule(geom(s, S.zoom).span);
+  const big = h("span", { class: "big" });
+  const saidEl = h("b");
+  const first = h("div", { class: "result warn reveal" }, big,
+    h("span", {}, "The fish is still ", h("b", {}, cm(s.len)), "; the rule now says ", saidEl, ". It only reads pixels, and zoom changes the pixels, not the fish."));
+  Z.live = (z, v) => { big.textContent = `${z.toFixed(2)}×`; saidEl.textContent = cm(v); };
+  Z.live(S.zoom, said);
+  if (s.group === "controlled") {
+    return [first,
+      result("", null, h("b", {}, "The hidden ruler was the setup. "), "At one camera distance, pixels and centimetres move together, so a straight line is enough. The Zoomed dataset breaks that on purpose."),
+      why("result")];
+  }
+  const errs = h("div", { class: "card reveal" }, label("Test-set MAE, from the thesis"),
+    bars([
+      { label: "Linear regression", sub: "controlled photos", v: 0.12, text: "0.12 cm", c: "#9AA0B4" },
+      { label: "Same linear model", sub: "zoom-derived photos", v: 2.01, text: "2.01 cm", c: "var(--bad)" },
+      { label: "Boosted trees + relative depth", sub: "zoom-derived photos", v: 0.71, text: "0.71 cm", c: "var(--accent)" },
+    ]),
+    h("p", { class: "small note" }, "Relative depth cuts the boosted-tree error by 60%."));
+  return [first, errs,
+    result("ok", cm(s.pred), "Boosted trees with depth on this photo, measured at ", h("b", {}, cm(s.len)), ". ", illus("illustrative values")),
+    why("result")];
+}
+
+/* --------------------------------------------------------- outdoor score */
+
+function tape(s) {
+  const max = Math.ceil((Math.max(s.len, s.pred, s.base) + 8) / 10) * 10;
+  const x = (v) => 24 + (v / max) * 432;
+  const ticks = [];
+  for (let v = 0; v <= max; v += 5) {
+    ticks.push(svg("line", { x1: x(v), x2: x(v), y1: 140, y2: v % 10 ? 148 : 154, stroke: "#8A8FA6", "stroke-width": 1.5 }));
+    if (v % 10 === 0) ticks.push(svg("text", { x: x(v), y: 182, "text-anchor": "middle", class: "tick" }, v));
+  }
+  const f = fishPaths(x(s.len) - x(0));
+  const marker = svg("g", { style: "transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)" },
+    svg("line", { x1: 0, x2: 0, y1: 12, y2: 162, stroke: "var(--bad)", "stroke-width": 2.5 }),
+    svg("circle", { cx: 0, cy: 12, r: 6, fill: "var(--bad)" }));
+  const el = svg("svg", { class: "plot", viewBox: "0 0 480 192", role: "img", "aria-label": "Measured length and a prediction on a tape" },
+    svg("g", { transform: `translate(${x(0)} 74)`, fill: "#C9CEDA" }, f.fins.map((d) => svg("path", { d })), svg("path", { d: f.body })),
+    svg("rect", { x: x(0), y: 136, width: x(max) - x(0), height: 26, rx: 3, fill: "#F8E7A8" }), ticks,
+    svg("line", { x1: x(s.len), x2: x(s.len), y1: 16, y2: 162, stroke: "var(--text)", "stroke-width": 2.5, "stroke-dasharray": "5 3" }),
+    marker);
+  return { el, at: (v) => { marker.style.transform = `translate(${x(v)}px, 0)`; } };
+}
+
+RENDER.result = async function (stage, s, wait) {
+  stage.append(head("result"));
+  if (s.group !== "outdoor") {
+    if (s.group === "controlled") {
+      stage.append(result("ok", "0.12 cm", "mean absolute error on the controlled test set (0.76% MAPE), with linear regression on coordinates."));
+      await wait(900);
+    }
+    stage.append(rulerCard(s));
+    if (S.tried) finish(stage, ...lesson(s));
+    else stage.append(Z.hint = h("p", { class: "try reveal" }, s.zoom === 1
+      ? `Drag the zoom. The fish stays ${cm(s.len)} long.`
+      : `This is the ${s.zoom}× copy, and the rule already misses. Drag the zoom: the fish stays ${cm(s.len)} long.`));
+    return;
+  }
+  const t = tape(s);
+  const read = h("p", { class: "small" });
+  const opts = [["base", "Species average"], ["pred", "DINOv2 + ridge"]].map(([k, name]) => {
+    const b = h("button", { class: "opt", type: "button", "aria-pressed": "false", "data-k": k }, name);
+    b.onclick = () => pick(k);
+    return b;
+  });
+  const pick = (k) => {
+    for (const b of opts) b.setAttribute("aria-pressed", String(b.dataset.k === k));
+    t.at(s[k]);
+    read.replaceChildren(h("b", {}, `${k === "base" ? "Species average" : "DINOv2 + ridge"}: ${cm(s[k])}`), ` against ${cm(s.len)} measured, off by ${cm(Math.abs(s[k] - s.len))}.`);
+  };
+  stage.append(h("div", { class: "card reveal" }, label(`${s.species} from this photo`, illus("illustrative values")), t.el,
+    h("div", { class: "seg-toggle", role: "group", "aria-label": "Prediction" }, opts), read,
+    h("p", { class: "small" }, "Dashed line: the measured length. Red: the prediction you picked.")));
+  pick("base");
+  await wait(1600);
+  pick("pred");
+  await wait(1200);
+  const errs = h("div", { class: "card reveal" }, label("Test-set MAE, 348 processed outdoor images"),
+    bars([
+      { label: "Species-mean baseline", sub: "species identity only", v: 8.76, text: "8.76 cm", c: "#9AA0B4" },
+      { label: "DINOv2 + ridge", sub: "species identity + the photo", v: 5.53, text: "5.53 cm", c: "var(--accent)" },
+    ]));
+  finish(stage, errs, result("ok", null, h("b", {}, "The photo adds what the species alone can't. "), `Both models know it's a ${s.species.toLowerCase()}; only DINOv2 + ridge sees the photo.`), why("result"));
+};
+
+/* ------------------------------------------------------------------ recap */
+
+RENDER.recap = async function (stage, s, wait) {
+  const g = geom(s);
+  stage.append(h("div", { class: "head reveal" }, h("p", { class: "eyebrow" }, `Recap · ${groupOf(s).label} · ${s.ref}`), h("h3", { class: "t2" }, "What happened to this photo")));
+  const d = (t) => fishDepth(s, t).toFixed(2);
+  const rows = [
+    ["Photo", s.group === "outdoor" ? `Angling photo, species ${s.species} from the catch record` : s.group === "zoomed" ? `${s.zoom}× copy: ${px(g.span)}, ${px(geom(s, 1).span)} in the original` : `Fixed distance; the fish spans ${px(g.span)}`],
+    ["Landmarks", "Fish, head, tail and eye boxed by YOLO11"],
+    ["Depth", `Head ${d(0.12)} · body ${d(0.45)} · tail ${d(0.88)}, relative`],
+    ["Outline", s.group === "outdoor" ? `Segment Anything mask, ${s.notes.length} scene notes, species` : "Segment Anything mask"],
+    ["Model", `Selected on validation: ${WIN_TEXT[s.group]}`],
+    s.group === "outdoor"
+      ? ["Result", `Measured ${cm(s.len)}; DINOv2 + ridge ${cm(s.pred)}, species average ${cm(s.base)}`]
+      : ["Zoom", `At ${S.zoom.toFixed(2)}× the pixel rule said ${cm(rule(geom(s, S.zoom).span))} for a ${cm(s.len)} fish`],
+  ];
+  const list = h("ol", { class: "path" });
+  stage.append(h("div", { class: "card reveal" }, label("This photo", illus("illustrative values")), list));
+  for (const [i, [k, v]] of rows.entries()) {
+    list.append(h("li", { class: "reveal" }, h("span", {}, i + 1), h("b", {}, k), h("span", {}, v)));
+    await wait(220);
+  }
+  await wait(400);
+  const tile = (big, text) => h("div", { class: "tile" }, h("b", {}, big), h("span", {}, text));
+  stage.append(h("div", { class: "card reveal" }, label("Test-set results, from the thesis"),
+    h("div", { class: "tiles" },
+      tile("0.12 cm", "controlled MAE, linear regression"),
+      tile("0.71 cm", "zoom-derived MAE, boosted trees + depth"),
+      tile("5.53 cm", "outdoor MAE, DINOv2 + ridge"),
+      tile("36.9%", "outdoor error below the species-mean baseline"))));
+  await wait(400);
+  const others = GROUPS.map((gr) => {
+    const idx = SCENARIOS.map((x, i) => [x, i]).filter(([x]) => x.group === gr.id).map(([, i]) => i);
+    const target = gr.id === s.group ? idx[(idx.indexOf(S.sc) + 1) % idx.length] : idx[0];
+    const b = h("button", { class: "pathcard", type: "button" }, h("b", {}, gr.id === s.group ? `Another “${gr.label}”` : gr.label), h("span", {}, gr.blurb));
+    b.onclick = () => select(target);
+    return b;
+  });
+  finish(stage, h("div", { class: "card reveal" }, label("Try another photo"), h("div", { class: "paths" }, others)));
+};
+
+/* --------------------------------------------------------------- wiring */
+
+$("next").onclick = () => { stopCountdown(); advance(); };
+$("back").onclick = () => {
+  stopCountdown();
+  if (S.phase === "pipeline" && S.step > 0) go(S.step - 1);
+};
+$("auto").onchange = (e) => {
+  S.auto = e.target.checked;
+  if (S.auto) autoAdvance();
+  else stopCountdown();
+};
+for (const ev of ["wheel", "touchmove"]) {
+  addEventListener(ev, () => { if (S.busy) S.userScrolled = true; }, { passive: true });
+}
+// Arrow keys step through the demo only while focus is inside it, and never
+// while the zoom slider has focus (arrows move the slider there).
+host.addEventListener("keydown", (e) => {
+  const t = e.composedPath()[0];
+  if (e.altKey || e.ctrlKey || e.metaKey || t.closest?.("summary") || t.matches?.("input[type=range]")) return;
+  if (e.key === "ArrowRight" && !$("next").disabled) { e.preventDefault(); $("next").click(); }
+  if (e.key === "ArrowLeft" && !$("back").disabled) { e.preventDefault(); $("back").click(); }
+});
+
+select(0, false);
+})();
+</script>

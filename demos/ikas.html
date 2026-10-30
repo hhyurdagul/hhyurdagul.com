@@ -1,0 +1,1515 @@
+<ikas-demo><p>The interactive Ikas staffing walkthrough needs JavaScript.</p></ikas-demo>
+<template id="ikas-demo">
+<style>
+
+/* The Ikas demo is always light: white surfaces, one rose accent, muted
+   pastels for the two forecasts. It lives in a shadow root, so these rules
+   never touch the page and the page's prose rules never touch the demo. */
+:host {
+  all: initial;
+  display: block;
+  container-type: inline-size;
+  color-scheme: light;
+  --page: #F6F7FB;
+  --card: #FFFFFF;
+  --surface: #F2F3F8;
+  --border: #E4E6EF;
+  --text: #1A1C2B;
+  --muted: #676C84;
+  --accent: #BE185D;
+  --accent-ink: #9D174D;
+  --accent-soft: #FDF2F8;
+  --ok: #157F3C;
+  --ok-soft: #E9F6EE;
+  --warn: #A65B06;
+  --warn-soft: #FDF4E4;
+  --bad: #B42318;
+  --bad-soft: #FDEDEB;
+  --c-calls: #BE185D;
+  --c-aht: #5B8DEF;
+  --c-load: #D99A2B;
+  --c-teal: #33A391;
+  --shadow: 0 1px 2px rgb(24 26 60 / 0.04), 0 6px 20px rgb(24 26 60 / 0.06);
+  --sans: "Inter", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --col: 44rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: default; }
+:is(button, a, summary, input):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code, pre { font-family: var(--mono); }
+p { margin: 0; }
+h1, h2, h3, h4 { margin: 0; }
+
+/* The card: overflow is clipped, not scrolled, so the sticky progress and nav
+   stay sticky against the page. */
+.app {
+  overflow: clip;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--page);
+  color: var(--text);
+  font: 400 15px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  box-shadow: 0 10px 40px rgb(24 26 60 / 0.12);
+  text-align: left;
+}
+.wrap { width: 100%; max-width: var(--col); margin-inline: auto; padding-inline: 20px; }
+
+/* ------------------------------------------------------------ header */
+
+.top { background: var(--card); border-bottom: 1px solid var(--border); }
+.picker { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 14px; align-items: center; padding-block: 12px; }
+.picker-k { color: var(--muted); font-size: 12px; font-weight: 600; }
+.opts { display: grid; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; gap: 2px; padding: 3px; border-radius: 10px; background: var(--surface); }
+.opt { padding: 5px 10px; border: 0; border-radius: 8px; background: none; color: var(--muted); font-size: 13px; font-weight: 500; line-height: 1.35; }
+.opt:hover { color: var(--text); }
+.opt[aria-pressed="true"] { background: var(--card); color: var(--text); font-weight: 600; box-shadow: 0 1px 3px rgb(24 26 60 / 0.12); }
+.blurb { grid-column: 2; color: var(--muted); font-size: 12.5px; }
+
+/* The picker scrolls away; only the step progress stays pinned. */
+.progress { position: sticky; top: 0; z-index: 10; background: var(--card); border-bottom: 1px solid var(--border); }
+.progress[hidden] { display: none; }
+.prog-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-top: 9px; font-size: 13px; }
+.prog-row b { font-weight: 650; }
+.prog-row .muted { overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+.segs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 8px 0 10px; }
+.seg { height: 6px; padding: 0; border: 0; border-radius: 999px; background: var(--border); }
+.seg.done { background: color-mix(in srgb, var(--accent) 45%, white); }
+.seg.current { background: var(--accent); }
+.seg:not(:disabled):hover { outline: 2px solid var(--accent-soft); }
+
+/* ------------------------------------------------------------ main */
+
+main { min-height: 30rem; padding: 26px 0 32px; }
+.reveal { animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+.eyebrow { color: var(--accent); font-size: 12.5px; font-weight: 650; letter-spacing: 0.01em; }
+.head .t1 { margin: 6px 0 10px; font-size: 26px; font-weight: 750; letter-spacing: -0.03em; line-height: 1.2; }
+.head .t2 { margin: 6px 0 8px; font-size: 24px; font-weight: 750; letter-spacing: -0.025em; line-height: 1.2; }
+.lede { color: var(--muted); font-size: 15.5px; }
+.card { margin-top: 20px; padding: 20px; border: 1px solid var(--border); border-radius: 16px; background: var(--card); box-shadow: var(--shadow); }
+.card-label { margin-bottom: 12px; color: var(--muted); font-size: 12px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; }
+.small { color: var(--muted); font-size: 12.5px; }
+.illus { margin-top: 12px; color: var(--muted); font-size: 12px; font-style: italic; }
+
+.result { display: flex; align-items: center; gap: 14px; margin-top: 16px; padding: 14px 18px; border-radius: 14px; background: var(--soft-bg, var(--accent-soft)); font-size: 15px; }
+.result .big { flex: none; color: var(--ink, var(--accent-ink)); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+.result.ok { --soft-bg: var(--ok-soft); --ink: var(--ok); }
+.result.warn { --soft-bg: var(--warn-soft); --ink: var(--warn); }
+.result.bad { --soft-bg: var(--bad-soft); --ink: var(--bad); }
+
+.why { margin-top: 16px; padding: 14px 18px; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 4px 14px 14px 4px; background: var(--card); }
+.why-k { color: var(--muted); font-size: 11.5px; font-weight: 650; letter-spacing: 0.05em; text-transform: uppercase; }
+.why-main { display: flex; align-items: baseline; gap: 12px; margin-top: 4px; }
+.why-main b { flex: none; color: var(--accent-ink); font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+.why details { margin-top: 8px; }
+.why summary, .mech summary { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; list-style: none; }
+.why summary::-webkit-details-marker, .mech summary::-webkit-details-marker { display: none; }
+.why summary::after, .mech summary::after { content: "▾"; font-size: 11px; transition: transform 0.2s; }
+details[open] > summary::after { transform: rotate(180deg); }
+.why details > div { display: grid; gap: 10px; margin-top: 10px; color: var(--muted); font-size: 14px; }
+.mech { margin-top: 14px; }
+.mech > div { display: grid; gap: 14px; margin-top: 12px; padding: 16px; border-radius: 14px; background: var(--surface); }
+.mech h4 { margin-bottom: 8px; font-size: 13px; font-weight: 650; }
+
+/* request */
+.from { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 14px; color: var(--muted); font-size: 13px; }
+.tno { font: 500 12px var(--mono); }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { display: grid; gap: 4px; margin-bottom: 12px; }
+.field > span { color: var(--muted); font-size: 12px; font-weight: 600; }
+.val { min-height: 38px; padding: 8px 11px; border: 1px solid var(--border); border-radius: 10px; background: var(--page); font-size: 14px; }
+.val.mono { font: 500 13.5px/1.55 var(--mono); }
+.typing::after { content: ""; display: inline-block; width: 2px; height: 1.05em; margin-left: 1px; background: var(--accent); vertical-align: text-bottom; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s, box-shadow 0.2s, opacity 0.2s;
+}
+.btn:hover:not(:disabled) { background: var(--surface); }
+.btn:disabled { opacity: 0.45; }
+.btn.primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+.btn.primary:hover:not(:disabled) { background: var(--accent-ink); }
+.btn.counting::after { content: ""; position: absolute; inset: auto 0 0 0; height: 3px; background: rgb(255 255 255 / 0.8); transform-origin: left; animation: count var(--dur, 6s) linear forwards; }
+@keyframes count { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.submit { width: 100%; margin-top: 4px; padding: 11px; font-size: 15px; }
+.submit.pulse { animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px var(--accent-soft); } }
+.note { margin-top: 16px; }
+.dayflag { display: flex; align-items: center; gap: 8px; margin: -2px 0 14px; padding: 8px 12px; border-radius: 10px; background: var(--warn-soft); color: var(--warn); font-size: 13px; font-weight: 600; }
+
+/* charts: viewBoxes are sized to the card at render time, so 11px labels
+   stay 11px on a phone and on a desktop. */
+.chart { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font: 500 11px var(--mono); fill: var(--muted); }
+.chart .v { fill: var(--text); font-weight: 600; }
+.chart .grid { stroke: var(--border); stroke-width: 1; }
+.chart .col { transform-box: fill-box; transform-origin: bottom; transform: scaleY(0); transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.chart .col.on { transform: none; }
+.chart .fade { opacity: 0; transition: opacity 0.5s; }
+.chart .fade.on { opacity: 1; }
+.chart .line { fill: none; stroke-width: 2.25; stroke-linejoin: round; stroke-linecap: round; }
+.chart .draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); transition: stroke-dashoffset 1.2s ease-out; }
+.chart .draw.on { stroke-dashoffset: 0; }
+.chart .target { stroke: var(--ok); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.chart .target-t { fill: var(--ok); font-weight: 600; }
+.chart .marker { stroke: var(--text); stroke-width: 1.5; opacity: 0.55; }
+.chart .now { fill: var(--accent); stroke: #fff; stroke-width: 2.5; }
+.chart .pick { fill: none; stroke: var(--ok); stroke-width: 2.5; }
+.chart .hi { fill: var(--accent-ink); }
+.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.chart-k { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; font-weight: 650; }
+.chart-k .small { font-weight: 500; }
+.chart-k::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--c); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; color: var(--muted); font-size: 12.5px; }
+.legend span::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 3px; background: var(--c); box-shadow: inset 0 0 0 1.5px var(--b, transparent); }
+
+/* forecast inputs */
+.feats { display: flex; flex-wrap: wrap; gap: 6px; }
+.feat { padding: 3px 10px; border-radius: 999px; background: var(--surface); font-size: 12.5px; font-weight: 550; }
+.feat.flag { background: var(--warn-soft); color: var(--warn); }
+.bundles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.bundle { padding: 10px 12px; border-radius: 10px; background: var(--card); font-size: 13px; }
+.bundle b { display: block; margin-bottom: 4px; font-size: 13.5px; }
+.bundle ul { margin: 0; padding-left: 16px; color: var(--muted); }
+
+/* join */
+.join { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 6.5rem); gap: 4px 8px; align-items: center; font: 500 12.5px var(--mono); }
+.join .jh { padding-bottom: 4px; color: var(--muted); font: 650 11.5px var(--sans); letter-spacing: 0.04em; text-transform: uppercase; }
+.join .c { padding: 4px 8px; border-radius: 7px; background: color-mix(in srgb, var(--c) 10%, white); white-space: nowrap; }
+.join .m { padding: 4px 8px; border-radius: 7px; background: var(--surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.join .m.on { background: var(--accent-soft); color: var(--accent-ink); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, white); }
+.join .gone { color: var(--muted); text-decoration: line-through; }
+.join .wait { opacity: 0.25; }
+
+/* workload */
+.formula { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; font: 500 15px var(--mono); }
+.formula b { color: var(--accent-ink); font-weight: 750; }
+.formula .op { color: var(--muted); }
+.formula small { display: block; color: var(--muted); font: 500 11px var(--sans); }
+.formula > span { display: inline-grid; justify-items: center; }
+.eq { margin-top: 8px; padding: 10px 12px; border-radius: 10px; background: var(--card); font: 500 13px/1.7 var(--mono); overflow-x: auto; white-space: nowrap; }
+.eq div { white-space: pre; }
+.eq em { color: var(--accent-ink); font-style: normal; font-weight: 700; }
+
+/* planner */
+.hours { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+.hour { min-width: 2.6rem; padding: 4px 6px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); font: 600 12.5px var(--mono); }
+.hour:hover { border-color: var(--accent); }
+.hour[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+.hour-info { margin-bottom: 14px; color: var(--muted); font-size: 13.5px; }
+.hour-info b { color: var(--text); font-weight: 650; }
+.sliders { display: grid; gap: 8px; }
+.sl-row { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr) 4rem; gap: 12px; align-items: center; font-size: 14px; }
+.sl-row label { color: var(--muted); font-weight: 600; font-size: 13px; }
+.sl-row output { font: 650 14px var(--mono); text-align: right; }
+.sl-row.main output { color: var(--accent-ink); font-size: 16px; }
+input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
+.readouts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
+.ro { padding: 10px 12px; border-radius: 12px; background: var(--surface); }
+.ro b { display: block; font: 750 18px var(--sans); letter-spacing: -0.02em; white-space: nowrap; }
+.ro span { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; line-height: 1.35; }
+.ro.ok { background: var(--ok-soft); }
+.ro.ok b { color: var(--ok); }
+.ro.bad { background: var(--bad-soft); }
+.ro.bad b { color: var(--bad); }
+.status { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 14px; }
+.status::before { content: ""; flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--c, var(--bad)); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c, var(--bad)) 15%, white); }
+.status.met { --c: var(--ok); }
+.curve-box { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+.solve-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 16px; }
+.try { color: var(--accent-ink); font-size: 14px; font-weight: 600; }
+.trail { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.tr { padding: 4px 9px; border-radius: 8px; background: var(--bad-soft); color: var(--bad); font: 600 12px var(--mono); }
+.tr.met { background: var(--ok); color: #fff; }
+
+/* planning table */
+.presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.preset { padding: 5px 11px; border: 1px solid var(--border); border-radius: 999px; background: var(--card); font-size: 12.5px; font-weight: 600; }
+.preset:hover { border-color: var(--accent); }
+.preset[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-ink); }
+.tbl-wrap { margin-top: 14px; overflow-x: auto; }
+.plan { width: 100%; border-collapse: collapse; font: 500 13px var(--mono); }
+.plan th { padding: 6px 8px; border-bottom: 1px solid var(--border); color: var(--muted); font: 650 11.5px/1.3 var(--sans); text-align: right; vertical-align: bottom; }
+.plan td { padding: 6px 8px; border-bottom: 1px solid var(--surface); text-align: right; white-space: nowrap; transition: background 0.4s; }
+.plan :is(th, td):first-child { text-align: left; }
+.plan td.agents { color: var(--accent-ink); font-weight: 750; }
+.plan tr.peak td { background: var(--accent-soft); }
+.plan tr.flash td { background: color-mix(in srgb, var(--accent) 14%, white); }
+.plan th small { display: block; font-weight: 500; letter-spacing: 0; }
+
+/* api */
+.eps { display: grid; gap: 8px; }
+.ep { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 4px 14px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 13.5px; }
+.ep code { font-size: 13px; font-weight: 650; }
+.ep code i { margin-right: 6px; padding: 1px 6px; border-radius: 5px; background: var(--accent-soft); color: var(--accent-ink); font-style: normal; font-size: 11px; }
+.ep .io { color: var(--muted); }
+.ep .io b { color: var(--text); font-weight: 600; }
+.variants { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.codes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.codebox { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.codebox .path { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 12px; background: var(--surface); font: 600 12px var(--mono); }
+.codebox pre { margin: 0; padding: 10px 12px; overflow-x: auto; font-size: 12px; line-height: 1.6; }
+.codebox mark { border-radius: 3px; background: #FDEBB8; color: inherit; }
+.codebox .cm { color: var(--muted); white-space: pre-wrap; }
+.badge { padding: 1px 8px; border-radius: 999px; font: 700 11px var(--sans); }
+.badge.ok { background: var(--ok-soft); color: var(--ok); }
+.badge.bad { background: var(--bad-soft); color: var(--bad); }
+.badge.warn { background: var(--warn-soft); color: var(--warn); }
+
+/* recap */
+.path { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.path li { display: grid; grid-template-columns: 26px 7rem minmax(0, 1fr); gap: 12px; align-items: center; font-size: 14.5px; }
+.path li > span:first-child { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); font-size: 12px; font-weight: 700; }
+.path li > b { color: var(--muted); font-weight: 600; }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tile { padding: 14px 16px; border-radius: 12px; background: var(--accent-soft); }
+.tile b { display: block; color: var(--accent-ink); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; }
+.tile span { color: var(--muted); font-size: 13px; }
+.limits { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 14px; }
+.limits li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; }
+.limits li::before { content: "–"; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--warn-soft); color: var(--warn); font-weight: 800; }
+.paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.pathcard { display: grid; gap: 4px; padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); text-align: left; transition: border-color 0.15s, box-shadow 0.15s; }
+.pathcard:hover { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.pathcard b { font-size: 14.5px; }
+.pathcard span { color: var(--muted); font-size: 13px; }
+
+/* ------------------------------------------------------------ nav */
+
+.nav { position: sticky; bottom: 0; z-index: 10; background: rgb(255 255 255 / 0.94); border-top: 1px solid var(--border); backdrop-filter: blur(8px); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
+.switch { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; cursor: pointer; user-select: none; }
+.switch input { position: absolute; opacity: 0; pointer-events: none; }
+.switch span { position: relative; width: 32px; height: 18px; border-radius: 999px; background: #D3D6E2; transition: background 0.2s; }
+.switch span::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / 0.25); transition: transform 0.2s; }
+.switch input:checked + span { background: var(--accent); }
+.switch input:checked + span::after { transform: translateX(14px); }
+.switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@container (max-width: 640px) {
+  .picker { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .blurb { grid-column: auto; }
+  .opt { padding: 5px 6px; font-size: 12.5px; }
+  .prog-row .muted { display: none; }
+  .wrap { padding-inline: 14px; }
+  .card { padding: 16px; }
+  .head .t1 { font-size: 22px; }
+  .head .t2 { font-size: 21px; }
+  .pair, .paths, .charts, .bundles, .codes { grid-template-columns: minmax(0, 1fr); }
+  .readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sl-row { grid-template-columns: 5.6rem minmax(0, 1fr) 3.4rem; gap: 10px; }
+  .ep { grid-template-columns: minmax(0, 1fr); }
+  .join { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 4.6rem); gap: 4px 5px; font-size: 11.5px; }
+  .join .c, .join .m { padding: 3px 5px; }
+  .plan { font-size: 12px; }
+  .plan th, .plan td { padding: 5px 4px; }
+  .plan .wide { display: none; }
+  .path li { grid-template-columns: 26px minmax(0, 1fr); }
+  .path li > b { display: none; }
+  .why-main { flex-direction: column; gap: 2px; }
+  .result { padding: 12px 14px; gap: 10px; }
+  .result .big { font-size: 20px; }
+}
+@container (max-width: 440px) {
+  .tiles { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+<div class="app">
+  <header class="top">
+    <div class="wrap picker">
+      <span class="picker-k" id="groups-k">Kind</span>
+      <div class="opts" role="group" aria-labelledby="groups-k" id="groups"></div>
+      <span class="picker-k" id="examples-k">Day</span>
+      <div class="opts" role="group" aria-labelledby="examples-k" id="examples"></div>
+      <p class="blurb" id="blurb"></p>
+    </div>
+  </header>
+  <div class="progress" id="progress" hidden>
+    <div class="wrap">
+      <div class="prog-row"><b id="prog-title"></b><span class="muted" id="prog-day"></span></div>
+      <div class="segs" id="segs" role="group" aria-label="Steps"></div>
+    </div>
+  </div>
+
+  <main><div class="wrap" id="stage"></div></main>
+
+  <nav class="nav" aria-label="Walkthrough controls">
+    <div class="wrap">
+      <button class="btn" id="back" type="button">← Back</button>
+      <label class="switch"><input type="checkbox" id="auto"><span></span>Autoplay</label>
+      <button class="btn primary" id="next" type="button"></button>
+    </div>
+  </nav>
+  <p class="sr" aria-live="polite" id="announce"></p>
+</div>
+</template>
+<script>
+(() => {
+"use strict";
+
+const host = document.querySelector("ikas-demo");
+const template = document.getElementById("ikas-demo");
+if (!host || !template || !host.attachShadow) return;
+const root = host.attachShadow({ mode: "open" });
+root.append(template.content.cloneNode(true));
+
+/* ------------------------------------------------------------------ data */
+
+// The API's default target: 85% of calls answered within 15 seconds.
+const DEFAULT_TARGET = { sl: 0.85, t: 15 };
+const HOURS = [9, 10, 11, 12, 13, 14, 15, 16, 17];
+const hh = (i) => `${String(HOURS[i]).padStart(2, "0")}:00`;
+
+const GROUPS = [
+  { id: "ordinary", label: "Ordinary",
+    blurb: "A regular weekday: a morning ramp, a lunch dip and a smaller afternoon peak." },
+  { id: "peak", label: "Peak",
+    blurb: "The busiest kind of day: calls pile up after a weekend or a holiday break." },
+  { id: "eve", label: "Holiday eve",
+    blurb: "A half-day public holiday from 13:00: the afternoon empties, and small queues behave differently." },
+];
+
+// Illustrative volumes for 09:00 through 17:00. The client's data and models
+// are not published; these only have a plausible shape.
+const SCENARIOS = [
+  { group: "ordinary", chip: "Tuesday", date: "2025-03-11", day: "Tue 11 Mar 2025", weekday: "Tuesday",
+    holiday: null,
+    calls: [96, 148, 162, 141, 118, 139, 131, 112, 84],
+    aht: [262, 251, 246, 249, 255, 248, 252, 258, 266] },
+  { group: "ordinary", chip: "Friday", date: "2025-03-14", day: "Fri 14 Mar 2025", weekday: "Friday",
+    holiday: null,
+    calls: [88, 136, 150, 132, 104, 121, 113, 94, 68],
+    aht: [258, 249, 244, 247, 253, 250, 255, 261, 270] },
+  { group: "peak", chip: "Monday", date: "2025-03-10", day: "Mon 10 Mar 2025", weekday: "Monday",
+    holiday: null,
+    calls: [142, 214, 226, 198, 163, 181, 170, 146, 109],
+    aht: [276, 268, 262, 264, 270, 263, 266, 272, 280] },
+  { group: "peak", chip: "After Bayram", date: "2025-04-02", day: "Wed 2 Apr 2025", weekday: "Wednesday",
+    holiday: { feature: "Ramazan Bayramı ended the day before", note: "First workday after Ramazan Bayramı (30 Mar – 1 Apr)." },
+    calls: [168, 246, 259, 231, 192, 207, 194, 163, 121],
+    aht: [284, 275, 270, 272, 277, 271, 274, 279, 286] },
+  { group: "eve", chip: "Republic Day eve", date: "2025-10-28", day: "Tue 28 Oct 2025", weekday: "Tuesday",
+    holiday: { feature: "Republic Day eve · half day from 13:00", note: "28 October: a half-day public holiday from 13:00.", from: 13 },
+    calls: [101, 152, 166, 138, 62, 48, 41, 33, 24],
+    aht: [260, 250, 246, 248, 241, 237, 235, 233, 236] },
+  { group: "eve", chip: "Kurban Bayramı eve", date: "2025-06-05", day: "Thu 5 Jun 2025", weekday: "Thursday",
+    holiday: { feature: "Kurban Bayramı eve · half day from 13:00", note: "Arife, the eve of Kurban Bayramı: a half-day public holiday from 13:00.", from: 13 },
+    calls: [118, 171, 180, 152, 70, 54, 45, 36, 27],
+    aht: [266, 256, 251, 253, 244, 240, 238, 236, 240] },
+];
+
+const META = {
+  forecast: { title: "Two forecasts", method: "A dated model pair + calendar features",
+    lede: "One model predicts calls per hour, the other the average handling time in seconds. Both see the same hourly calendar, Turkish holidays included." },
+  join:     { title: "Join on timestamp", method: "Inner join on the hour",
+    lede: "The two forecasts become one table, keyed by timestamp. Only hours present in both go on to the staffing calculation." },
+  load:     { title: "Workload in erlangs", method: "Calls × handling time / 3,600",
+    lede: "Calls per hour times seconds per call, divided by the seconds in an hour: the average number of calls in progress at once." },
+  erlang:   { title: "Staff against a target", method: "Erlang C + a staffing solver",
+    lede: "Erlang C gives the chance that a caller waits because every agent is busy. The solver adds agents until enough calls are answered within the target time. You're the planner now." },
+  table:    { title: "The planning table", method: "The solver, hour by hour",
+    lede: "The same calculation runs for every hour. The forecast and what it means for staffing stay in the same row." },
+  api:      { title: "Serve it as an API", method: "FastAPI + Pydantic",
+    lede: "Three endpoints: list the model sets, size scenarios you supply, or forecast and staff a date range in one call." },
+  recap:    { title: "Recap", method: "What happened, and the limits", lede: "" },
+};
+
+// The decision behind each step: one number, one sentence, details on click.
+// Every figure here comes from the case study; the volumes above do not.
+const WHY = {
+  forecast: { num: "2 models", text: "in a dated pair: one for calls per hour, one for handling time. Call volume alone doesn't say how many agents a queue needs.",
+    more: ["Each model bundle carries its configuration and, where needed, scalers and recent values for lagged features. A request names one model set, and both members come from it.",
+      "The pipeline builds hourly calendar features, Turkish holidays included, and supports ordinary and seasonal lookbacks.",
+      "Longer recursive forecasts inherit uncertainty from earlier predictions."] },
+  join: { num: "09:00–17:00", text: "on weekdays is the implemented schedule. Rows meet on their timestamp, so a call count is never paired with another hour's handling time.",
+    more: ["Only hours present in both forecasts go into the staffing calculation.",
+      "This is not a 24/7 forecast. A period with no forecast rows returns an empty list, not an error."] },
+  load: { num: "3,600", text: "seconds in an hour. Calls × handling time / 3,600 is the average number of calls in progress: the workload, with no slack for answering anyone quickly.",
+    more: ["One erlang is one agent kept busy for the full hour.",
+      "Calls don't arrive evenly. Staffed at exactly the workload, every random burst becomes a queue that never drains; the next step works out how much headroom a waiting-time target needs."] },
+  erlang: { num: "85% in 15 s", text: "is the API's default target. Both values are configurable: they are calculation settings, not a measured service level.",
+    more: ["A separate waiting-time parameter, 30 seconds by default, feeds an abandonment estimate. It doesn't set the staffing target or impose a hard maximum on waiting.",
+      "The calculation library also includes Erlang B for blocked calls and extended Erlang B for immediate retries. Agent sizing uses Erlang C, rather than treating blocked calls and queued calls as the same problem.",
+      "The API also returns telephone lines and queue measures for each hour; this demo computes agents, service level, utilization and speed of answer only."] },
+  table: { num: "95% of days", text: "kept service level above 80/20, that is 80% of calls answered within 20 seconds.",
+    more: ["Each row keeps the forecast call count and handling time next to the required agents, telephone lines, modeled service level, utilization, queue measures and average speed of answer.",
+      "The service levels in this table are modeled for illustrative volumes; they are not observations."] },
+  api: { num: "3", text: "call-center endpoints: list the model sets, size supplied scenarios, or forecast and staff a date range. The queueing math lives in one place, not in each interface.",
+    more: ["A separate FastAPI service serves weekly revenue forecasts and product-demand forecasts for three product lines, one endpoint each. Each takes start_date and end_date in ISO format and returns aligned date, predict and real arrays; real is null where actuals aren't available yet.",
+      "Those recurrent models forecast recursively; outputs are transformed back to the original scale and clipped to non-negative values. The service has a typed response contract and a Docker packaging path.",
+      "Tkinter and Streamlit interfaces were delivered alongside the APIs. The engagement ran from September 2024 to the end of 2025."] },
+};
+
+/* --------------------------------------------------------------- Erlang C */
+
+// Offered load in erlangs: the average number of calls in progress.
+const erlangs = (calls, aht) => (calls * aht) / 3600;
+
+// Erlang B, the blocking probability for n servers and a erlangs, by its
+// recurrence. It stays between 0 and 1, so it never overflows the way
+// a^n / n! does.
+function erlangB(n, a) {
+  let b = 1;
+  for (let k = 1; k <= n; k++) b = (a * b) / (k + a * b);
+  return b;
+}
+
+// Erlang C, the probability that a caller has to wait (n > a), from Erlang B.
+const erlangC = (n, a, b = erlangB(n, a)) => (n * b) / (n - a * (1 - b));
+
+// Service level, speed of answer and utilization for one hour and n agents.
+function metrics(calls, aht, n, target) {
+  const a = erlangs(calls, aht);
+  if (n <= a) return { a, n, stable: false, b: 1, pw: 1, sl: 0, asa: Infinity, util: 1, met: false };
+  const b = erlangB(n, a);
+  const pw = erlangC(n, a, b);
+  const sl = 1 - pw * Math.exp((-(n - a) * target.t) / aht);
+  return { a, n, stable: true, b, pw, sl, asa: (pw * aht) / (n - a), util: a / n, met: sl >= target.sl };
+}
+
+// Start at the smallest stable team and add one agent at a time until the
+// modeled share answered within the target time meets the target.
+function solve(calls, aht, target) {
+  const trail = [];
+  for (let n = Math.floor(erlangs(calls, aht)) + 1; ; n++) {
+    const m = metrics(calls, aht, n, target);
+    trail.push(m);
+    if (m.met) return { n, m, trail };
+  }
+}
+
+const plan = (s, target) => HOURS.map((_, i) => ({ i, calls: s.calls[i], aht: s.aht[i], ...solve(s.calls[i], s.aht[i], target) }));
+
+/* --------------------------------------------------------------- helpers */
+
+const $ = (id) => root.getElementById(id);
+const CANCEL = Symbol("cancel");
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const cur = () => SCENARIOS[S.sc];
+const pct = (p) => `${Math.round(p * 100)}%`;
+const pct1 = (p) => `${(p * 100).toFixed(1)}%`;
+const secs = (x) => (Number.isFinite(x) ? `${x < 10 ? x.toFixed(1) : Math.round(x)} s` : "∞");
+const num = (x) => x.toLocaleString("en-US");
+const targetText = (t) => `${pct(t.sl)} in ${t.t} s`;
+const sameTarget = (a, b) => Math.abs(a.sl - b.sl) < 1e-9 && a.t === b.t;
+const peakIndex = (s) => s.calls.indexOf(Math.max(...s.calls));
+const announce = (text) => { $("announce").textContent = text; };
+
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat(3)) {
+    if (kid == null || kid === false) continue;
+    el.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+
+// Colours go through style: presentation attributes can't use var() reliably
+// and would lose to the .chart rules anyway.
+function svg(tag, attrs, ...kids) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "fill" || k === "stroke") el.style.setProperty(k, v);
+    else if (k === "style") el.style.cssText += `;${v}`;
+    else el.setAttribute(k, v);
+  }
+  for (const kid of kids) el.append(kid);
+  return el;
+}
+const label = (x, y, text, attrs = {}) => {
+  const t = svg("text", { x: x.toFixed(1), y: y.toFixed(1), "text-anchor": "middle", ...attrs });
+  t.textContent = text;
+  return t;
+};
+
+// Turn things on two frames after they're in the DOM, so transitions run.
+function later(els) {
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    for (const el of els) el.classList.add("on");
+  }));
+}
+
+// Inner width of a card, for sizing a chart's viewBox to its real pixels.
+const cardWidth = (card) => {
+  const cs = getComputedStyle(card);
+  return Math.max(240, Math.round(card.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)));
+};
+
+/* ---------------------------------------------------------------- state */
+
+const S = {
+  sc: 0, phase: "request", step: 0, reached: -1,
+  token: 0, cd: 0, fast: false, busy: false, auto: false,
+  typed: false, solved: false, userScrolled: false,
+  target: { ...DEFAULT_TARGET }, hour: 0, agents: 0, tried: null, variant: "valid",
+};
+let F = {};  // request form
+let P = {};  // planner elements
+let T = {};  // planning-table elements
+let A = {};  // API request elements
+
+function sleep(ms, tk) {
+  return new Promise((resolve, reject) => {
+    const end = performance.now() + ms;
+    (function tick() {
+      if (tk !== S.token) return reject(CANCEL);
+      if (S.fast || performance.now() >= end) return resolve();
+      setTimeout(tick, Math.min(50, end - performance.now()));
+    })();
+  });
+}
+// Revisited steps and reduced motion render instantly.
+function makeWait(tk, instant) {
+  return (ms) => {
+    if (tk !== S.token) return Promise.reject(CANCEL);
+    return instant || reduced ? Promise.resolve() : sleep(ms, tk);
+  };
+}
+
+// Keep the newest element above the pinned nav while a step the reader started
+// plays, unless they have scrolled away in the meantime.
+function show(el, last = el) {
+  if (S.userScrolled || !el.isConnected) return;
+  const top = el.getBoundingClientRect().top;
+  const bottom = last.getBoundingClientRect().bottom;
+  const progress = $("progress");
+  const topLimit = (progress.hidden ? 0 : progress.offsetHeight) + 12;
+  const bottomLimit = innerHeight - root.querySelector(".nav").offsetHeight - 12;
+  if (bottom <= bottomLimit) return;
+  const delta = Math.min(bottom - bottomLimit, top - topLimit);
+  if (delta > 0) scrollBy({ top: delta, behavior: reduced || S.fast ? "auto" : "smooth" });
+}
+
+// A new step starts at the top of the stage; if the reader has scrolled past
+// it, bring it back just under the pinned progress bar.
+function bringIntoView() {
+  const progress = $("progress");
+  const offset = $("stage").getBoundingClientRect().top - (progress.hidden ? 0 : progress.offsetHeight) - 12;
+  if (offset < 0) scrollBy({ top: offset, behavior: reduced ? "auto" : "smooth" });
+}
+
+// Typing starts the first time the demo is on screen.
+const visible = new Promise((resolve) => {
+  const io = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    io.disconnect();
+    resolve();
+  }, { threshold: 0.25 });
+  io.observe(host);
+});
+
+const STEPS = ["forecast", "join", "load", "erlang", "table", "api", "recap"];
+const steps = () => STEPS.map((key) => ({ key, title: META[key].title }));
+
+/* ------------------------------------------------------------- chrome */
+
+function renderPicker() {
+  const s = cur();
+  $("groups").replaceChildren(...GROUPS.map((g) => {
+    const b = h("button", { class: "opt", type: "button", "aria-pressed": String(g.id === s.group) }, g.label);
+    b.onclick = () => select(SCENARIOS.findIndex((t) => t.group === g.id));
+    return b;
+  }));
+  $("examples").replaceChildren(...SCENARIOS.map((x, i) => [x, i]).filter(([x]) => x.group === s.group).map(([x, i]) => {
+    const b = h("button", { class: "opt", type: "button", "aria-pressed": String(i === S.sc) }, x.chip);
+    b.onclick = () => select(i);
+    return b;
+  }));
+  $("blurb").textContent = GROUPS.find((g) => g.id === s.group).blurb;
+}
+
+function renderProgress() {
+  const bar = $("progress");
+  bar.hidden = S.phase !== "pipeline";
+  if (bar.hidden) return;
+  const list = steps();
+  const s = cur();
+  $("prog-title").textContent = `Step ${S.step + 1} of ${list.length} · ${list[S.step].title}`;
+  $("prog-day").textContent = `${s.day} · ${s.chip} · target ${targetText(S.target)}`;
+  $("segs").replaceChildren(...list.map((st, i) => {
+    const state = i === S.step ? "current" : i <= S.reached ? "done" : "";
+    const b = h("button", { class: `seg ${state}`, type: "button", disabled: i > S.reached, "aria-label": `Step ${i + 1}: ${st.title}`, title: st.title, "aria-current": i === S.step ? "step" : null });
+    b.onclick = () => go(i);
+    return b;
+  }));
+}
+
+function updateNav() {
+  const back = $("back");
+  const next = $("next");
+  if (S.phase === "request") {
+    back.disabled = true;
+    next.textContent = "Send request →";
+    next.disabled = false;
+    return;
+  }
+  const list = steps();
+  const key = list[S.step].key;
+  back.disabled = S.step === 0;
+  next.disabled = false;
+  if (S.busy) next.textContent = "Skip animation";
+  else if (key === "erlang" && !S.solved) { next.textContent = "Ask the solver ↑"; next.disabled = true; }
+  else if (key === "recap") next.textContent = "Next day →";
+  else next.textContent = host.clientWidth <= 640 ? "Next →" : `Next: ${list[S.step + 1].title} →`;
+}
+
+function stopCountdown() {
+  S.cd++;
+  $("next").classList.remove("counting");
+}
+
+async function countdown(ms) {
+  const id = ++S.cd;
+  const btn = $("next");
+  btn.classList.remove("counting");
+  void btn.offsetWidth;
+  btn.style.setProperty("--dur", `${ms}ms`);
+  btn.classList.add("counting");
+  await new Promise((r) => setTimeout(r, ms));
+  if (id !== S.cd) return false;
+  btn.classList.remove("counting");
+  return S.auto;
+}
+
+async function autoAdvance() {
+  if (!S.auto || S.busy) return;
+  if (S.phase === "request") {
+    if (S.typed && await countdown(2500)) submit();
+    return;
+  }
+  const key = steps()[S.step].key;
+  if (key === "erlang" && !S.solved) {
+    if (await countdown(4000)) runSolver();
+    return;
+  }
+  if (await countdown(key === "recap" ? 9000 : 7000)) advance();
+}
+
+function advance() {
+  if (S.phase === "request") return submit();
+  if (S.busy) {
+    S.fast = true;
+    return;
+  }
+  if (steps()[S.step].key === "recap") return select((S.sc + 1) % SCENARIOS.length);
+  go(S.step + 1);
+}
+
+/* --------------------------------------------------------------- request */
+
+function select(i, scroll = true) {
+  stopCountdown();
+  const tk = ++S.token;
+  const s = SCENARIOS[i];
+  const hour = peakIndex(s);
+  Object.assign(S, {
+    sc: i, phase: "request", step: 0, reached: -1, typed: false, solved: false, busy: false, fast: false,
+    hour, agents: Math.floor(erlangs(s.calls[hour], s.aht[hour])) + 1, tried: null, variant: "valid",
+  });
+  renderPicker();
+  renderProgress();
+  renderRequest();
+  updateNav();
+  if (scroll) bringIntoView();
+  typeRequest(tk).catch((e) => { if (e !== CANCEL) throw e; });
+}
+
+function renderRequest() {
+  const s = cur();
+  const g = GROUPS.find((x) => x.id === s.group);
+  const field = (name, el) => h("div", { class: "field" }, h("span", {}, name), el);
+  F = {
+    period: h("div", { class: "val mono" }),
+    day: h("div", { class: "val" }),
+    submit: h("button", { class: "btn primary submit", type: "button" }, "Forecast and staff this day"),
+  };
+  F.submit.onclick = submit;
+  $("stage").replaceChildren(
+    h("div", { class: "head reveal" },
+      h("p", { class: "eyebrow" }, "Interactive walkthrough · ", g.label),
+      h("h3", { class: "t1" }, "Plan one day of call-center staffing"),
+      h("p", { class: "lede" }, "A planner asks for one weekday. Send the request, then follow it from two forecasts to an agent count for every hour.")),
+    h("div", { class: "card reveal" },
+      h("div", { class: "from" }, h("span", {}, "Planning request"), h("span", { class: "tno" }, "POST /calculate")),
+      h("div", { class: "pair" },
+        field("Model set", h("div", { class: "val" }, "Dated pair: calls + handling time")),
+        field("Service-level target", h("div", { class: "val" }, targetText(S.target), sameTarget(S.target, DEFAULT_TARGET) ? " (default)" : " (yours)"))),
+      field("Period", F.period),
+      field("Day", F.day),
+      s.holiday ? h("p", { class: "dayflag" }, s.holiday.note) : null,
+      F.submit),
+    h("p", { class: "small note reveal" }, "Illustrative volumes; the client's data and models are not published. The days are examples."));
+}
+
+async function typeRequest(tk) {
+  const s = cur();
+  const wait = makeWait(tk, false);
+  const typeInto = async (el, text, per) => {
+    el.classList.add("typing");
+    for (let i = 1; i < text.length; i++) {
+      el.textContent = text.slice(0, i);
+      await wait(per);
+    }
+    el.textContent = text;
+    el.classList.remove("typing");
+  };
+  await visible;
+  await wait(500);
+  await typeInto(F.period, `${s.date} 09:00 → ${s.date} 17:00`, 32);
+  await wait(250);
+  await typeInto(F.day, `${s.day} · ${s.chip}`, 28);
+  S.typed = true;
+  F.submit.classList.add("pulse");
+  autoAdvance();
+}
+
+function submit() {
+  if (S.phase !== "request") return;
+  stopCountdown();
+  S.token++;
+  S.typed = true;
+  S.phase = "pipeline";
+  go(0);
+}
+
+/* ------------------------------------------------------------------ steps */
+
+async function go(i) {
+  if (S.phase !== "pipeline" || i < 0 || i > S.reached + 1 || i >= steps().length) return;
+  stopCountdown();
+  const tk = ++S.token;
+  const seen = i <= S.reached;
+  Object.assign(S, { step: i, reached: Math.max(S.reached, i), busy: true, fast: false, userScrolled: false });
+  const key = steps()[i].key;
+  renderProgress();
+  updateNav();
+  announce(`Step ${i + 1}: ${META[key].title}`);
+  const stage = $("stage");
+  stage.replaceChildren();
+  bringIntoView();
+  try {
+    await RENDER[key](stage, cur(), makeWait(tk, seen));
+  } catch (e) {
+    if (e === CANCEL) return;
+    throw e;
+  }
+  if (tk !== S.token) return;
+  S.busy = false;
+  renderProgress();
+  updateNav();
+  autoAdvance();
+}
+
+const head = (key) => h("div", { class: "head reveal" },
+  h("p", { class: "eyebrow" }, `Step ${S.step + 1} · ${META[key].method}`),
+  h("h3", { class: "t2" }, META[key].title),
+  h("p", { class: "lede" }, META[key].lede));
+
+function why(key) {
+  const w = WHY[key];
+  return h("div", { class: "why reveal" },
+    h("p", { class: "why-k" }, "Why it's built this way"),
+    h("p", { class: "why-main" }, h("b", {}, w.num), h("span", {}, w.text)),
+    h("details", {}, h("summary", {}, "More"), h("div", {}, w.more.map((t) => h("p", {}, t)))));
+}
+
+const mechanics = (...kids) => h("details", { class: "mech reveal" }, h("summary", {}, "Show the mechanics"), h("div", {}, kids));
+const result = (tone, big, ...text) => h("div", { class: `result ${tone} reveal` }, big ? h("span", { class: "big" }, big) : null, h("span", {}, text));
+const illus = (text = "Illustrative volumes; the client's data and models are not published.") => h("p", { class: "illus" }, text);
+
+// Finish a step: result line, then the design note and optional mechanics.
+function finish(stage, ...parts) {
+  const kept = parts.filter(Boolean);
+  for (const p of kept) stage.append(p);
+  // Mechanics stay folded, so the result and the design note are what must fit.
+  const shown = kept.filter((p) => !p.classList.contains("mech"));
+  show(shown[0], shown.at(-1));
+}
+
+/* ---------------------------------------------------------------- charts */
+
+// Hourly columns. `inner` draws a second, narrower series inside each column
+// (workload inside agents); `shade` greys the hours from a half-day holiday on.
+function columns(W, values, o = {}) {
+  const H = o.height || 150;
+  const top = 18;
+  const bottom = 20;
+  const ph = H - top - bottom;
+  const slot = W / values.length;
+  const bw = Math.min(34, slot * 0.64);
+  const max = o.max || Math.max(...values, ...(o.inner || [])) * 1.05;
+  const y = (v) => top + ph - (v / max) * ph;
+  const el = svg("svg", { class: "chart", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": o.aria || "" });
+  const cols = [];
+  const fades = [];
+  if (o.shade != null) {
+    const x0 = o.shade * slot;
+    el.append(svg("rect", { x: x0, y: 0, width: W - x0, height: H - bottom + 2, rx: 6, fill: "var(--warn-soft)" }));
+    el.append(label(W - 6, 11, "half-day holiday", { "text-anchor": "end", fill: "var(--warn)" }));
+  }
+  el.append(svg("line", { class: "grid", x1: 0, x2: W, y1: top + ph + 0.5, y2: top + ph + 0.5 }));
+  values.forEach((v, i) => {
+    const cx = slot * i + slot / 2;
+    const hi = i === o.highlight;
+    const bar = svg("rect", { class: "col", x: (cx - bw / 2).toFixed(1), y: y(v).toFixed(1), width: bw.toFixed(1), height: (top + ph - y(v)).toFixed(1), rx: 4,
+      fill: o.outline ? `color-mix(in srgb, ${o.color} 14%, white)` : o.color, stroke: o.outline ? o.color : "none", "stroke-width": 1.5,
+      opacity: hi || o.highlight == null || o.outline ? 1 : 0.55 });
+    el.append(bar);
+    cols.push(bar);
+    if (o.inner) {
+      const iv = o.inner[i];
+      const iw = bw * 0.5;
+      const ib = svg("rect", { class: "col", x: (cx - iw / 2).toFixed(1), y: y(iv).toFixed(1), width: iw.toFixed(1), height: (top + ph - y(iv)).toFixed(1), rx: 2, fill: o.innerColor });
+      el.append(ib);
+      cols.push(ib);
+    }
+    const t = label(cx, y(v) - 5, o.fmt ? o.fmt(v) : String(v), { class: `v fade${hi ? " hi" : ""}` });
+    el.append(t);
+    fades.push(t);
+    el.append(label(cx, H - 5, hh(i).slice(0, 2), hi ? { class: "hi" } : {}));
+  });
+  return { el, cols, fades };
+}
+
+// Handling time as a line: the y-axis is zoomed, so small changes show.
+function lineChart(W, values, o = {}) {
+  const H = 150;
+  const top = 18;
+  const bottom = 20;
+  const ph = H - top - bottom;
+  const slot = W / values.length;
+  const lo = Math.floor((Math.min(...values) - 12) / 10) * 10;
+  const hi = Math.ceil((Math.max(...values) + 8) / 10) * 10;
+  const y = (v) => top + ph - ((v - lo) / (hi - lo)) * ph;
+  const pts = values.map((v, i) => [slot * i + slot / 2, y(v)]);
+  const len = pts.slice(1).reduce((acc, p, i) => acc + Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]), 0);
+  const el = svg("svg", { class: "chart", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": o.aria || "" });
+  if (o.shade != null) {
+    const x0 = o.shade * slot;
+    el.append(svg("rect", { x: x0, y: 0, width: W - x0, height: H - bottom + 2, rx: 6, fill: "var(--warn-soft)" }));
+  }
+  el.append(svg("line", { class: "grid", x1: 0, x2: W, y1: top + ph + 0.5, y2: top + ph + 0.5 }));
+  const path = svg("path", { class: "line draw", d: `M${pts.map((p) => p.map((c) => c.toFixed(1)).join(" ")).join(" L")}`, stroke: o.color, style: `--len:${Math.ceil(len)}` });
+  el.append(path);
+  const fades = [];
+  pts.forEach(([x, py], i) => {
+    const dot = svg("circle", { class: "fade", cx: x.toFixed(1), cy: py.toFixed(1), r: 3.5, fill: "#fff", stroke: o.color, "stroke-width": 2 });
+    const t = label(x, py - 8, String(values[i]), { class: "v fade" });
+    el.append(dot, t);
+    fades.push(dot, t);
+    el.append(label(x, H - 5, hh(i).slice(0, 2)));
+  });
+  return { el, path, fades };
+}
+
+// Modeled service level against the number of agents, for one hour.
+function slCurve(W, calls, aht, o) {
+  const H = 190;
+  const left = 38;
+  const right = 10;
+  const top = 14;
+  const bottom = 34;
+  const ph = H - top - bottom;
+  const ns = [];
+  for (let n = o.from; n <= o.to; n++) ns.push(n);
+  const step = (W - left - right) / (ns.length - 1);
+  const x = (n) => left + (n - o.from) * step;
+  const y = (v) => top + ph - v * ph;
+  const ms = ns.map((n) => metrics(calls, aht, n, o.target));
+  const el = svg("svg", { class: "chart", viewBox: `0 0 ${W} ${H}`, role: "img",
+    "aria-label": `Modeled service level for ${o.from} to ${o.to} agents; target ${targetText(o.target)}` });
+  for (const v of [0, 0.5, 1]) {
+    el.append(svg("line", { class: "grid", x1: left, x2: W - right, y1: y(v), y2: y(v) }));
+    el.append(label(left - 6, y(v) + 4, pct(v), { "text-anchor": "end" }));
+  }
+  const ty = y(o.target.sl);
+  el.append(svg("line", { class: "target", x1: left, x2: W - right, y1: ty, y2: ty }));
+  // Right end, under the line: the curve has already cleared the target there.
+  el.append(label(W - right, ty + 15, `target ${pct(o.target.sl)} in ${o.target.t} s`, { class: "target-t", "text-anchor": "end" }));
+  el.append(svg("line", { class: "marker", x1: x(o.n), x2: x(o.n), y1: top, y2: top + ph }));
+  el.append(svg("path", { class: "line", stroke: "var(--accent)", d: `M${ms.map((m) => `${x(m.n).toFixed(1)} ${y(m.sl).toFixed(1)}`).join(" L")}` }));
+  const every = step < 22 ? 2 : 1;
+  for (const m of ms) {
+    el.append(svg("circle", { cx: x(m.n).toFixed(1), cy: y(m.sl).toFixed(1), r: 3, fill: m.stable ? (m.met ? "var(--ok)" : "var(--accent)") : "var(--muted)" }));
+    if ((m.n - o.from) % every === 0 || m.n === o.n) el.append(label(x(m.n), H - bottom + 16, String(m.n), m.n === o.n ? { class: "v" } : {}));
+  }
+  if (o.pick != null && o.pick >= o.from && o.pick <= o.to) {
+    el.append(svg("circle", { class: "pick", cx: x(o.pick).toFixed(1), cy: y(ms[o.pick - o.from].sl).toFixed(1), r: 8 }));
+  }
+  const now = ms[o.n - o.from];
+  el.append(svg("circle", { class: "now", cx: x(o.n).toFixed(1), cy: y(now.sl).toFixed(1), r: 6 }));
+  el.append(label(left + (W - left - right) / 2, H - 2, "agents"));
+  return el;
+}
+
+/* ------------------------------------------------------------ renderers */
+
+const RENDER = {
+  async forecast(stage, s, wait) {
+    stage.append(head("forecast"));
+    const p = peakIndex(s);
+    const boxes = [h("div"), h("div")];
+    const card = h("div", { class: "card reveal" },
+      h("p", { class: "card-label" }, `Forecast for ${s.day}`),
+      h("div", { class: "charts" },
+        h("div", {}, h("p", { class: "chart-k", style: "--c:var(--c-calls)" }, "Calls per hour"), boxes[0]),
+        h("div", {}, h("p", { class: "chart-k", style: "--c:var(--c-aht)" }, "Average handling time (s)", h("span", { class: "small" }, "zoomed axis")), boxes[1])),
+      illus());
+    stage.append(card);
+    const shade = s.holiday?.from ? HOURS.indexOf(s.holiday.from) : null;
+    const calls = columns(boxes[0].clientWidth, s.calls, { color: "var(--c-calls)", highlight: p, shade, aria: `Forecast calls per hour, 09:00 to 17:00, peaking at ${s.calls[p]} at ${hh(p)}` });
+    const aht = lineChart(boxes[1].clientWidth, s.aht, { color: "var(--c-aht)", shade, aria: `Forecast average handling time, ${Math.min(...s.aht)} to ${Math.max(...s.aht)} seconds` });
+    boxes[0].append(calls.el);
+    boxes[1].append(aht.el);
+    const feats = h("div", { class: "feats" },
+      h("span", { class: "feat" }, "Hour of day"),
+      h("span", { class: "feat" }, `Weekday: ${s.weekday}`),
+      h("span", { class: `feat${s.holiday ? " flag" : ""}` }, s.holiday ? `Turkish holidays: ${s.holiday.feature}` : "Turkish holidays: none that day"),
+      h("span", { class: "feat" }, "Ordinary lookback"),
+      h("span", { class: "feat" }, "Seasonal lookback"));
+    await wait(600);
+    later(calls.cols);
+    await wait(500);
+    later([aht.path]);
+    await wait(900);
+    later([...calls.fades, ...aht.fades]);
+    await wait(600);
+    stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "Hourly calendar features, shared by both models"), feats));
+    await wait(700);
+    const noon = HOURS.indexOf(12);
+    finish(stage,
+      shade != null
+        ? result("warn", String(s.calls[shade]), `calls at ${hh(shade)}, down from ${s.calls[noon]} at ${hh(noon)}: the half-day holiday pulls the afternoon down.`)
+        : result("", String(s.calls[p]), `calls at ${hh(p)}, the peak hour, at ${s.aht[p]} s each.`),
+      why("forecast"),
+      mechanics(
+        h("div", {}, h("h4", {}, "One dated model set, two bundles"),
+          h("div", { class: "bundles" },
+            ["Calls per hour", "Average handling time"].map((t) => h("div", { class: "bundle" }, h("b", {}, t),
+              h("ul", {}, h("li", {}, "the model and its configuration"), h("li", {}, "scalers, where needed"), h("li", {}, "recent values for lagged features")))))),
+        h("p", { class: "small" }, "If either member of the pair is missing, the service answers not found instead of forecasting half a day.")));
+  },
+
+  async join(stage, s, wait) {
+    stage.append(head("join"));
+    const grid = h("div", { class: "join" },
+      h("span", { class: "jh" }, "Calls model"), h("span", { class: "jh" }, "Handling time (s)"), h("span", { class: "jh" }, "Row"));
+    const rows = HOURS.map((_, i) => {
+      const a = h("span", { class: "c", style: "--c:var(--c-calls)" }, `${hh(i)} · ${s.calls[i]}`);
+      const b = h("span", { class: "c wait", style: "--c:var(--c-aht)" }, `${hh(i)} · ${s.aht[i]}`);
+      const m = h("span", { class: "m wait" }, "joined");
+      grid.append(a, b, m);
+      return [b, m];
+    });
+    stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, `${s.date}, matched on the hour`), grid, illus()));
+    await wait(700);
+    for (const [b] of rows) b.classList.remove("wait");
+    await wait(700);
+    for (const [, m] of rows) {
+      m.classList.remove("wait");
+      m.classList.add("on");
+      m.textContent = "✓ joined";
+      await wait(160);
+    }
+    await wait(500);
+    finish(stage,
+      result("ok", `${HOURS.length} of ${HOURS.length}`, "hours have both a call count and a handling time, so each becomes one row for the staffing calculation."),
+      why("join"),
+      mechanics(
+        h("div", {}, h("h4", {}, "Hypothetical: an hour only one forecast has"),
+          h("div", { class: "join" },
+            h("span", { class: "c", style: "--c:var(--c-calls)" }, `${hh(8)} · ${s.calls[8]}`),
+            h("span", { class: "c", style: "--c:var(--c-aht)" }, `${hh(8)} · ${s.aht[8]}`),
+            h("span", { class: "m on" }, "✓ joined"),
+            h("span", { class: "c", style: "--c:var(--c-calls)" }, "18:00 · …"),
+            h("span", { class: "c", style: "--c:var(--c-aht); color:var(--muted)" }, "18:00 · none"),
+            h("span", { class: "m gone" }, "dropped"))),
+        h("p", { class: "small" }, "An inner join keeps only timestamps present in both forecasts; nothing is filled in.")));
+  },
+
+  async load(stage, s, wait) {
+    stage.append(head("load"));
+    const p = peakIndex(s);
+    const a = erlangs(s.calls[p], s.aht[p]);
+    const box = h("div");
+    const card = h("div", { class: "card reveal" },
+      h("p", { class: "card-label" }, `The peak hour, ${hh(p)}`),
+      h("div", { class: "formula" },
+        h("span", {}, h("b", {}, s.calls[p]), h("small", {}, "calls / hour")), h("span", { class: "op" }, "×"),
+        h("span", {}, h("b", {}, s.aht[p]), h("small", {}, "s per call")), h("span", { class: "op" }, "÷"),
+        h("span", {}, h("b", {}, "3,600"), h("small", {}, "s per hour")), h("span", { class: "op" }, "="),
+        h("span", {}, h("b", {}, a.toFixed(2)), h("small", {}, "erlangs"))),
+      h("p", { class: "card-label", style: "margin:20px 0 6px" }, "Every hour, in erlangs"), box, illus());
+    stage.append(card);
+    const shade = s.holiday?.from ? HOURS.indexOf(s.holiday.from) : null;
+    const loads = HOURS.map((_, i) => erlangs(s.calls[i], s.aht[i]));
+    const chart = columns(box.clientWidth, loads, { color: "var(--c-load)", highlight: p, shade, fmt: (v) => v.toFixed(1), aria: `Workload per hour in erlangs, peaking at ${a.toFixed(1)} at ${hh(p)}` });
+    box.append(chart.el);
+    await wait(600);
+    later(chart.cols);
+    await wait(900);
+    later(chart.fades);
+    await wait(700);
+    const n = Math.floor(a);
+    const next = metrics(s.calls[p], s.aht[p], n + 1, S.target);
+    finish(stage,
+      result("warn", a.toFixed(2), `erlangs at ${hh(p)}. ${n} agents could never catch up; ${n + 1} would answer ${next.met ? "" : "only "}${pct(next.sl)} of calls within ${S.target.t} s.`),
+      why("load"),
+      mechanics(h("div", {}, h("h4", {}, "The same arithmetic for every hour"),
+        h("div", { class: "eq" }, HOURS.map((_, i) => h("div", {}, `${hh(i)}  ${String(s.calls[i]).padStart(3)} × ${s.aht[i]} / 3,600 = `, h("em", {}, loads[i].toFixed(2))))))));
+  },
+
+  async erlang(stage, s, wait) {
+    stage.append(head("erlang"));
+    const range = (id, min, max, step, value) => h("input", { type: "range", id, min, max, step, value });
+    P = {
+      stage,
+      hours: h("div", { class: "hours", role: "group", "aria-label": "Hour to plan" }),
+      info: h("p", { class: "hour-info" }),
+      agents: range("p-agents", 1, 2, 1, 1),
+      share: range("p-share", 50, 99, 1, Math.round(S.target.sl * 100)),
+      secs: range("p-secs", 5, 60, 5, S.target.t),
+      out: [h("output", { for: "p-agents" }), h("output", { for: "p-share" }), h("output", { for: "p-secs" })],
+      ro: [0, 1, 2, 3].map(() => h("div", { class: "ro" }, h("b"), h("span"))),
+      status: h("p", { class: "status", role: "status" }),
+      curve: h("div"),
+      solve: h("button", { class: "btn primary", type: "button" }, "Ask the solver"),
+      hint: h("p", { class: "try" }, "Move the agents slider until the target is met, then ask the solver."),
+      trail: h("div", { class: "trail", "aria-label": "Solver steps" }),
+      after: null,
+    };
+    P.hours.append(...HOURS.map((_, i) => {
+      const b = h("button", { class: "hour", type: "button", "aria-pressed": String(i === S.hour), "aria-label": hh(i) }, hh(i).slice(0, 2));
+      b.onclick = () => {
+        S.hour = i;
+        S.agents = Math.floor(erlangs(s.calls[i], s.aht[i])) + 1;
+        for (const [k, x] of [...P.hours.children].entries()) x.setAttribute("aria-pressed", String(k === i));
+        updatePlanner();
+      };
+      return b;
+    }));
+    P.agents.oninput = () => { S.agents = Number(P.agents.value); S.tried = S.agents; updatePlanner(); };
+    P.share.oninput = P.secs.oninput = () => {
+      S.target = { sl: Number(P.share.value) / 100, t: Number(P.secs.value) };
+      updatePlanner();
+      renderProgress();
+    };
+    P.solve.onclick = () => runSolver();
+    const row = (name, input, out, main) => h("div", { class: `sl-row${main ? " main" : ""}` }, h("label", { for: input.id }, name), input, out);
+    const card = h("div", { class: "card reveal" },
+      h("p", { class: "card-label" }, `You're the planner · ${s.day}`),
+      P.hours, P.info,
+      h("div", { class: "sliders" },
+        row("Agents", P.agents, P.out[0], true),
+        row("Target share", P.share, P.out[1]),
+        row("Within", P.secs, P.out[2])),
+      h("div", { class: "readouts" }, P.ro),
+      P.status,
+      h("div", { class: "curve-box" }, h("p", { class: "card-label", style: "margin-bottom:4px" }, "Modeled service level by team size"), P.curve),
+      h("div", { class: "solve-row" }, P.solve, P.hint),
+      P.trail,
+      illus("Illustrative volumes; the calculation is real Erlang C, run in your browser."));
+    stage.append(card);
+    updatePlanner();
+    if (S.solved) {
+      P.solve.disabled = true;
+      P.solve.textContent = "Solved ↓";
+      P.hint.remove();
+      renderSolved(false);
+      return;
+    }
+    await wait(500);
+    show(card);
+  },
+
+  async table(stage, s, wait) {
+    stage.append(head("table"));
+    const wide = (text) => h("th", { class: "wide" }, text);
+    T = { s, presets: h("div", { class: "presets", role: "group", "aria-label": "Service-level target" }), chart: h("div"), body: h("tbody"), sum: h("div"), slTh: h("small") };
+    const card = h("div", { class: "card reveal" },
+      h("p", { class: "card-label" }, `Staffing plan · ${s.day}`),
+      T.presets, T.chart,
+      h("div", { class: "legend" },
+        h("span", { style: "--c:color-mix(in srgb, var(--accent) 14%, white); --b:var(--accent)" }, "Agents required"),
+        h("span", { style: "--c:var(--c-load)" }, "Workload (erlangs)")),
+      h("div", { class: "tbl-wrap" }, h("table", { class: "plan" },
+        h("thead", {}, h("tr", {}, h("th", {}, "Hour"), h("th", {}, "Calls"), h("th", {}, "AHT"), wide("Erlangs"),
+          h("th", {}, "Agents"), h("th", {}, "SL", T.slTh), wide("Util."), h("th", {}, "ASA"))),
+        T.body)),
+      illus("Illustrative volumes; agents, service level (SL), utilization and average speed of answer (ASA) are computed live with Erlang C."));
+    stage.append(card);
+    renderPresets();
+    const { chart, trs } = drawPlan(null);
+    await wait(500);
+    later(chart.cols);
+    for (const tr of trs) {
+      T.body.append(tr);
+      await wait(110);
+    }
+    later(chart.fades);
+    await wait(500);
+    finish(stage, T.sum, why("table"),
+      mechanics(h("div", {}, h("h4", {}, "What else each API row carries"),
+        h("p", { class: "small" }, "The service also returns telephone lines, queue measures and an abandonment estimate for every hour. That estimate uses a separate waiting-time parameter, 30 seconds by default. None of these are computed in this demo."))));
+  },
+
+  async api(stage, s, wait) {
+    stage.append(head("api"));
+    const ep = (method, path, input, output) => h("div", { class: "ep" },
+      h("code", {}, h("i", {}, method), path),
+      h("span", { class: "io" }, h("b", {}, "In: "), input, h("br"), h("b", {}, "Out: "), output));
+    stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "The call-center API"),
+      h("div", { class: "eps" },
+        ep("GET", "/models", "no request body", "available dated model sets and their IDs"),
+        ep("POST", "/erlang", "a list of call rates and handling times, optional service-level settings", "staffing and queue estimates for each scenario"),
+        ep("POST", "/calculate", "model-set ID, start and end dates, optional service-level settings", "model metadata and timestamped forecasts with staffing estimates"))));
+    await wait(900);
+    A = { s, chips: h("div", { class: "variants", role: "group", "aria-label": "Request to send" }), req: h("pre"), res: h("pre"), badge: h("span", { class: "badge" }), note: h("p", { class: "small", style: "margin-top:10px" }) };
+    A.chips.append(...VARIANTS.map((v) => {
+      const b = h("button", { class: "preset", type: "button", "aria-pressed": String(v.id === S.variant) }, v.label);
+      b.onclick = () => { S.variant = v.id; renderVariant(); };
+      return b;
+    }));
+    stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "Send a request to POST /calculate"),
+      A.chips,
+      h("div", { class: "codes" },
+        h("div", { class: "codebox" }, h("div", { class: "path" }, "Request"), A.req),
+        h("div", { class: "codebox" }, h("div", { class: "path" }, "Response", A.badge), A.res)),
+      A.note,
+      illus("Field names and values are illustrative: the case study describes the contract, not the exact schema.")));
+    renderVariant();
+    await wait(700);
+    const p = peakIndex(s);
+    const m = solve(s.calls[p], s.aht[p], S.target).m;
+    finish(stage,
+      result("", null, "Try the rejected requests: ", h("b", {}, "Pydantic"), " checks types and ranges before any model runs, and the route checks the model ID and the dates."),
+      why("api"),
+      mechanics(h("div", {}, h("h4", {}, `POST /erlang with ${hh(p)} from this day, no model needed`),
+        h("div", { class: "codes" },
+          h("div", { class: "codebox" }, h("div", { class: "path" }, "Request"),
+            h("pre", {}, `{\n  "calls": [${s.calls[p]}],\n  "aht": [${s.aht[p]}],\n  "service_level": ${S.target.sl},\n  "service_time": ${S.target.t}\n}`)),
+          h("div", { class: "codebox" }, h("div", { class: "path" }, "Response", h("span", { class: "badge ok" }, "OK")),
+            h("pre", {}, `[{\n  "agents": ${m.n},\n  "service_level": ${m.sl.toFixed(3)},\n  "utilization": ${m.util.toFixed(2)},\n  "asa": ${m.asa.toFixed(1)},\n`, h("span", { class: "cm" }, "  // + lines, queue measures,\n  //   abandonment estimate"), "\n}]")))),
+        h("p", { class: "small" }, "Supplied inputs go straight to the queueing calculation, so a scenario can be compared without a forecast.")));
+  },
+
+  async recap(stage, s, wait) {
+    const rows = plan(s, S.target);
+    const p = peakIndex(s);
+    const peak = rows.reduce((x, y) => (y.n > x.n ? y : x));
+    const total = rows.reduce((acc, r) => acc + r.n, 0);
+    const mine = rows[S.hour];
+    stage.append(h("div", { class: "head reveal" }, h("p", { class: "eyebrow" }, "Recap"), h("h3", { class: "t2" }, `What happened to ${s.day}`)));
+    const list = h("ol", { class: "path" });
+    stage.append(h("div", { class: "card reveal" }, list, illus()));
+    const items = [
+      ["Forecast", `${s.calls[p]} calls at ${hh(p)}, the peak, at ${s.aht[p]} s each`],
+      ["Join", `${HOURS.length} of ${HOURS.length} hours matched on timestamp`],
+      ["Workload", `${erlangs(s.calls[p], s.aht[p]).toFixed(2)} erlangs at the peak`],
+      ["Erlang C", `${mine.n} agents for ${hh(S.hour)} at ${targetText(S.target)} (${pct1(mine.m.sl)} modeled)`],
+      ["Plan", `${peak.n} agents at ${hh(peak.i)}; ${total} agent-hours over the day`],
+      ["API", "One POST /calculate, one row per hour"],
+    ];
+    for (const [i, [k, v]] of items.entries()) {
+      list.append(h("li", { class: "reveal" }, h("span", {}, i + 1), h("b", {}, k), h("span", {}, v)));
+      await wait(220);
+    }
+    await wait(400);
+    const tile = (big, text) => h("div", { class: "tile" }, h("b", {}, big), h("span", {}, text));
+    stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "From the case study"),
+      h("div", { class: "tiles" },
+        tile("85% in 15 s", "default target; a setting, not a result"),
+        tile("30 s", "default waiting-time parameter for the abandonment estimate"),
+        tile("3", "call-center endpoints, plus a demand and revenue service"),
+        tile("95% of days", "with service level above 80/20"))));
+    await wait(400);
+    stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "What the estimate is not"),
+      h("ul", { class: "limits" },
+        h("li", {}, "A shift roster. It is a capacity estimate: no breaks, leave or skill-based routing."),
+        h("li", {}, "Exact. Erlang C assumes a stable queue, independent arrivals and a simplified handling-time distribution; real peaks and callers can differ."),
+        h("li", {}, "Observed. Waiting and abandonment outputs are model estimates, not outcomes."),
+        h("li", {}, "Around the clock. The schedule is weekdays 09:00 through 17:00, and longer recursive forecasts inherit uncertainty from earlier predictions."),
+        h("li", {}, "A claim of accuracy or savings. The case study reports neither."))));
+    await wait(400);
+    const others = GROUPS.map((g) => {
+      const idx = SCENARIOS.map((x, i) => [x, i]).filter(([x]) => x.group === g.id).map(([, i]) => i);
+      const target = g.id === s.group ? idx[(idx.indexOf(S.sc) + 1) % idx.length] : idx[0];
+      const b = h("button", { class: "pathcard", type: "button" }, h("b", {}, g.id === s.group ? `Another “${g.label}” day` : g.label), h("span", {}, g.blurb));
+      b.onclick = () => select(target);
+      return b;
+    });
+    finish(stage, h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "Plan another day"), h("div", { class: "paths" }, others)));
+  },
+};
+
+/* -------------------------------------------------------------- planner */
+
+function updatePlanner() {
+  const s = cur();
+  const i = S.hour;
+  const [calls, aht] = [s.calls[i], s.aht[i]];
+  const a = erlangs(calls, aht);
+  const sol = solve(calls, aht, S.target);
+  const from = Math.max(1, Math.floor(a));
+  const to = Math.max(sol.n + 4, from + 8);
+  S.agents = Math.min(to, Math.max(from, S.agents));
+  P.agents.min = from;
+  P.agents.max = to;
+  P.agents.value = S.agents;
+  P.share.value = Math.round(S.target.sl * 100);
+  P.secs.value = S.target.t;
+  const m = metrics(calls, aht, S.agents, S.target);
+  P.info.replaceChildren(h("b", {}, hh(i)), ` · ${calls} calls · ${aht} s handling time · `, h("b", {}, `${a.toFixed(2)} erlangs`));
+  P.out[0].textContent = S.agents;
+  P.out[1].textContent = pct(S.target.sl);
+  P.out[2].textContent = `${S.target.t} s`;
+  const ro = [
+    [pct(m.pw), "of callers wait at all", ""],
+    [m.stable ? pct1(m.sl) : "—", `answered within ${S.target.t} s`, m.met ? "ok" : "bad"],
+    [secs(m.asa), "average speed of answer", ""],
+    [m.stable ? pct(m.util) : "≥ 100%", "utilization", ""],
+  ];
+  ro.forEach(([big, text, tone], k) => {
+    P.ro[k].className = `ro ${tone}`;
+    P.ro[k].firstChild.textContent = big;
+    P.ro[k].lastChild.textContent = text;
+  });
+  P.status.className = `status${m.met ? " met" : ""}`;
+  P.status.textContent = !m.stable
+    ? `${S.agents} agents for ${a.toFixed(2)} erlangs: calls arrive faster than they are handled, so the queue grows without limit.`
+    : m.met
+      ? `Target met: ${pct1(m.sl)} answered within ${S.target.t} s${S.agents > sol.n ? `, with room to spare at ${pct(m.util)} utilization` : ""}.`
+      : `Short of the target: ${pct1(m.sl)} answered within ${S.target.t} s, against ${pct(S.target.sl)}.`;
+  P.curve.replaceChildren(slCurve(P.curve.clientWidth || 300, calls, aht, { from, to, n: S.agents, target: S.target, pick: S.solved ? sol.n : null }));
+  if (S.solved && P.after) {
+    P.trail.replaceChildren(...sol.trail.map(trailChip));
+    P.after.answer.replaceWith(P.after.answer = answer(sol));
+    P.after.eq.replaceChildren(...equations(calls, aht, m));
+  }
+}
+
+const trailChip = (m) => h("span", { class: `tr${m.met ? " met" : ""}` }, `${m.n} → ${pct1(m.sl)}`);
+
+function answer(sol) {
+  const m = sol.m;
+  return result("ok", String(sol.n), h("b", {}, `agents for ${hh(S.hour)}`),
+    `: the fewest that answer at least ${pct(S.target.sl)} within ${S.target.t} s. Modeled: ${pct1(m.sl)}, ${pct(m.util)} utilization, ${secs(m.asa)} average speed of answer.`);
+}
+
+function equations(calls, aht, m) {
+  const line = (k, ...v) => h("div", {}, `${k.padEnd(4)}= `, ...v);
+  const n = m.n;
+  if (!m.stable) return [line("A", `${calls} × ${aht} / 3,600 = `, h("em", {}, m.a.toFixed(2))), h("div", {}, `N = ${n} ≤ A: no steady state, so Erlang C has no answer.`)];
+  return [
+    line("A", `${calls} × ${aht} / 3,600 = `, h("em", {}, m.a.toFixed(2)), " erlangs"),
+    line("B", "B(0) = 1; B(k) = A·B(k−1) / (k + A·B(k−1))"),
+    line("", `B(${n}) = `, h("em", {}, m.b.toFixed(4)), "  (Erlang B)"),
+    line("C", `N·B / (N − A·(1 − B)) = `, h("em", {}, m.pw.toFixed(4)), "  (P wait)"),
+    line("SL", `1 − C·e^(−(N − A)·T / AHT) = `, h("em", {}, pct1(m.sl))),
+    line("ASA", `C·AHT / (N − A) = `, h("em", {}, secs(m.asa))),
+    line("U", `A / N = `, h("em", {}, pct(m.util))),
+  ];
+}
+
+function renderSolved(scroll) {
+  const s = cur();
+  const [calls, aht] = [s.calls[S.hour], s.aht[S.hour]];
+  const sol = solve(calls, aht, S.target);
+  const eq = h("div", { class: "eq" });
+  P.after = { answer: answer(sol), eq };
+  P.trail.replaceChildren(...sol.trail.map(trailChip));
+  const parts = [P.after.answer, why("erlang"),
+    mechanics(h("div", {}, h("h4", {}, "Erlang C for the agents slider's current value"), eq),
+      h("p", { class: "small" }, "This demo computes Erlang B by its recurrence and derives Erlang C from it, which avoids the overflow of Aᴺ / N! for large teams."))];
+  for (const p of parts) P.stage.append(p);
+  updatePlanner();
+  if (scroll) show(parts[0], parts[1]);
+}
+
+async function runSolver() {
+  if (S.phase !== "pipeline" || steps()[S.step].key !== "erlang" || S.solved || P.solve.disabled) return;
+  stopCountdown();
+  const tk = ++S.token;
+  const wait = makeWait(tk, false);
+  Object.assign(S, { busy: true, fast: false, userScrolled: false });
+  updateNav();
+  P.solve.disabled = true;
+  P.solve.textContent = "Solving…";
+  P.hint.remove();
+  const controls = [P.agents, P.share, P.secs, ...P.hours.children];
+  for (const el of controls) el.disabled = true;
+  const s = cur();
+  const sol = solve(s.calls[S.hour], s.aht[S.hour], S.target);
+  P.trail.replaceChildren();
+  announce("The solver adds agents one at a time until the target is met.");
+  try {
+    for (const m of sol.trail) {
+      S.agents = m.n;
+      updatePlanner();
+      P.trail.append(trailChip(m));
+      await wait(m.met ? 300 : 450);
+    }
+  } catch (e) {
+    if (e === CANCEL) return;
+    throw e;
+  }
+  for (const el of controls) el.disabled = false;
+  P.solve.textContent = "Solved ↓";
+  Object.assign(S, { solved: true, busy: false });
+  renderSolved(true);
+  announce(`Solver: ${sol.n} agents for ${hh(S.hour)}.`);
+  updateNav();
+  autoAdvance();
+}
+
+/* ---------------------------------------------------------------- table */
+
+const PRESETS = [
+  { sl: 0.85, t: 15, label: "85% in 15 s · API default" },
+  { sl: 0.8, t: 20, label: "80% in 20 s" },
+];
+
+function renderPresets() {
+  const list = PRESETS.some((p) => sameTarget(p, S.target)) ? PRESETS : [...PRESETS, { ...S.target, label: `${targetText(S.target)} · yours` }];
+  T.presets.replaceChildren(...list.map((p) => {
+    const b = h("button", { class: "preset", type: "button", "aria-pressed": String(sameTarget(p, S.target)) }, p.label);
+    b.onclick = () => {
+      if (sameTarget(p, S.target)) return;
+      const before = plan(T.s, S.target).map((r) => r.n);
+      S.target = { sl: p.sl, t: p.t };
+      renderPresets();
+      renderProgress();
+      const { chart, trs } = drawPlan(before);
+      T.body.replaceChildren(...trs);
+      chart.cols.concat(chart.fades).forEach((el) => el.classList.add("on"));
+      announce(`Target ${targetText(S.target)}: ${plan(T.s, S.target).reduce((acc, r) => acc + r.n, 0)} agent-hours.`);
+    };
+    return b;
+  }));
+}
+
+// Chart, table rows and summary for the current target. `before` holds the
+// previous agent counts, so rows that changed can flash.
+function drawPlan(before) {
+  const s = T.s;
+  const rows = plan(s, S.target);
+  const peak = rows.reduce((x, y) => (y.n > x.n ? y : x));
+  const total = rows.reduce((acc, r) => acc + r.n, 0);
+  const utils = rows.map((r) => r.m.util);
+  T.slTh.textContent = `in ${S.target.t} s`;
+  const chart = columns(T.chart.clientWidth || 300, rows.map((r) => r.n), {
+    color: "var(--accent)", outline: true, inner: rows.map((r) => r.m.a), innerColor: "var(--c-load)", highlight: peak.i,
+    max: Math.max(...rows.map((r) => r.n)) * 1.08, height: 160, shade: s.holiday?.from ? HOURS.indexOf(s.holiday.from) : null,
+    aria: `Agents required per hour, peaking at ${peak.n} at ${hh(peak.i)}, against the workload in erlangs`,
+  });
+  T.chart.replaceChildren(chart.el);
+  const trs = rows.map((r) => {
+    const tr = h("tr", { class: `${r.i === peak.i ? "peak" : ""}${before && before[r.i] !== r.n ? " flash" : ""}` },
+      h("td", {}, hh(r.i)), h("td", {}, r.calls), h("td", {}, `${r.aht} s`), h("td", { class: "wide" }, r.m.a.toFixed(2)),
+      h("td", { class: "agents" }, r.n), h("td", {}, pct1(r.m.sl)), h("td", { class: "wide" }, pct(r.m.util)), h("td", {}, secs(r.m.asa)));
+    if (before) setTimeout(() => tr.classList.remove("flash"), 700);
+    return tr;
+  });
+  T.sum.replaceChildren(result("", String(peak.n),
+    h("b", {}, `agents at ${hh(peak.i)}`), `, the busiest hour; ${total} agent-hours across the day. Utilization runs from ${pct(Math.min(...utils))} to ${pct(Math.max(...utils))}: smaller teams need relatively more headroom.`));
+  return { chart, trs };
+}
+
+/* ------------------------------------------------------------------ api */
+
+const VARIANTS = [
+  { id: "valid", label: "Valid" },
+  { id: "unknown", label: "Unknown model", set: { model_id: '"no-such-set"' }, tone: "bad", status: "Rejected", short: "unknown model ID",
+    why: "The model-backed route rejects unknown model IDs." },
+  { id: "reversed", label: "Reversed dates", set: (s) => ({ start: `"${s.date}T17:00"`, end: `"${s.date}T09:00"` }), tone: "bad", status: "Rejected", short: "the range ends before it starts",
+    why: "The model-backed route rejects reversed date ranges." },
+  { id: "empty", label: "Empty range", set: (s) => ({ end: `"${s.date}T09:00"` }), tone: "bad", status: "Rejected", short: "the range is empty",
+    why: "The model-backed route rejects empty date ranges." },
+  { id: "early", label: "Too early", set: { start: '"2020-01-06T09:00"' }, tone: "bad", status: "Rejected", short: "starts before the model's supported start",
+    why: "Requests that start before the model's supported start are rejected." },
+  { id: "share", label: "Service level 1.2", set: { service_level: "1.2" }, tone: "bad", status: "Rejected", short: "service level outside 0–1",
+    why: "Pydantic parses the request types and constrains the service-level fraction to 0–1." },
+  { id: "zero", label: "0 s threshold", set: { service_time: "0" }, tone: "bad", status: "Rejected", short: "time thresholds must be positive",
+    why: "Pydantic requires positive service and abandonment time thresholds." },
+  { id: "half", label: "Half a model pair", set: { model_id: '"incomplete-set"' }, tone: "warn", status: "Not found", short: "a member of the model pair is missing",
+    why: "If one member of the model pair is missing, the service returns a not-found response." },
+  { id: "weekend", label: "Weekend only", set: { start: '"2025-03-15T09:00"', end: '"2025-03-16T17:00"' }, empty: true,
+    why: "A valid request whose period has no forecast rows returns an empty data list, not an error." },
+];
+
+function renderVariant() {
+  const v = VARIANTS.find((x) => x.id === S.variant);
+  const s = A.s;
+  for (const [k, b] of [...A.chips.children].entries()) b.setAttribute("aria-pressed", String(VARIANTS[k].id === v.id));
+  const set = typeof v.set === "function" ? v.set(s) : v.set || {};
+  const req = {
+    model_id: '"example-set"', start: `"${s.date}T09:00"`, end: `"${s.date}T17:00"`,
+    service_level: String(S.target.sl), service_time: String(S.target.t), abandon_time: "30", ...set,
+  };
+  const keys = Object.keys(req);
+  A.req.replaceChildren("{\n", ...keys.flatMap((k, i) => [`  "${k}": `, k in set ? h("mark", {}, req[k]) : req[k], i < keys.length - 1 ? ",\n" : "\n"]), "}");
+  A.badge.className = `badge ${v.tone || "ok"}`;
+  A.badge.textContent = v.status || "OK";
+  if (v.tone) {
+    A.res.replaceChildren(h("span", { class: "cm" }, `// ${v.status}: ${v.short}.\n// No forecast is run.`));
+  } else if (v.empty) {
+    A.res.replaceChildren(`{\n  "model": { "id": "example-set", … },\n  "data": `, h("mark", {}, "[]"), "\n}");
+  } else {
+    const r = plan(s, S.target)[0];
+    A.res.replaceChildren(`{\n  "model": { "id": "example-set", … },\n  "data": [\n    { "timestamp": "${s.date}T${hh(0)}",\n      "calls": ${r.calls}, "aht": ${r.aht},\n      "agents": ${r.n},\n      "service_level": ${r.m.sl.toFixed(3)},\n      "utilization": ${r.m.util.toFixed(2)},\n      "asa": ${r.m.asa.toFixed(1)}, … },\n`,
+      h("span", { class: "cm" }, `    // … ${HOURS.length - 1} more hours`), "\n  ]\n}");
+  }
+  A.note.textContent = v.why || "Model metadata, then one row per hour: the forecast and its staffing side by side.";
+}
+
+/* --------------------------------------------------------------- wiring */
+
+$("next").onclick = () => { stopCountdown(); advance(); };
+$("back").onclick = () => {
+  stopCountdown();
+  if (S.phase === "pipeline" && S.step > 0) go(S.step - 1);
+};
+$("auto").onchange = (e) => {
+  S.auto = e.target.checked;
+  if (S.auto) autoAdvance();
+  else stopCountdown();
+};
+for (const ev of ["wheel", "touchmove"]) {
+  addEventListener(ev, () => { if (S.busy) S.userScrolled = true; }, { passive: true });
+}
+// Arrow keys step through the demo only while focus is inside it, and never
+// while a slider or a disclosure has focus.
+host.addEventListener("keydown", (e) => {
+  if (e.altKey || e.ctrlKey || e.metaKey || e.composedPath()[0].closest?.("summary, input")) return;
+  if (e.key === "ArrowRight" && !$("next").disabled) { e.preventDefault(); $("next").click(); }
+  if (e.key === "ArrowLeft" && !$("back").disabled) { e.preventDefault(); $("back").click(); }
+});
+
+select(0, false);
+})();
+</script>

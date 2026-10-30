@@ -1,0 +1,1289 @@
+<electricity-demo><p>The interactive electricity forecasting walkthrough needs JavaScript.</p></electricity-demo>
+<template id="electricity-demo">
+<style>
+
+/* Always light: white surfaces, one amber accent for TimesFM, teal for the
+   EPİAŞ plan, ink for actual demand. The demo lives in a shadow root, so these
+   rules never touch the page and the page's prose rules never touch the demo. */
+:host {
+  all: initial;
+  display: block;
+  container-type: inline-size;
+  color-scheme: light;
+  --page: #F6F7FB;
+  --card: #FFFFFF;
+  --surface: #F2F3F8;
+  --border: #E4E6EF;
+  --text: #1A1C2B;
+  --muted: #676C84;
+  --accent: #B45309;
+  --accent-ink: #92400E;
+  --accent-soft: #FFF7ED;
+  --plan: #0F766E;
+  --plan-soft: #E8F5F3;
+  --hol: #ECE8F6;
+  --hol-ink: #5B4B8A;
+  --ok: #157F3C;
+  --ok-soft: #E9F6EE;
+  --warn: #A65B06;
+  --warn-soft: #FDF4E4;
+  --bad: #B42318;
+  --bad-soft: #FDEDEB;
+  --shadow: 0 1px 2px rgb(24 26 60 / 0.04), 0 6px 20px rgb(24 26 60 / 0.06);
+  --sans: "Inter", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --col: 44rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: default; }
+:is(button, a, summary, input):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code, pre { font-family: var(--mono); }
+p { margin: 0; }
+h1, h2, h3, h4 { margin: 0; }
+
+/* The card: overflow is clipped, not scrolled, so the sticky progress and nav
+   stay sticky against the page. */
+.app {
+  overflow: clip;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--page);
+  color: var(--text);
+  font: 400 15px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  box-shadow: 0 10px 40px rgb(24 26 60 / 0.12);
+  text-align: left;
+}
+.wrap { width: 100%; max-width: var(--col); margin-inline: auto; padding-inline: 20px; }
+
+/* ------------------------------------------------------------ header */
+
+.top { background: var(--card); border-bottom: 1px solid var(--border); }
+.picker { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 14px; align-items: center; padding-block: 12px; }
+.picker-k { color: var(--muted); font-size: 12px; font-weight: 600; }
+.opts { display: grid; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; gap: 2px; padding: 3px; border-radius: 10px; background: var(--surface); }
+.opt { padding: 5px 10px; border: 0; border-radius: 8px; background: none; color: var(--muted); font-size: 13px; font-weight: 500; line-height: 1.35; }
+.opt:hover { color: var(--text); }
+.opt[aria-pressed="true"] { background: var(--card); color: var(--text); font-weight: 600; box-shadow: 0 1px 3px rgb(24 26 60 / 0.12); }
+.blurb { grid-column: 2; color: var(--muted); font-size: 12.5px; }
+
+/* The picker scrolls away; only the step progress stays pinned. */
+.progress { position: sticky; top: 0; z-index: 10; background: var(--card); border-bottom: 1px solid var(--border); }
+.progress[hidden] { display: none; }
+.prog-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-top: 9px; font-size: 13px; }
+.prog-row b { font-weight: 650; }
+.prog-row .muted { overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+.segs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 8px 0 10px; }
+.seg { height: 6px; padding: 0; border: 0; border-radius: 999px; background: var(--border); }
+.seg.done { background: color-mix(in srgb, var(--accent) 45%, white); }
+.seg.current { background: var(--accent); }
+.seg:not(:disabled):hover { outline: 2px solid var(--accent-soft); }
+
+/* ------------------------------------------------------------ main */
+
+main { min-height: 30rem; padding: 26px 0 32px; }
+.reveal { animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+.eyebrow { color: var(--accent); font-size: 12.5px; font-weight: 650; letter-spacing: 0.01em; }
+.head .t1 { margin: 6px 0 10px; font-size: 26px; font-weight: 750; letter-spacing: -0.03em; line-height: 1.2; }
+.head .t2 { margin: 6px 0 8px; font-size: 24px; font-weight: 750; letter-spacing: -0.025em; line-height: 1.2; }
+.lede { color: var(--muted); font-size: 15.5px; }
+.card { margin-top: 20px; padding: 20px; border: 1px solid var(--border); border-radius: 16px; background: var(--card); box-shadow: var(--shadow); }
+.card-label { margin-bottom: 12px; color: var(--muted); font-size: 12px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; }
+.small { color: var(--muted); font-size: 12.5px; }
+.illus { display: flex; gap: 6px; margin-top: 10px; color: var(--muted); font-size: 12px; }
+.illus::before { content: "≈"; flex: none; display: grid; place-items: center; width: 16px; height: 16px; margin-top: 1px; border-radius: 50%; background: var(--surface); color: var(--accent-ink); font-size: 11px; font-weight: 800; }
+
+.result { display: flex; align-items: center; gap: 14px; margin-top: 16px; padding: 14px 18px; border-radius: 14px; background: var(--soft-bg, var(--accent-soft)); font-size: 15px; }
+.result .big { flex: none; color: var(--ink, var(--accent-ink)); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+.result.ok { --soft-bg: var(--ok-soft); --ink: var(--ok); }
+.result.warn { --soft-bg: var(--warn-soft); --ink: var(--warn); }
+.result.bad { --soft-bg: var(--bad-soft); --ink: var(--bad); }
+.result.plan { --soft-bg: var(--plan-soft); --ink: var(--plan); }
+
+.why { margin-top: 16px; padding: 14px 18px; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 4px 14px 14px 4px; background: var(--card); }
+.why-k { color: var(--muted); font-size: 11.5px; font-weight: 650; letter-spacing: 0.05em; text-transform: uppercase; }
+.why-main { display: flex; align-items: baseline; gap: 12px; margin-top: 4px; }
+.why-main b { flex: none; color: var(--accent-ink); font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+.why details { margin-top: 8px; }
+.why summary, .mech summary { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; list-style: none; }
+.why summary::-webkit-details-marker, .mech summary::-webkit-details-marker { display: none; }
+.why summary::after, .mech summary::after { content: "▾"; font-size: 11px; transition: transform 0.2s; }
+details[open] > summary::after { transform: rotate(180deg); }
+.why details > div { display: grid; gap: 10px; margin-top: 10px; color: var(--muted); font-size: 14px; }
+.mech { margin-top: 14px; }
+.mech > div { display: grid; gap: 14px; margin-top: 12px; padding: 16px; border-radius: 14px; background: var(--surface); }
+.mech h4 { margin-bottom: 8px; font-size: 13px; font-weight: 650; }
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s, box-shadow 0.2s, opacity 0.2s;
+}
+.btn:hover:not(:disabled) { background: var(--surface); }
+.btn:disabled { opacity: 0.45; }
+.btn.primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+.btn.primary:hover:not(:disabled) { background: var(--accent-ink); }
+.btn.counting::after { content: ""; position: absolute; inset: auto 0 0 0; height: 3px; background: rgb(255 255 255 / 0.8); transform-origin: left; animation: count var(--dur, 6s) linear forwards; }
+@keyframes count { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.submit { width: 100%; margin-top: 14px; padding: 11px; font-size: 15px; }
+.submit.pulse { animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px var(--accent-soft); } }
+
+/* intro */
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { display: grid; gap: 4px; margin-bottom: 12px; }
+.field > span { color: var(--muted); font-size: 12px; font-weight: 600; }
+.val { min-height: 38px; padding: 8px 11px; border: 1px solid var(--border); border-radius: 10px; background: var(--page); font-size: 14px; }
+
+/* charts: drawn at the card's real width, so 11px labels stay 11px */
+.chart { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font: 500 11px var(--mono); fill: var(--muted); }
+.chart text.lab { font: 650 11px var(--sans); }
+.chart .grid { stroke: var(--border); stroke-width: 1; }
+.chart .ln { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart .ln.thin { stroke-width: 1.3; }
+.chart .actual { stroke: var(--text); }
+.chart .ctx { stroke: #9A9EB2; }
+.chart .tf { stroke: var(--accent); }
+.chart .plan { stroke: var(--plan); }
+.chart .draw { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset var(--t, 1.4s) ease-in-out; }
+.chart .draw.on { stroke-dashoffset: 0; }
+.chart .hol { fill: var(--hol); }
+.chart .hol-t { fill: var(--hol-ink); }
+.chart .band { fill: rgb(180 83 9 / 0.07); stroke: color-mix(in srgb, var(--accent) 35%, white); stroke-width: 1; }
+.chart .fband { fill: rgb(180 83 9 / 0.06); stroke: color-mix(in srgb, var(--accent) 45%, white); stroke-width: 1; stroke-dasharray: 4 3; }
+.chart .origin { stroke: var(--text); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.chart .mask { fill: var(--surface); }
+.chart .q { font: 800 22px var(--sans); fill: #B9BDCC; }
+.chart .fade { opacity: 0; transition: opacity 0.5s; }
+.chart .fade.on { opacity: 1; }
+.chart .slide { transition: transform 0.9s cubic-bezier(0.3, 0.9, 0.25, 1); }
+.chart .err-tf { fill: var(--accent); }
+.chart .err-plan { fill: var(--plan); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 10px; color: var(--muted); font-size: 12.5px; }
+.legend span::before { content: ""; display: inline-block; width: 14px; height: 3px; margin-right: 6px; border-radius: 2px; background: var(--c); vertical-align: 3px; }
+.legend span.sq::before { width: 10px; height: 10px; border-radius: 3px; vertical-align: -1px; }
+
+/* pull */
+.srcs { display: grid; gap: 10px; }
+.src { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) 4.5rem; gap: 12px; align-items: center; font-size: 14px; }
+.src small { display: block; color: var(--muted); font-size: 12px; }
+.bar { position: relative; height: 8px; border-radius: 999px; background: var(--surface); }
+.bar > i { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--c, var(--accent)); transition: width 0.9s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.tag { justify-self: end; padding: 1px 8px; border-radius: 6px; background: var(--surface); color: var(--muted); font: 600 11.5px var(--mono); transition: background 0.3s, color 0.3s; }
+.tag.on { background: var(--accent-soft); color: var(--accent-ink); }
+.cells { display: grid; grid-template-columns: repeat(21, minmax(0, 1fr)); gap: 3px; margin-top: 8px; }
+.cells i { height: 16px; border-radius: 4px; background: var(--surface); transition: background 0.3s; }
+.cells i.on { background: color-mix(in srgb, var(--accent) 55%, white); }
+
+/* context */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 999px; border: 1px solid var(--border); background: var(--card); font-size: 13px; font-weight: 600; }
+.chip::before { font-size: 12px; font-weight: 800; }
+.chip.yes { border-color: color-mix(in srgb, var(--ok) 40%, white); }
+.chip.yes::before { content: "✓"; color: var(--ok); }
+.chip.no { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--bad); }
+.chip.no::before { content: "✕"; color: var(--bad); }
+.weeks { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; font: 600 11.5px var(--mono); text-align: center; }
+.weeks span { padding: 5px 0; border-radius: 6px; background: var(--card); }
+.weeks span.part { background: var(--accent-soft); color: var(--accent-ink); }
+
+/* origin */
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.fact { padding: 10px 12px; border-radius: 12px; background: var(--surface); font-size: 13px; }
+.fact b { display: block; font-size: 15px; }
+.cache { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border-radius: 999px; background: var(--ok-soft); color: var(--ok); font-size: 12px; font-weight: 700; }
+.wins { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font: 500 12.5px var(--mono); }
+.wins li { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) minmax(0, 1fr); gap: 8px; padding: 6px 10px; border-radius: 8px; background: var(--card); }
+.wins li.hd { background: none; color: var(--muted); font-family: var(--sans); font-weight: 650; }
+
+/* compare: the bet */
+.try { margin-top: 16px; color: var(--accent-ink); font-size: 14px; font-weight: 600; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.btn.bet-tf { border-color: var(--accent); color: var(--accent-ink); }
+.btn.bet-plan { border-color: var(--plan); color: var(--plan); }
+.btn.bet-tf::before, .btn.bet-plan::before { content: ""; width: 14px; height: 3px; border-radius: 2px; background: currentColor; }
+.btn.chosen { opacity: 1; box-shadow: 0 0 0 3px var(--border); }
+.btn.bet-tf.chosen { background: var(--accent-soft); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, white); }
+.btn.bet-plan.chosen { background: var(--plan-soft); box-shadow: 0 0 0 3px color-mix(in srgb, var(--plan) 25%, white); }
+.verdict { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.vbox { padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; font-size: 13px; }
+.vbox b { display: block; font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+.vbox.tf b { color: var(--accent-ink); }
+.vbox.plan b { color: var(--plan); }
+.vbox.win { border-color: currentColor; }
+.vbox.tf.win { color: var(--accent-ink); background: var(--accent-soft); }
+.vbox.plan.win { color: var(--plan); background: var(--plan-soft); }
+.vbox span { color: var(--muted); }
+
+/* score */
+.formula { padding: 12px 14px; border-radius: 12px; background: var(--surface); font: 500 13px/1.7 var(--mono); overflow-x: auto; }
+.mrows { display: grid; gap: 14px; }
+.mrow { padding: 10px 12px; border: 1px solid transparent; border-radius: 12px; transition: border-color 0.3s, background 0.3s; }
+.mrow.on { border-color: color-mix(in srgb, var(--accent) 40%, white); background: var(--accent-soft); }
+.mrow > p { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 6px; font-size: 14px; font-weight: 650; }
+.mrow > p small { color: var(--muted); font-size: 12px; font-weight: 600; }
+.mbar { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr) 3.6rem; gap: 10px; align-items: center; font-size: 13px; }
+.mbar + .mbar { margin-top: 4px; }
+.mbar .pct { font: 600 12.5px var(--mono); text-align: right; }
+.mbar .best { font-weight: 800; }
+.work { display: grid; gap: 4px; font: 500 12.5px var(--mono); }
+.work div { display: grid; grid-template-columns: 3.4rem repeat(3, minmax(0, 1fr)); gap: 8px; }
+.work .hd { color: var(--muted); font-family: var(--sans); font-weight: 650; }
+
+/* holidays */
+.panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.panel { padding: 12px; border: 1px solid var(--border); border-radius: 14px; }
+.panel h4 { margin-bottom: 4px; font-size: 13.5px; font-weight: 700; }
+.panel p { color: var(--muted); font-size: 12.5px; }
+.next { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center; }
+.next .mark { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--accent); color: #fff; font-size: 18px; font-weight: 800; }
+.next b { display: block; font-size: 16px; }
+.next small { display: block; color: var(--muted); font-size: 13.5px; }
+
+/* recap */
+.path { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.path li { display: grid; grid-template-columns: 26px 7rem minmax(0, 1fr); gap: 12px; align-items: center; font-size: 14.5px; }
+.path li > span:first-child { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); font-size: 12px; font-weight: 700; }
+.path li > b { color: var(--muted); font-weight: 600; }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.tile { padding: 14px 16px; border-radius: 12px; background: var(--accent-soft); }
+.tile b { display: block; color: var(--accent-ink); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; }
+.tile span { color: var(--muted); font-size: 13px; }
+.paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.pathcard { display: grid; align-content: start; gap: 4px; padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); text-align: left; transition: border-color 0.15s, box-shadow 0.15s; }
+.pathcard:hover { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.pathcard b { font-size: 14.5px; }
+.pathcard span { color: var(--muted); font-size: 13px; }
+
+/* ------------------------------------------------------------ nav */
+
+.nav { position: sticky; bottom: 0; z-index: 10; background: rgb(255 255 255 / 0.94); border-top: 1px solid var(--border); backdrop-filter: blur(8px); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
+.switch { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; cursor: pointer; user-select: none; }
+.switch input { position: absolute; opacity: 0; pointer-events: none; }
+.switch span { position: relative; width: 32px; height: 18px; border-radius: 999px; background: #D3D6E2; transition: background 0.2s; }
+.switch span::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / 0.25); transition: transform 0.2s; }
+.switch input:checked + span { background: var(--accent); }
+.switch input:checked + span::after { transform: translateX(14px); }
+.switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@container (max-width: 640px) {
+  .picker { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .blurb { grid-column: auto; }
+  .opt { padding: 5px 6px; font-size: 12.5px; }
+  .prog-row .muted { display: none; }
+  .wrap { padding-inline: 14px; }
+  .card { padding: 16px; }
+  .head .t1 { font-size: 22px; }
+  .head .t2 { font-size: 21px; }
+  .paths, .panels, .facts { grid-template-columns: minmax(0, 1fr); }
+  .src { grid-template-columns: minmax(0, 1fr) 4.2rem; }
+  .src .bar { grid-column: 1 / -1; grid-row: 2; }
+  .cells { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .wins li { grid-template-columns: 4.2rem minmax(0, 1fr) minmax(0, 1fr); font-size: 11.5px; }
+  .mbar { grid-template-columns: 4.6rem minmax(0, 1fr) 3.4rem; }
+  .tiles { grid-template-columns: minmax(0, 1fr); }
+  .path li { grid-template-columns: 26px minmax(0, 1fr); }
+  .path li > b { display: none; }
+  .why-main { flex-direction: column; gap: 2px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+<div class="app">
+  <header class="top">
+    <div class="wrap picker">
+      <span class="picker-k" id="groups-k">Day type</span>
+      <div class="opts" role="group" aria-labelledby="groups-k" id="groups"></div>
+      <span class="picker-k" id="examples-k">Example</span>
+      <div class="opts" role="group" aria-labelledby="examples-k" id="examples"></div>
+      <p class="blurb" id="blurb"></p>
+    </div>
+  </header>
+  <div class="progress" id="progress" hidden>
+    <div class="wrap">
+      <div class="prog-row"><b id="prog-title"></b><span class="muted" id="prog-day"></span></div>
+      <div class="segs" id="segs" role="group" aria-label="Steps"></div>
+    </div>
+  </div>
+
+  <main><div class="wrap" id="stage"></div></main>
+
+  <nav class="nav" aria-label="Walkthrough controls">
+    <div class="wrap">
+      <button class="btn" id="back" type="button">← Back</button>
+      <label class="switch"><input type="checkbox" id="auto"><span></span>Autoplay</label>
+      <button class="btn primary" id="next" type="button"></button>
+    </div>
+  </nav>
+  <p class="sr" aria-live="polite" id="announce"></p>
+</div>
+</template>
+<script>
+(() => {
+"use strict";
+
+const host = document.querySelector("electricity-demo");
+const template = document.getElementById("electricity-demo");
+if (!host || !template || !host.attachShadow) return;
+const root = host.attachShadow({ mode: "open" });
+root.append(template.content.cloneNode(true));
+
+/* ------------------------------------------------------------------ data */
+
+const CONTEXT = 1024;  // hours of demand history TimesFM 2.5 sees
+const PEAK = 41000;    // MWh, scale of the illustrative curves
+
+// 24-hour MAPE from the April–June 2026 rolling backtest.
+const MAPE = {
+  all:  { label: "All reported hours", tf: 3.47, plan: 3.13 },
+  excl: { label: "Excluding public holidays", tf: 2.39, plan: 2.92 },
+  hol:  { label: "Public holidays only", tf: 12.67, plan: 4.89 },
+};
+
+const GROUPS = [
+  { id: "ordinary", label: "Ordinary day",
+    blurb: "A regular weekday or weekend. Demand repeats its daily and weekly shape, which history alone captures well." },
+  { id: "holiday", label: "Public holiday",
+    blurb: "A national holiday. Demand drops, and the model has no calendar to see it coming." },
+  { id: "after", label: "After a holiday",
+    blurb: "A week-ahead forecast made just after a holiday, with the depressed demand still in the context window." },
+];
+
+const WD = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+// wd: weekday of the first forecast hour (0 = Monday). holidays: day offsets
+// from the forecast origin; eve: the half-day before a long holiday.
+const SCENARIOS = [
+  { group: "ordinary", chip: "Weekday", title: "A Tuesday", wd: 1, horizon: 24, holidays: [], depth: 1,
+    type: "excl", seed: 31, planSd: 0.036, planBias: 0.012 },
+  { group: "ordinary", chip: "Weekend", title: "A Sunday", wd: 6, horizon: 24, holidays: [], depth: 1,
+    type: "excl", seed: 8, planSd: 0.03, planBias: -0.014 },
+  { group: "holiday", chip: "Eid al-Adha", title: "Eid al-Adha, first full day", wd: 2, horizon: 24, holidays: [0, 1, 2, 3], depth: 0.92,
+    type: "hol", seed: 11, planSd: 0.035, planBias: 0.03 },
+  { group: "holiday", chip: "One-day holiday", title: "A one-day national holiday", wd: 3, horizon: 24, holidays: [0], depth: 0.97,
+    type: "hol", seed: 19, planSd: 0.035, planBias: 0.025 },
+  { group: "after", chip: "Week after Eid", title: "The week after Eid al-Adha", wd: 0, horizon: 168, holidays: [-4, -3, -2, -1], eve: -5, depth: 0.86,
+    type: "after", seed: 2, planSd: 0.036, planBias: 0.006 },
+];
+
+const META = {
+  pull:     { title: "Pull the data", method: "EPİAŞ Transparency Platform → Parquet",
+    lede: "Everything starts from one public source. Three feeds come down and are stored as Parquet." },
+  context:  { title: "Read the context", method: "TimesFM 2.5, zero-shot",
+    lede: "A pretrained time-series foundation model, with no task-specific training. Its only input is the last 1,024 hours of demand." },
+  origin:   { title: "Forecast from the origin", method: "Rolling-origin backtest",
+    lede: "The forecast is made at an origin and uses only what was known then. The origin then rolls forward and it happens again." },
+  compare:  { title: "Your call", method: "Actual vs TimesFM vs EPİAŞ plan",
+    lede: "Both forecasts are in. Actual demand is still hidden. Which one will land closer?" },
+  score:    { title: "Score it", method: "MAPE: mean absolute percentage error",
+    lede: "Every scored hour's error, as a share of actual demand, averaged. Lower is better." },
+  holidays: { title: "Why holidays break it", method: "History only, no calendar",
+    lede: "On ordinary days the zero-shot model beat the official plan. On holidays the ranking reversed sharply. The gap is explainable." },
+  recap:    { title: "Recap", method: "What happened, and the numbers", lede: "" },
+};
+
+// The decision behind each step: one number, one sentence, details on click.
+// Every figure comes from the April–June 2026 backtest on the project page.
+const WHY = {
+  pull: () => ({ num: "21", text: "distribution companies' meter data, pulled alongside hourly consumption and the EPİAŞ demand plan.",
+    more: ["All three come from the EPİAŞ Transparency Platform and are stored as Parquet.",
+      "The meter data feeds a separate distributor dashboard: hourly meter multipliers by distributor, profile group and meter-reading type. The forecast itself uses consumption only."] }),
+  context: () => ({ num: "1,024 h", text: "of demand history is the model's whole input: no holiday calendar, no weather.",
+    more: ["The question was whether a pretrained foundation model, with no task-specific training, can compete with the official hourly plan EPİAŞ publishes for the Turkish grid.",
+      "Zero-shot keeps the comparison clean: whatever TimesFM gets right, it got from the shape of past demand."] }),
+  origin: () => ({ num: "~1,800", text: "scored hours per horizon, April–June 2026, each forecast made only from information available at its origin.",
+    more: ["Both horizons, 24 hours and 168 hours, are backtested from rolling forecast origins.",
+      "Forecasts are cached, so repeat analysis is instant."] }),
+  compare: () => ({ num: "720", text: "scored hours in April 2026 alone at 24 hours. One day can go either way; the backtest scores every hour against the plan.",
+    more: ["Over April–June 2026 that comes to about 1,800 scored hours per horizon.",
+      "The benchmark is the official hourly plan EPİAŞ publishes for the grid, not a naive baseline: the question was whether a zero-shot model can compete with it."] }),
+  score: () => ({ num: "3.47% vs 3.13%", text: "24-hour MAPE over all reported hours, TimesFM vs the plan. Holidays outweigh TimesFM's lead on ordinary days.",
+    more: ["Excluding public holidays: TimesFM 2.39%, the plan 2.92%. Public holidays only: TimesFM 12.67%, the plan 4.89%.",
+      "Rolling backtests over April–June 2026, with about 1,800 scored hours per horizon."] }),
+  holidays: () => ({ num: "12.67%", text: "24-hour MAPE on public holidays, against 4.89% for the plan. It can't anticipate what it can't see.",
+    more: ["TimesFM sees only demand history, with no holiday calendar or weather, so it cannot anticipate a national holiday.",
+      "At 168 hours the depressed demand lingers in its context window afterwards.",
+      "The next improvement is calendar awareness, not a bigger univariate model.",
+      "TimesFM's largest errors in the 24-hour backtest fall on public holidays, above all Eid al-Adha."] }),
+};
+
+/* --------------------------------------------------------------- helpers */
+
+const $ = (id) => root.getElementById(id);
+const CANCEL = Symbol("cancel");
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const cur = () => SCENARIOS[S.sc];
+const announce = (text) => { $("announce").textContent = text; };
+const fmtPct = (x, d = 2) => `${x.toFixed(d)}%`;
+const gwh = (v) => (v / 1000).toFixed(1);
+const horizonLabel = (s) => `${s.horizon} h ahead`;
+
+function h(tag, props, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat(3)) {
+    if (kid == null || kid === false) continue;
+    el.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+
+function svg(tag, attrs, ...kids) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
+  for (const kid of kids) el.append(typeof kid === "string" ? document.createTextNode(kid) : kid);
+  return el;
+}
+
+function rng(seed) {
+  return () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+// Roughly standard normal: the sum of three uniforms, rescaled.
+const gauss = (r) => (r() + r() + r() - 1.5) * 2;
+
+function grow(fills) {
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    for (const [fill, p] of fills) fill.style.width = `${Math.round(p * 1000) / 10}%`;
+  }));
+}
+
+/* ----------------------------------------------------- illustrative curves */
+
+// Hourly shape of Turkish demand, relative to a weekday peak: a night trough,
+// a late-morning peak, a lunch dip and an evening hump. Sundays sit lower and
+// wake up later; Saturdays fall in between.
+const WEEKDAY = [.86, .81, .78, .76, .75, .75, .77, .82, .90, .96, .99, 1, .96, .97, .99, .99, .98, .97, .96, .98, .99, .97, .93, .89];
+const SUNDAY = [.84, .79, .76, .74, .72, .71, .70, .70, .72, .76, .80, .83, .84, .84, .84, .85, .86, .88, .91, .94, .95, .94, .91, .87];
+
+function shape(s, day, hr) {
+  const wd = ((s.wd + day) % 7 + 7) % 7;
+  let v = wd === 6 ? SUNDAY[hr] : wd === 5 ? 0.55 * WEEKDAY[hr] + 0.45 * SUNDAY[hr] : WEEKDAY[hr];
+  if (wd === 0 && hr < 9) v *= 0.97;
+  if (s.holidays.includes(day)) v = SUNDAY[hr] * s.depth * (wd === 6 ? 0.97 : 1);
+  else if (day === s.eve && hr >= 13) v *= 0.9;
+  return v;
+}
+
+// Actual demand over the context window and the horizon, plus two stand-in
+// forecasts that imitate how each method behaves. They are not model output.
+function build(s) {
+  const r = rng(s.seed * 7919);
+  const N = CONTEXT + s.horizon;
+  const O = CONTEXT;
+  const day = (i) => Math.floor((i - O) / 24);
+  const hour = (i) => (((i - O) % 24) + 24) % 24;
+  const level = {};
+  const actual = new Float64Array(N);
+  let e = 0;
+  for (let i = 0; i < N; i++) {
+    const d = day(i);
+    level[d] ??= 1 + 0.012 * Math.sin(d / 5) + 0.007 * gauss(r);
+    e = 0.9 * e + 0.0045 * gauss(r);
+    actual[i] = PEAK * shape(s, d, hour(i)) * level[d] * (1 + e);
+  }
+  // History only: the same hour of the same weekday over the last four weeks,
+  // recent weeks weighted more, scaled to last week's level.
+  const W = [0.4, 0.3, 0.2, 0.1];
+  const mean = (a, b) => { let t = 0; for (let i = a; i < b; i++) t += actual[i]; return t / (b - a); };
+  const drift = Math.sqrt(mean(O - 168, O) / mean(O - 672, O - 168));
+  const tf = new Float64Array(s.horizon);
+  for (let k = 0; k < s.horizon; k++) {
+    let v = 0;
+    for (let w = 0; w < W.length; w++) v += W[w] * actual[O + k - 168 * (w + 1)];
+    tf[k] = v * drift;
+  }
+  // The plan: close to actual, with its own smooth error and a small bias.
+  const plan = new Float64Array(s.horizon);
+  const rp = rng(s.seed * 104729);
+  let p = 0;
+  for (let k = 0; k < s.horizon; k++) {
+    p = 0.85 * p + Math.sqrt(1 - 0.85 ** 2) * s.planSd * gauss(rp);
+    plan[k] = actual[O + k] * (1 + s.planBias + p);
+  }
+  const target = actual.slice(O);
+  const mape = (f) => f.reduce((t, v, k) => t + Math.abs(target[k] - v) / target[k], 0) / f.length * 100;
+  return { N, O, day, hour, actual, target, tf, plan, mapeTf: mape(tf), mapePlan: mape(plan) };
+}
+
+let SERIES = null;
+const series = () => (SERIES && SERIES.s === cur() ? SERIES.d : (SERIES = { s: cur(), d: build(cur()) }).d);
+
+/* ---------------------------------------------------------------- state */
+
+const S = {
+  sc: 0, phase: "intro", step: 0, reached: -1,
+  token: 0, cd: 0, fast: false, busy: false, auto: false,
+  ready: false, bet: null, userScrolled: false,
+};
+let B = {};  // compare-step elements the bet acts on
+
+function sleep(ms, tk) {
+  return new Promise((resolve, reject) => {
+    const end = performance.now() + ms;
+    (function tick() {
+      if (tk !== S.token) return reject(CANCEL);
+      if (S.fast || performance.now() >= end) return resolve();
+      setTimeout(tick, Math.min(50, end - performance.now()));
+    })();
+  });
+}
+// Revisited steps and reduced motion render instantly.
+function makeWait(tk, instant) {
+  const wait = (ms) => {
+    if (tk !== S.token) return Promise.reject(CANCEL);
+    return instant || reduced ? Promise.resolve() : sleep(ms, tk);
+  };
+  wait.instant = instant || reduced;
+  return wait;
+}
+
+// Keep the newest element above the pinned nav while a step the reader started
+// plays, unless they have scrolled away in the meantime.
+function show(el, last = el) {
+  if (S.userScrolled || !el.isConnected) return;
+  const top = el.getBoundingClientRect().top;
+  const bottom = last.getBoundingClientRect().bottom;
+  const progress = $("progress");
+  const topLimit = (progress.hidden ? 0 : progress.offsetHeight) + 12;
+  const bottomLimit = innerHeight - root.querySelector(".nav").offsetHeight - 12;
+  if (bottom <= bottomLimit) return;
+  const delta = Math.min(bottom - bottomLimit, top - topLimit);
+  if (delta > 0) scrollBy({ top: delta, behavior: reduced || S.fast ? "auto" : "smooth" });
+}
+
+// A new step starts at the top of the stage; if the reader has scrolled past
+// it, bring it back just under the pinned progress bar.
+function bringIntoView() {
+  const progress = $("progress");
+  const offset = $("stage").getBoundingClientRect().top - (progress.hidden ? 0 : progress.offsetHeight) - 12;
+  if (offset < 0) scrollBy({ top: offset, behavior: reduced ? "auto" : "smooth" });
+}
+
+// The intro animation starts the first time the demo is on screen.
+const visible = new Promise((resolve) => {
+  const io = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    io.disconnect();
+    resolve();
+  }, { threshold: 0.25 });
+  io.observe(host);
+});
+
+const steps = () => ["pull", "context", "origin", "compare", "score", "holidays", "recap"]
+  .map((key) => ({ key, title: META[key].title }));
+
+/* ------------------------------------------------------------- chrome */
+
+function renderPicker() {
+  const s = cur();
+  $("groups").replaceChildren(...GROUPS.map((g) => {
+    const b = h("button", { class: "opt", type: "button", "aria-pressed": String(g.id === s.group) }, g.label);
+    b.onclick = () => select(SCENARIOS.findIndex((t) => t.group === g.id));
+    return b;
+  }));
+  $("examples").replaceChildren(...SCENARIOS.map((x, i) => [x, i]).filter(([x]) => x.group === s.group).map(([x, i]) => {
+    const b = h("button", { class: "opt", type: "button", "aria-pressed": String(i === S.sc) }, x.chip);
+    b.onclick = () => select(i);
+    return b;
+  }));
+  $("blurb").textContent = GROUPS.find((g) => g.id === s.group).blurb;
+}
+
+function renderProgress() {
+  const bar = $("progress");
+  bar.hidden = S.phase !== "pipeline";
+  if (bar.hidden) return;
+  const list = steps();
+  const s = cur();
+  $("prog-title").textContent = `Step ${S.step + 1} of ${list.length} · ${list[S.step].title}`;
+  $("prog-day").textContent = `${s.title} · ${horizonLabel(s)}`;
+  $("segs").replaceChildren(...list.map((st, i) => {
+    const state = i === S.step ? "current" : i <= S.reached ? "done" : "";
+    const b = h("button", { class: `seg ${state}`, type: "button", disabled: i > S.reached, "aria-label": `Step ${i + 1}: ${st.title}`, title: st.title, "aria-current": i === S.step ? "step" : null });
+    b.onclick = () => go(i);
+    return b;
+  }));
+}
+
+function updateNav() {
+  const back = $("back");
+  const next = $("next");
+  if (S.phase === "intro") {
+    back.disabled = true;
+    next.textContent = host.clientWidth <= 640 ? "Run it →" : "Run the forecast →";
+    next.disabled = false;
+    return;
+  }
+  const list = steps();
+  const key = list[S.step].key;
+  back.disabled = S.step === 0;
+  next.disabled = false;
+  if (S.busy) next.textContent = "Skip animation";
+  else if (key === "compare" && !S.bet) { next.textContent = "Your call ↑"; next.disabled = true; }
+  else if (key === "recap") next.textContent = host.clientWidth <= 640 ? "Next day →" : "Next example →";
+  else next.textContent = host.clientWidth <= 640 ? "Next →" : `Next: ${list[S.step + 1].title} →`;
+}
+
+function stopCountdown() {
+  S.cd++;
+  $("next").classList.remove("counting");
+}
+
+async function countdown(ms) {
+  const id = ++S.cd;
+  const btn = $("next");
+  btn.classList.remove("counting");
+  void btn.offsetWidth;
+  btn.style.setProperty("--dur", `${ms}ms`);
+  btn.classList.add("counting");
+  await new Promise((r) => setTimeout(r, ms));
+  if (id !== S.cd) return false;
+  btn.classList.remove("counting");
+  return S.auto;
+}
+
+async function autoAdvance() {
+  if (!S.auto || S.busy) return;
+  if (S.phase === "intro") {
+    if (S.ready && await countdown(2500)) start();
+    return;
+  }
+  const key = steps()[S.step].key;
+  if (key === "compare" && !S.bet) {
+    if (await countdown(4000)) placeBet("tf");
+    return;
+  }
+  if (await countdown(key === "recap" ? 9000 : 7000)) advance();
+}
+
+function advance() {
+  if (S.phase === "intro") return start();
+  if (S.busy) {
+    S.fast = true;
+    return;
+  }
+  if (steps()[S.step].key === "recap") return select((S.sc + 1) % SCENARIOS.length);
+  go(S.step + 1);
+}
+
+/* ---------------------------------------------------------------- charts */
+
+// Charts are drawn at the card's real width so labels keep their size on
+// narrow screens; the viewBox matches the pixels.
+function innerW(el) {
+  const cs = getComputedStyle(el);
+  return Math.max(260, Math.floor(el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)));
+}
+
+function chart({ w, ht = 210, x0, x1, y0, y1, pad = {}, yTicks = [], label }) {
+  const p = { l: yTicks.length ? 50 : 8, r: 8, t: 14, b: 22, ...pad };
+  const X = (x) => p.l + ((x - x0) / (x1 - x0)) * (w - p.l - p.r);
+  const Y = (y) => p.t + (1 - (y - y0) / (y1 - y0)) * (ht - p.t - p.b);
+  const el = svg("svg", { class: "chart", viewBox: `0 0 ${w} ${ht}`, width: w, height: ht, role: "img", "aria-label": label });
+  const back = svg("g");
+  const grid = svg("g");
+  const front = svg("g");
+  el.append(back, grid, front);
+  for (const v of yTicks) {
+    grid.append(svg("line", { class: "grid", x1: p.l, x2: w - p.r, y1: Y(v).toFixed(1), y2: Y(v).toFixed(1) }));
+    const top = v === yTicks.at(-1);
+    grid.append(svg("text", { x: p.l - 6, y: (Y(v) + 4).toFixed(1), "text-anchor": "end" }, `${Math.round(v / 1000)}${top ? " GWh" : ""}`));
+  }
+  const line = (xs, vs, cls) => svg("path", { class: `ln ${cls}`, pathLength: 1,
+    d: Array.from(vs, (v, k) => `${k ? "L" : "M"}${X(xs(k)).toFixed(1)},${Y(v).toFixed(1)}`).join("") });
+  const text = (x, y, str, attrs = {}) => svg("text", { x: x.toFixed(1), y: y.toFixed(1), ...attrs }, str);
+  return { el, X, Y, p, w, ht, back, grid, front, line, text };
+}
+
+// Draw a path in, or show it at once on revisits and with reduced motion.
+function draw(path, wait, secs = 1.4) {
+  path.classList.add("draw");
+  path.style.setProperty("--t", wait.instant ? "0s" : `${secs}s`);
+  requestAnimationFrame(() => requestAnimationFrame(() => path.classList.add("on")));
+}
+function fadeIn(el, wait) {
+  el.classList.add("fade");
+  if (wait.instant) el.style.transition = "none";
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("on")));
+}
+
+// Shade holiday days that fall inside [x0, x1] (hours relative to the origin).
+function shadeHolidays(c, s, x0, x1, labels = true) {
+  const days = [...s.holidays.map((d) => [d, "Holiday"]), ...(s.eve != null ? [[s.eve, "Eve"]] : [])];
+  for (const [d, kind] of days) {
+    const a = Math.max(x0, d * 24 + (kind === "Eve" ? 13 : 0));
+    const b = Math.min(x1, d * 24 + 24);
+    if (b <= a) continue;
+    c.back.append(svg("rect", { class: "hol", x: c.X(a).toFixed(1), y: c.p.t, width: (c.X(b) - c.X(a)).toFixed(1), height: c.ht - c.p.t - c.p.b }));
+  }
+  const inRange = s.holidays.filter((d) => d * 24 >= x0 && d * 24 < x1);
+  if (labels && inRange.length) {
+    const mid = (Math.min(...inRange) * 24 + Math.min(x1, (Math.max(...inRange) + 1) * 24)) / 2;
+    c.grid.append(c.text(c.X(mid), c.p.t + 12, s.chip === "One-day holiday" ? "Holiday" : "Eid", { class: "lab hol-t", "text-anchor": "middle" }));
+  }
+}
+
+const niceTicks = (lo, hi) => {
+  const out = [];
+  for (let v = Math.ceil(lo / 4000) * 4000; v <= hi; v += 4000) out.push(v);
+  return out;
+};
+const extent = (...arrs) => {
+  let lo = Infinity, hi = -Infinity;
+  for (const a of arrs) for (const v of a) { if (v < lo) lo = v; if (v > hi) hi = v; }
+  return [lo - (hi - lo) * 0.08, hi + (hi - lo) * 0.12];
+};
+const legend = (items) => h("div", { class: "legend" }, items.map(([label, c, sq]) => h("span", { class: sq ? "sq" : null, style: `--c:${c}` }, label)));
+const illus = (text = "Illustrative curves; metrics are from the April–June 2026 backtest.") => h("p", { class: "illus" }, text);
+
+/* ------------------------------------------------------------------ intro */
+
+function select(i, scroll = true) {
+  stopCountdown();
+  const tk = ++S.token;
+  Object.assign(S, { sc: i, phase: "intro", step: 0, reached: -1, bet: null, ready: false, busy: false, fast: false });
+  renderPicker();
+  renderProgress();
+  const spark = renderIntro();
+  updateNav();
+  if (scroll) bringIntoView();
+  playIntro(tk, spark).catch((e) => { if (e !== CANCEL) throw e; });
+}
+
+function renderIntro() {
+  const s = cur();
+  const g = GROUPS.find((x) => x.id === s.group);
+  const field = (name, value) => h("div", { class: "field" }, h("span", {}, name), h("div", { class: "val" }, value));
+  const run = h("button", { class: "btn primary submit", type: "button" }, "Run the forecast");
+  run.onclick = start;
+  const card = h("div", { class: "card reveal" },
+    h("p", { class: "card-label" }, "Forecast target"),
+    h("div", { class: "pair" }, field("Day", s.title), field("Horizon", s.horizon === 24 ? "24 hours" : "168 hours (one week)")),
+    h("div", { class: "pair" }, field("Model", "TimesFM 2.5, zero-shot"), field("Benchmark", "EPİAŞ hourly demand plan")));
+  $("stage").replaceChildren(
+    h("div", { class: "head reveal" },
+      h("p", { class: "eyebrow" }, "Interactive walkthrough · ", g.label),
+      h("h3", { class: "t1" }, `Forecast ${s.horizon === 24 ? "a day" : "a week"} of Turkish demand, then race the official plan`),
+      h("p", { class: "lede" }, "TimesFM 2.5 forecasts from demand history alone; EPİAŞ publishes its own hourly plan. Step through the backtest, then call the winner before the reveal.")),
+    card);
+  const d = series();
+  const x0 = -14 * 24;
+  const ctx = d.actual.slice(d.O + x0, d.O);
+  const [lo, hi] = extent(ctx, d.target);
+  const c = chart({ w: innerW(card), ht: 150, x0, x1: s.horizon, y0: lo, y1: hi, yTicks: niceTicks(lo, hi), label: "The last two weeks of demand before the forecast" });
+  shadeHolidays(c, s, x0, s.horizon);
+  c.back.append(svg("rect", { class: "fband", x: c.X(0).toFixed(1), y: c.p.t, width: (c.X(s.horizon) - c.X(0)).toFixed(1), height: c.ht - c.p.t - c.p.b }));
+  c.grid.append(c.text((c.X(0) + c.X(s.horizon)) / 2, c.ht / 2, "?", { class: "q", "text-anchor": "middle" }));
+  c.grid.append(c.text(c.X(x0), c.ht - 6, "two weeks ago"), c.text(c.X(0) - 4, c.ht - 6, "now", { "text-anchor": "end" }));
+  const path = c.line((k) => x0 + k, ctx, "ctx thin");
+  c.front.append(path);
+  card.append(c.el, legend([["Demand so far", "#9A9EB2"], ["To forecast", "rgb(180 83 9 / 0.2)", true], ...(s.holidays.length || s.eve != null ? [["Holiday", "var(--hol)", true]] : [])]), run);
+  $("stage").append(illus());
+  return { path, run };
+}
+
+async function playIntro(tk, { path, run }) {
+  const wait = makeWait(tk, false);
+  await visible;
+  await wait(400);
+  draw(path, wait, 1.6);
+  await wait(1700);
+  S.ready = true;
+  run.classList.add("pulse");
+  autoAdvance();
+}
+
+function start() {
+  if (S.phase !== "intro") return;
+  stopCountdown();
+  S.token++;
+  S.phase = "pipeline";
+  go(0);
+}
+
+/* ------------------------------------------------------------------ steps */
+
+async function go(i) {
+  if (S.phase !== "pipeline" || i < 0 || i > S.reached + 1 || i >= steps().length) return;
+  stopCountdown();
+  const tk = ++S.token;
+  const seen = i <= S.reached;
+  Object.assign(S, { step: i, reached: Math.max(S.reached, i), busy: true, fast: false, userScrolled: false });
+  const key = steps()[i].key;
+  renderProgress();
+  updateNav();
+  announce(`Step ${i + 1}: ${META[key].title}`);
+  const stage = $("stage");
+  stage.replaceChildren();
+  bringIntoView();
+  try {
+    await RENDER[key](stage, cur(), makeWait(tk, seen));
+  } catch (e) {
+    if (e === CANCEL) return;
+    throw e;
+  }
+  if (tk !== S.token) return;
+  S.busy = false;
+  renderProgress();
+  updateNav();
+  autoAdvance();
+}
+
+const head = (key) => h("div", { class: "head reveal" },
+  h("p", { class: "eyebrow" }, `Step ${S.step + 1} · ${META[key].method}`),
+  h("h3", { class: "t2" }, META[key].title),
+  h("p", { class: "lede" }, META[key].lede));
+
+function why(key) {
+  const w = WHY[key](cur());
+  return h("div", { class: "why reveal" },
+    h("p", { class: "why-k" }, "Why it's built this way"),
+    h("p", { class: "why-main" }, h("b", {}, w.num), h("span", {}, w.text)),
+    h("details", {}, h("summary", {}, "More"), h("div", {}, w.more.map((t) => h("p", {}, t)))));
+}
+
+const mechanics = (...kids) => h("details", { class: "mech reveal" }, h("summary", {}, "Show the mechanics"), h("div", {}, kids));
+const result = (tone, big, ...text) => h("div", { class: `result ${tone} reveal` }, big ? h("span", { class: "big" }, big) : null, h("span", {}, text));
+
+// Finish a step: result line, then the design note and optional mechanics.
+function finish(stage, ...parts) {
+  const kept = parts.filter(Boolean);
+  for (const p of kept) stage.append(p);
+  // Mechanics stay folded, so the result and the design note are what must fit.
+  const shown = kept.filter((p) => !p.classList.contains("mech"));
+  show(shown[0], shown.at(-1));
+}
+
+// Whole weekdays inside the context window, and the partial day at its start.
+function windowDays(s) {
+  const counts = new Array(7).fill(0);
+  const first = -Math.ceil(CONTEXT / 24);
+  for (let d = first + 1; d < 0; d++) counts[((s.wd + d) % 7 + 7) % 7]++;
+  return { counts, partial: CONTEXT % 24, partialDay: WD[((s.wd + first) % 7 + 7) % 7] };
+}
+
+const RENDER = {
+  async pull(stage, s, wait) {
+    stage.append(head("pull"));
+    const rows = [
+      ["Hourly consumption", "The Turkish grid, every hour", "#1A1C2B"],
+      ["EPİAŞ demand plan", "The official hourly plan: the benchmark", "var(--plan)"],
+      ["Meter data", "All 21 distribution companies", "var(--accent)"],
+    ];
+    const list = h("div", { class: "srcs" });
+    const cells = h("div", { class: "cells", "aria-hidden": "true" }, Array.from({ length: 21 }, () => h("i")));
+    stage.append(h("div", { class: "card reveal" },
+      h("p", { class: "card-label" }, "From the EPİAŞ Transparency Platform"), list, cells,
+      h("p", { class: "small", style: "margin-top:8px" }, "One cell per distribution company.")));
+    await wait(600);
+    for (const [i, [name, sub, c]] of rows.entries()) {
+      const fill = h("i", { style: `--c:${c}` });
+      const tag = h("span", { class: "tag" }, "Parquet");
+      list.append(h("div", { class: "src reveal" }, h("span", {}, name, h("small", {}, sub)), h("span", { class: "bar" }, fill), tag));
+      grow([[fill, 1]]);
+      if (i === 2) {
+        for (const cell of cells.children) {
+          cell.classList.add("on");
+          await wait(45);
+        }
+      }
+      await wait(900);
+      tag.classList.add("on");
+      await wait(200);
+    }
+    await wait(400);
+    finish(stage,
+      result("", null, h("b", {}, "Three feeds, one format. "), "Consumption is what TimesFM forecasts, the plan is what it is scored against, and the meter data feeds the distributor dashboard."),
+      why("pull"));
+  },
+
+  async context(stage, s, wait) {
+    stage.append(head("context"));
+    const d = series();
+    const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "What TimesFM 2.5 sees"));
+    stage.append(card);
+    const x0 = -CONTEXT;
+    const ctx = d.actual.slice(0, d.O);
+    const [lo, hi] = extent(ctx);
+    const c = chart({ w: innerW(card), ht: 190, x0, x1: s.horizon, y0: lo, y1: hi, yTicks: niceTicks(lo, hi), pad: { t: 26 },
+      label: "The 1,024-hour context window of hourly demand" });
+    shadeHolidays(c, s, x0, s.horizon, false);
+    const band = svg("rect", { class: "band", x: c.X(x0).toFixed(1), y: 4, width: (c.X(0) - c.X(x0)).toFixed(1), height: 16, rx: 4 });
+    const bandT = c.text(c.X(x0 / 2), 16, "context window · 1,024 h", { class: "lab", "text-anchor": "middle", style: "fill:var(--accent-ink)" });
+    const slot = svg("rect", { class: "fband", x: c.X(0).toFixed(1), y: c.p.t, width: (c.X(s.horizon) - c.X(0)).toFixed(1), height: c.ht - c.p.t - c.p.b });
+    c.back.append(slot);
+    const wkStep = c.X(-168) - c.X(-336) < 52 ? 2 : 1;
+    for (let wk = 6; wk >= 1; wk -= wkStep) c.grid.append(c.text(c.X(-wk * 168), c.ht - 6, `−${wk} wk`, { "text-anchor": "middle" }));
+    c.grid.append(c.text(c.X(s.horizon), c.ht - 6, "forecast", { "text-anchor": "end", style: "fill:var(--accent-ink)" }));
+    const path = c.line((k) => x0 + k, ctx, "ctx thin");
+    c.front.append(path);
+    card.append(c.el);
+    await wait(500);
+    draw(path, wait, 1.8);
+    await wait(1900);
+    c.grid.append(band, bandT);
+    fadeIn(band, wait);
+    fadeIn(bandT, wait);
+    await wait(700);
+    const chips = h("div", { class: "chips" });
+    card.append(chips);
+    for (const [label, ok] of [["Demand history", true], ["Holiday calendar", false], ["Weather", false]]) {
+      chips.append(h("span", { class: `chip ${ok ? "yes" : "no"} reveal` }, label));
+      await wait(450);
+    }
+    await wait(400);
+    const wd = windowDays(s);
+    const res = s.type === "after"
+      ? result("warn", "Eid", h("b", {}, "The holiday is inside the window. "), "To the model, four low days are simply the most recent demand.")
+      : s.type === "hol"
+        ? result("warn", "?", h("b", {}, "The forecast day is a holiday. "), "Nothing in the window says so: it ends on ordinary days.")
+        : result("ok", "6×", h("b", {}, "Six full weeks. "), "Every weekday appears six times, so the weekly rhythm is plain to see.");
+    finish(stage, res, why("context"),
+      mechanics(
+        h("div", {}, h("h4", {}, `1 · 1,024 hours = ${Math.floor(CONTEXT / 24)} days + ${wd.partial} hours`),
+          h("div", { class: "weeks" }, WD.map((n, i) => h("span", {}, `${n.slice(0, 3)} ×${wd.counts[i]}`))),
+          h("p", { class: "small", style: "margin-top:6px" }, `Plus the last ${wd.partial} hours of a ${wd.partialDay}. Counted for this example's forecast day.`)),
+        h("div", {}, h("h4", {}, "2 · Zero-shot"),
+          h("p", { class: "small" }, "Pretrained weights, used as they are: no training on Turkish demand. The window is the whole input."))));
+  },
+
+  async origin(stage, s, wait) {
+    stage.append(head("origin"));
+    const d = series();
+    const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, `Forecast origin · ${s.horizon} hours ahead`));
+    stage.append(card);
+    const x0 = -7 * 24;
+    const x1 = s.horizon;
+    const ctx = d.actual.slice(d.O + x0, d.O);
+    const [lo, hi] = extent(ctx, d.target, d.tf);
+    const c = chart({ w: innerW(card), ht: 200, x0, x1, y0: lo, y1: hi, yTicks: niceTicks(lo, hi),
+      label: "The last week of demand, the origin, and the forecast made from it" });
+    shadeHolidays(c, s, x0, x1);
+    const mask = svg("rect", { class: "mask", x: c.X(0).toFixed(1), y: c.p.t, width: (c.X(x1) - c.X(0)).toFixed(1), height: c.ht - c.p.t - c.p.b });
+    const unknown = c.text((c.X(0) + c.X(x1)) / 2, c.ht / 2 + 4, "not known yet", { class: "lab", "text-anchor": "middle" });
+    const originL = svg("line", { class: "origin", x1: c.X(0).toFixed(1), x2: c.X(0).toFixed(1), y1: c.p.t - 6, y2: c.ht - c.p.b });
+    const originT = c.text(c.X(0) - 4, c.p.t - 2, "origin", { class: "lab", "text-anchor": "end" });
+    c.back.append(mask);
+    c.grid.append(unknown, originL, originT);
+    c.grid.append(c.text(c.X(x0), c.ht - 6, "← 1,024 h of context continue"));
+    const ctxPath = c.line((k) => x0 + k, ctx, "ctx thin");
+    const tfPath = c.line((k) => k, d.tf, "tf");
+    c.front.append(ctxPath);
+    card.append(c.el);
+    const facts = h("div", { class: "facts" },
+      h("div", { class: "fact" }, h("b", {}, "1,024 h"), "context, up to the origin"),
+      h("div", { class: "fact" }, h("b", {}, `${s.horizon} h`), "forecast after it"),
+      h("div", { class: "fact" }, h("b", {}, "~1,800"), "scored hours per horizon"));
+    await wait(400);
+    draw(ctxPath, wait, 1);
+    await wait(1200);
+    unknown.remove();
+    c.front.append(tfPath);
+    draw(tfPath, wait, 1.2);
+    await wait(1300);
+    const cached = h("p", { class: "small reveal", style: "margin-top:10px" }, h("span", { class: "cache" }, "✓ Cached"), " Asking for this origin again reads the stored forecast instead of re-running the model.");
+    card.append(legend([["Demand known at the origin", "#9A9EB2"], ["TimesFM forecast", "var(--accent)"]]), cached, facts,
+      illus("Illustrative curves: the forecast line imitates a history-only model; it is not model output."));
+    await wait(600);
+    finish(stage,
+      result("", null, h("b", {}, `${s.horizon} hours forecast and cached. `), "Nothing after the origin went in. The origin then rolls forward and the backtest repeats."),
+      why("origin"),
+      mechanics(h("div", {}, h("h4", {}, "Which hours each forecast may use (origin t)"),
+        h("ul", { class: "wins" },
+          h("li", { class: "hd" }, h("span", {}, ""), h("span", {}, "Context"), h("span", {}, "Forecast")),
+          h("li", {}, h("span", {}, "Hours"), h("span", {}, "t−1,024 … t−1"), h("span", {}, `t … t+${s.horizon - 1}`)),
+          h("li", {}, h("span", {}, "Known?"), h("span", {}, "Yes, at t"), h("span", {}, "No, scored later"))),
+        h("p", { class: "small", style: "margin-top:8px" }, "Both horizons, 24 h and 168 h, run this way over April–June 2026."))));
+  },
+
+  async compare(stage, s, wait) {
+    stage.append(head("compare"));
+    const d = series();
+    const span = s.horizon === 24 ? "day" : "week";
+    const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, `${s.title} · ${s.horizon} hours ahead`));
+    stage.append(card);
+    const w = innerW(card);
+    const x0 = w < 480 ? -24 : -48;
+    const x1 = s.horizon;
+    const tail = d.actual.slice(d.O + x0, d.O);
+    const [lo, hi] = extent(tail, d.target, d.tf, d.plan);
+    const c = chart({ w, ht: 220, x0, x1, y0: lo, y1: hi, yTicks: niceTicks(lo, hi),
+      label: `Actual demand, the TimesFM forecast and the EPİAŞ plan: ${s.title}` });
+    shadeHolidays(c, s, x0, x1);
+    const mask = svg("rect", { class: "mask", x: c.X(0).toFixed(1), y: c.p.t, width: (c.X(x1) - c.X(0)).toFixed(1), height: c.ht - c.p.t - c.p.b });
+    const q = c.text((c.X(0) + c.X(x1)) / 2, c.ht - c.p.b - 10, "actual: ?", { class: "lab", "text-anchor": "middle" });
+    c.back.append(mask);
+    c.grid.append(q, svg("line", { class: "origin", x1: c.X(0).toFixed(1), x2: c.X(0).toFixed(1), y1: c.p.t, y2: c.ht - c.p.b }));
+    const every = s.horizon === 168 ? 24 : c.X(6) - c.X(0) < 46 ? 12 : 6;
+    const short = c.X(24) - c.X(0) < 40;
+    for (let k = 0; k < x1; k += every) {
+      const lab = s.horizon === 24 ? `${String(k).padStart(2, "0")}:00` : WD[(s.wd + k / 24) % 7].slice(0, short ? 1 : 3);
+      c.grid.append(c.text(c.X(s.horizon === 24 ? k : k + 12), c.ht - 6, lab, { "text-anchor": "middle" }));
+    }
+    const before = x0 === -24 ? "day before" : "2 days before";
+    if (c.X(0) - c.X(x0) > before.length * 7 + 8) c.grid.append(c.text(c.X(x0), c.ht - 6, before));
+    const tailPath = c.line((k) => x0 + k, tail, "ctx thin");
+    const tfPath = c.line((k) => k, d.tf, "tf");
+    const planPath = c.line((k) => k, d.plan, "plan");
+    const actualPath = c.line((k) => k, d.target, "actual");
+    c.front.append(tailPath, planPath, tfPath);
+    card.append(c.el, legend([["Actual", "var(--text)"], ["TimesFM", "var(--accent)"], ["EPİAŞ plan", "var(--plan)"]]));
+    draw(tailPath, wait, 0.6);
+    await wait(700);
+    draw(tfPath, wait, 1.2);
+    await wait(1100);
+    draw(planPath, wait, 1.2);
+    await wait(1300);
+    const actions = h("div", { class: "actions" },
+      h("button", { class: "btn bet-tf", type: "button", "data-k": "tf" }, "TimesFM"),
+      h("button", { class: "btn bet-plan", type: "button", "data-k": "plan" }, "EPİAŞ plan"));
+    const hint = h("p", { class: "try reveal" }, `Which forecast will be closer to actual demand over this ${span}?`);
+    card.append(hint, actions, illus("Illustrative curves: the forecast lines imitate how each method behaves; they are not model output. Metrics are from the April–June 2026 backtest."));
+    for (const b of actions.querySelectorAll("button")) b.onclick = () => placeBet(b.dataset.k);
+    B = { stage, card, c, d, actions, hint, mask, q, actualPath };
+    show(card);
+    if (S.bet) renderOutcome(false);
+  },
+
+  async score(stage, s, wait) {
+    stage.append(head("score"));
+    const d = series();
+    const span = s.horizon === 24 ? "day" : "week";
+    stage.append(h("div", { class: "card reveal" },
+      h("p", { class: "card-label" }, `This illustrative ${span}`),
+      h("p", { class: "formula" }, "MAPE = mean over hours of |actual − forecast| ÷ actual × 100"),
+      h("div", { class: "verdict" },
+        h("div", { class: `vbox tf ${d.mapeTf < d.mapePlan ? "win" : ""}` }, h("b", {}, fmtPct(d.mapeTf, 1)), h("span", {}, "TimesFM")),
+        h("div", { class: `vbox plan ${d.mapePlan < d.mapeTf ? "win" : ""}` }, h("b", {}, fmtPct(d.mapePlan, 1)), h("span", {}, "EPİAŞ plan"))),
+      illus(`Computed from this ${span}'s illustrative curves, not from the backtest.`)));
+    await wait(900);
+    const rows = h("div", { class: "mrows" });
+    const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "24-hour MAPE · April–June 2026 backtest"), rows,
+      h("p", { class: "small", style: "margin-top:10px" }, s.type === "after"
+        ? "This example forecasts 168 hours ahead; the table is for the 24-hour horizon."
+        : "Highlighted: the row this example belongs to. About 1,800 scored hours per horizon."));
+    stage.append(card);
+    await wait(500);
+    for (const key of ["all", "excl", "hol"]) {
+      const m = MAPE[key];
+      const best = Math.min(m.tf, m.plan);
+      const fills = [];
+      const bar = (name, v, c) => {
+        const fill = h("i", { style: `--c:${c}` });
+        fills.push([fill, v / 13]);
+        return h("div", { class: "mbar" }, h("span", {}, name), h("span", { class: "bar" }, fill), h("span", { class: `pct ${v === best ? "best" : ""}` }, fmtPct(v)));
+      };
+      rows.append(h("div", { class: `mrow reveal ${key === s.type ? "on" : ""}` },
+        h("p", {}, m.label, h("small", {}, m.tf < m.plan ? "TimesFM wins" : "Plan wins")),
+        bar("TimesFM", m.tf, "var(--accent)"), bar("EPİAŞ plan", m.plan, "var(--plan)")));
+      grow(fills);
+      show(card);
+      await wait(800);
+    }
+    await wait(300);
+    const sample = [4, 11, 20].map((k) => [k, d.target[k], d.tf[k]]);
+    finish(stage,
+      result("plan", "3.13%", h("b", {}, "Overall, the plan wins. "), "TimesFM leads on ordinary days, but its holiday errors are large enough to tip the total (3.47%)."),
+      why("score"),
+      mechanics(h("div", {}, h("h4", {}, "Three hours of the illustrative curves, worked through"),
+        h("div", { class: "work" },
+          h("div", { class: "hd" }, h("span", {}, "Hour"), h("span", {}, "Actual"), h("span", {}, "TimesFM"), h("span", {}, "|error|")),
+          sample.map(([k, a, f]) => h("div", {}, h("span", {}, `${String(k).padStart(2, "0")}:00`), h("span", {}, `${gwh(a)} GWh`), h("span", {}, `${gwh(f)} GWh`), h("span", {}, fmtPct(Math.abs(a - f) / a * 100))))),
+        h("p", { class: "small", style: "margin-top:8px" }, `Average that last column over all ${s.horizon} hours and you get the ${fmtPct(d.mapeTf, 1)} above. The backtest does the same over every scored hour.`))));
+  },
+
+  async holidays(stage, s, wait) {
+    stage.append(head("holidays"));
+    const panels = h("div", { class: "panels" });
+    stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "The same blind spot, twice"), panels,
+      legend([["Actual", "var(--text)"], ["TimesFM", "var(--accent)"], ["Holiday", "var(--hol)", true]]), illus()));
+    const cases = [
+      [SCENARIOS[2], -48, "On the holiday", "The window ends on ordinary days, so the holiday is forecast like any other day."],
+      [SCENARIOS[4], -168, "A week later, at 168 h", "Now the low days are in the window, so the week after is forecast low too."],
+    ];
+    const paths = [];
+    for (const [sc, x0, title, text] of cases) {
+      const d = build(sc);
+      const panel = h("div", { class: "panel reveal" }, h("h4", {}, title));
+      panels.append(panel);
+      const x1 = sc.horizon;
+      const tail = d.actual.slice(d.O + x0, d.O);
+      const [lo, hi] = extent(tail, d.target, d.tf);
+      const c = chart({ w: innerW(panel), ht: 150, x0, x1, y0: lo, y1: hi, pad: { l: 6, r: 6, b: 18 },
+        label: `${title}: actual demand against the TimesFM forecast` });
+      shadeHolidays(c, sc, x0, x1);
+      c.grid.append(svg("line", { class: "origin", x1: c.X(0).toFixed(1), x2: c.X(0).toFixed(1), y1: c.p.t, y2: c.ht - c.p.b }),
+        c.text(c.X(0) + 4, c.ht - 4, "origin"));
+      const a = c.line((k) => x0 + k, [...tail, ...d.target], "actual thin");
+      const f = c.line((k) => k, d.tf, "tf");
+      c.front.append(a, f);
+      panel.append(c.el, h("p", {}, text));
+      paths.push(a, f);
+    }
+    await wait(500);
+    for (const p of paths) {
+      draw(p, wait, 1);
+      await wait(600);
+    }
+    await wait(600);
+    finish(stage,
+      h("div", { class: "card reveal" }, h("div", { class: "next" }, h("span", { class: "mark", "aria-hidden": "true" }, "→"),
+        h("span", {}, h("b", {}, "Next: calendar awareness, not a bigger univariate model."),
+          h("small", {}, "TimesFM sees only demand history, with no holiday calendar or weather. A larger model that still sees only history keeps the same blind spot.")))),
+      why("holidays"));
+  },
+
+  async recap(stage, s, wait) {
+    const d = series();
+    const winner = d.mapeTf < d.mapePlan ? "tf" : "plan";
+    const name = { tf: "TimesFM", plan: "EPİAŞ plan" };
+    stage.append(h("div", { class: "head reveal" }, h("p", { class: "eyebrow" }, "Recap"), h("h3", { class: "t2" }, `${s.title}, ${s.horizon} hours ahead`)));
+    const rows = [
+      ["Data", "Consumption, the EPİAŞ plan and meter data for 21 distribution companies, as Parquet"],
+      ["Context", s.type === "after" ? "1,024 h of demand history, Eid included" : "1,024 h of demand history; no calendar, no weather"],
+      ["Forecast", `${s.horizon} h ahead from the origin, cached`],
+      ["Your call", S.bet ? `${name[S.bet]}: ${S.bet === winner ? "right" : "wrong"} on this example` : "Skipped"],
+      ["This example", `${name[winner]} closer. TimesFM ${fmtPct(d.mapeTf, 1)}, plan ${fmtPct(d.mapePlan, 1)} (illustrative)`],
+      ["Backtest", s.type === "excl" ? "Excluding public holidays: TimesFM 2.39%, plan 2.92%"
+        : s.type === "hol" ? "Public holidays only: TimesFM 12.67%, plan 4.89%"
+          : "At 168 h, the depressed demand lingers in the context window"],
+    ];
+    const list = h("ol", { class: "path" });
+    stage.append(h("div", { class: "card reveal" }, list));
+    for (const [i, [k, v]] of rows.entries()) {
+      list.append(h("li", { class: "reveal" }, h("span", {}, i + 1), h("b", {}, k), h("span", {}, v)));
+      await wait(220);
+    }
+    await wait(400);
+    const tile = (big, label) => h("div", { class: "tile" }, h("b", {}, big), h("span", {}, label));
+    stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "April–June 2026 backtest · TimesFM vs EPİAŞ plan"),
+      h("div", { class: "tiles" },
+        tile("2.39% vs 2.92%", "24-hour MAPE, excluding public holidays"),
+        tile("12.67% vs 4.89%", "24-hour MAPE, public holidays only"),
+        tile("3.47% vs 3.13%", "24-hour MAPE, all reported hours"),
+        tile("~1,800", "scored hours per horizon"))));
+    await wait(400);
+    const others = GROUPS.map((g) => {
+      const idx = SCENARIOS.map((x, i) => [x, i]).filter(([x]) => x.group === g.id).map(([, i]) => i);
+      const target = g.id === s.group ? idx[(idx.indexOf(S.sc) + 1) % idx.length] : idx[0];
+      const b = h("button", { class: "pathcard", type: "button" }, h("b", {}, g.id === s.group && idx.length > 1 ? `Another “${g.label}”` : g.label), h("span", {}, g.blurb));
+      b.onclick = () => select(target);
+      return b;
+    });
+    finish(stage,
+      h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "Try another day"), h("div", { class: "paths" }, others)));
+  },
+};
+
+function placeBet(kind) {
+  if (S.bet || S.phase !== "pipeline" || steps()[S.step].key !== "compare" || S.busy) return;
+  stopCountdown();
+  S.bet = kind;
+  renderOutcome(true);
+  updateNav();
+  autoAdvance();
+}
+
+function renderOutcome(animate) {
+  const s = cur();
+  const { stage, card, c, d, actions, hint, mask, q, actualPath } = B;
+  const span = s.horizon === 24 ? "day" : "week";
+  const winner = d.mapeTf < d.mapePlan ? "tf" : "plan";
+  const name = { tf: "TimesFM", plan: "The EPİAŞ plan" };
+  for (const b of actions.querySelectorAll("button")) {
+    b.disabled = true;
+    if (b.dataset.k === S.bet) b.classList.add("chosen");
+  }
+  hint.remove();
+  q.remove();
+  mask.remove();
+  c.front.append(actualPath);
+  draw(actualPath, { instant: !animate || reduced }, 1.2);
+  // Hourly error as a share of actual: TimesFM above the line, the plan below.
+  const ew = innerW(card);
+  const eh = 92;
+  const errMax = Math.max(...d.target.map((a, k) => Math.max(Math.abs(a - d.tf[k]), Math.abs(a - d.plan[k])) / a));
+  const scale = (eh / 2 - 12) / Math.max(errMax, 0.04);
+  const strip = svg("svg", { class: "chart", viewBox: `0 0 ${ew} ${eh}`, width: ew, height: eh, role: "img", "aria-label": "Hourly absolute error of each forecast" });
+  const gx = 64;
+  const bw = (ew - gx - 8) / s.horizon;
+  strip.append(svg("line", { class: "grid", x1: gx, x2: ew - 8, y1: eh / 2, y2: eh / 2 }),
+    svg("text", { x: 0, y: eh / 4 + 4 }, "TimesFM"), svg("text", { x: 0, y: (eh * 3) / 4 + 4 }, "Plan"));
+  d.target.forEach((a, k) => {
+    const et = Math.abs(a - d.tf[k]) / a * scale;
+    const ep = Math.abs(a - d.plan[k]) / a * scale;
+    const x = (gx + k * bw + bw * 0.15).toFixed(1);
+    const w = Math.max(0.8, bw * 0.7).toFixed(1);
+    strip.append(svg("rect", { class: "err-tf", x, y: (eh / 2 - et).toFixed(1), width: w, height: et.toFixed(1), rx: 1 }),
+      svg("rect", { class: "err-plan", x, y: eh / 2, width: w, height: ep.toFixed(1), rx: 1 }));
+  });
+  const verdict = h("div", { class: "verdict reveal" },
+    h("div", { class: `vbox tf ${winner === "tf" ? "win" : ""}` }, h("b", {}, fmtPct(d.mapeTf, 1)), h("span", {}, `TimesFM's mean error this ${span}`)),
+    h("div", { class: `vbox plan ${winner === "plan" ? "win" : ""}` }, h("b", {}, fmtPct(d.mapePlan, 1)), h("span", {}, `the plan's mean error this ${span}`)));
+  const errBox = h("div", { class: "reveal", style: "margin-top:14px" }, h("p", { class: "card-label", style: "margin-bottom:4px" }, "Hourly error, % of actual"), strip, verdict);
+  card.insertBefore(errBox, actions.nextSibling);
+  const right = S.bet === winner;
+  const real = s.type === "excl"
+    ? result("", "2.39%", h("b", {}, "Across the backtest, too. "), "Excluding public holidays, TimesFM's 24-hour MAPE was 2.39% against the plan's 2.92%.")
+    : s.type === "hol"
+      ? result("plan", "4.89%", h("b", {}, "Across the backtest, too. "), "On public holidays, the plan's 24-hour MAPE was 4.89% against TimesFM's 12.67%.")
+      : result("warn", "168 h", h("b", {}, "No separate figure is reported for this case. "), "The backtest's explanation: at 168 hours the depressed demand lingers in TimesFM's context window after the holiday.");
+  const out = right
+    ? result("ok", "✓", h("b", {}, "You called it. "), `${name[winner]} was closer on this illustrative ${span}.`)
+    : result("bad", "✕", h("b", {}, "Not this time. "), `${name[winner]} was closer on this illustrative ${span}.`);
+  stage.append(out, real, why("compare"));
+  if (animate) show(out, stage.lastChild);
+}
+
+/* --------------------------------------------------------------- wiring */
+
+$("next").onclick = () => { stopCountdown(); advance(); };
+$("back").onclick = () => {
+  stopCountdown();
+  if (S.phase === "pipeline" && S.step > 0) go(S.step - 1);
+};
+$("auto").onchange = (e) => {
+  S.auto = e.target.checked;
+  if (S.auto) autoAdvance();
+  else stopCountdown();
+};
+for (const ev of ["wheel", "touchmove"]) {
+  addEventListener(ev, () => { if (S.busy) S.userScrolled = true; }, { passive: true });
+}
+// Arrow keys step through the demo only while focus is inside it.
+host.addEventListener("keydown", (e) => {
+  if (e.altKey || e.ctrlKey || e.metaKey || e.composedPath()[0].closest?.("summary")) return;
+  if (e.key === "ArrowRight" && !$("next").disabled) { e.preventDefault(); $("next").click(); }
+  if (e.key === "ArrowLeft" && !$("back").disabled) { e.preventDefault(); $("back").click(); }
+});
+
+select(0, false);
+})();
+</script>
