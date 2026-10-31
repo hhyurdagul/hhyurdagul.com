@@ -354,8 +354,8 @@ const PEAK = 41000;    // MWh, scale of the illustrative curves
 // 24-hour MAPE from the April–June 2026 rolling backtest.
 const MAPE = {
   all:  { label: "All reported hours", tf: 3.47, plan: 3.13 },
-  excl: { label: "Excluding public holidays", tf: 2.39, plan: 2.92 },
-  hol:  { label: "Public holidays only", tf: 12.67, plan: 4.89 },
+  excl: { label: "Ordinary hours", tf: 2.57, plan: 3.05 },
+  hol:  { label: "Public holiday hours", tf: 11.79, plan: 3.91 },
 };
 
 const GROUPS = [
@@ -364,7 +364,7 @@ const GROUPS = [
   { id: "holiday", label: "Public holiday",
     blurb: "A national holiday. Demand drops, and the model has no calendar to see it coming." },
   { id: "after", label: "After a holiday",
-    blurb: "A week-ahead forecast made just after a holiday, with the depressed demand still in the context window." },
+    blurb: "A week-ahead forecast made just after a holiday, with low holiday demand still in the context window." },
 ];
 
 const WD = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -376,11 +376,11 @@ const SCENARIOS = [
     type: "excl", seed: 31, planSd: 0.036, planBias: 0.012 },
   { group: "ordinary", chip: "Weekend", title: "A Sunday", wd: 6, horizon: 24, holidays: [], depth: 1,
     type: "excl", seed: 8, planSd: 0.03, planBias: -0.014 },
-  { group: "holiday", chip: "Eid al-Adha", title: "Eid al-Adha, first full day", wd: 2, horizon: 24, holidays: [0, 1, 2, 3], depth: 0.92,
+  { group: "holiday", chip: "Eid al-Adha", title: "Eid al-Adha, first full day", wd: 2, horizon: 24, holidays: [0, 1, 2, 3], eve: -1, depth: 0.92,
     type: "hol", seed: 11, planSd: 0.035, planBias: 0.03 },
   { group: "holiday", chip: "One-day holiday", title: "A one-day national holiday", wd: 3, horizon: 24, holidays: [0], depth: 0.97,
     type: "hol", seed: 19, planSd: 0.035, planBias: 0.025 },
-  { group: "after", chip: "Week after Eid", title: "The week after Eid al-Adha", wd: 0, horizon: 168, holidays: [-4, -3, -2, -1], eve: -5, depth: 0.86,
+  { group: "after", chip: "Week after Eid", title: "The week after Eid al-Adha", wd: 0, horizon: 168, holidays: [-5, -4, -3, -2], eve: -6, depth: 0.86,
     type: "after", seed: 2, planSd: 0.036, planBias: 0.006 },
 ];
 
@@ -390,39 +390,40 @@ const META = {
   context:  { title: "Read the context", method: "TimesFM 2.5, zero-shot",
     lede: "A pretrained time-series foundation model, with no task-specific training. Its only input is the last 1,024 hours of demand." },
   origin:   { title: "Forecast from the origin", method: "Rolling-origin backtest",
-    lede: "The forecast is made at an origin and uses only what was known then. The origin then rolls forward and it happens again." },
+    lede: "The forecast is made at an origin from the demand history before it. The origin then rolls forward and it happens again." },
   compare:  { title: "Your call", method: "Actual vs TimesFM vs EPİAŞ plan",
     lede: "Both forecasts are in. Actual demand is still hidden. Which one will land closer?" },
   score:    { title: "Score it", method: "MAPE: mean absolute percentage error",
     lede: "Every scored hour's error, as a share of actual demand, averaged. Lower is better." },
   holidays: { title: "Why holidays break it", method: "History only, no calendar",
-    lede: "On ordinary days the zero-shot model beat the official plan. On holidays the ranking reversed sharply. The gap is explainable." },
+    lede: "Across the backtest, the zero-shot model beat the official plan on ordinary hours but not in June. On holidays the ranking reversed sharply." },
   recap:    { title: "Recap", method: "What happened, and the numbers", lede: "" },
 };
 
 // The decision behind each step: one number, one sentence, details on click.
 // Every figure comes from the April–June 2026 backtest on the project page.
 const WHY = {
-  pull: () => ({ num: "21", text: "distribution companies' meter data, pulled alongside hourly consumption and the EPİAŞ demand plan.",
+  pull: () => ({ num: "21", text: "distribution companies' profiling multipliers, pulled alongside hourly consumption and the EPİAŞ demand plan.",
     more: ["All three come from the EPİAŞ Transparency Platform and are stored as Parquet.",
-      "The meter data feeds a separate distributor dashboard: hourly meter multipliers by distributor, profile group and meter-reading type. The forecast itself uses consumption only."] }),
+      "The profiling multipliers feed a separate distributor dashboard: hourly multipliers by distributor, profile group and meter-reading type. The forecast itself uses consumption only."] }),
   context: () => ({ num: "1,024 h", text: "of demand history is the model's whole input: no holiday calendar, no weather.",
     more: ["The question was whether a pretrained foundation model, with no task-specific training, can compete with the official hourly plan EPİAŞ publishes for the Turkish grid.",
       "Zero-shot keeps the comparison clean: whatever TimesFM gets right, it got from the shape of past demand."] }),
-  origin: () => ({ num: "~1,800", text: "scored hours per horizon, April–June 2026, each forecast made only from information available at its origin.",
-    more: ["Both horizons, 24 hours and 168 hours, are backtested from rolling forecast origins.",
+  origin: () => ({ num: "1,824", text: "scored hours at 24 hours and 1,656 at 168 hours, April–June 2026. A retrospective comparison: TimesFM sees demand history up to each origin.",
+    more: ["Both horizons, 24 hours and 168 hours, are backtested from origins that move forward without overlap: daily at 24 hours, weekly at 168 hours.",
+      "Nothing was tuned on the evaluation period: TimesFM runs zero-shot, and the evaluation window and context length were set before scoring.",
       "Forecasts are cached, so repeat analysis is instant."] }),
   compare: () => ({ num: "720", text: "scored hours in April 2026 alone at 24 hours. One day can go either way; the backtest scores every hour against the plan.",
-    more: ["Over April–June 2026 that comes to about 1,800 scored hours per horizon.",
+    more: ["Over April–June 2026 that comes to 1,824 scored hours at 24 hours and 1,656 at 168 hours.",
       "The benchmark is the official hourly plan EPİAŞ publishes for the grid, not a naive baseline: the question was whether a zero-shot model can compete with it."] }),
-  score: () => ({ num: "3.47% vs 3.13%", text: "24-hour MAPE over all reported hours, TimesFM vs the plan. Holidays outweigh TimesFM's lead on ordinary days.",
-    more: ["Excluding public holidays: TimesFM 2.39%, the plan 2.92%. Public holidays only: TimesFM 12.67%, the plan 4.89%.",
-      "Rolling backtests over April–June 2026, with about 1,800 scored hours per horizon."] }),
-  holidays: () => ({ num: "12.67%", text: "24-hour MAPE on public holidays, against 4.89% for the plan. It can't anticipate what it can't see.",
+  score: () => ({ num: "3.47% vs 3.13%", text: "24-hour MAPE over all reported hours, TimesFM vs the plan. The plan is ahead overall; holidays outweigh TimesFM's lead on ordinary hours.",
+    more: ["Ordinary hours: TimesFM 2.57%, the plan 3.05%. Public holiday hours: TimesFM 11.79%, the plan 3.91%. In June alone the plan also leads on ordinary hours: TimesFM 2.70% vs plan 2.41%.",
+      "At 168 hours TimesFM is far behind: TimesFM 6.04% vs plan 3.01%, though only the first day of that plan would exist at a week-ahead origin."] }),
+  holidays: () => ({ num: "11.79%", text: "24-hour MAPE on public holidays, against 3.91% for the plan. It can't anticipate what it can't see.",
     more: ["TimesFM sees only demand history, with no holiday calendar or weather, so it cannot anticipate a national holiday.",
-      "At 168 hours the depressed demand lingers in its context window afterwards.",
-      "The next improvement is calendar awareness, not a bigger univariate model.",
-      "TimesFM's largest errors in the 24-hour backtest fall on public holidays, above all Eid al-Adha."] }),
+      "After Eid the low days sit in the context window. The June 1 block underforecasts throughout (12.18% MAPE, mean bias −4,815 MWh), consistent with a context effect, though that mechanism is untested.",
+      "Calendar features are the next experiment; they haven't been tested yet.",
+      "TimesFM's worst daily errors are around Eid al-Adha; large errors also occur on Apr 23, May 1, May 19, and June 1."] }),
 };
 
 /* --------------------------------------------------------------- helpers */
@@ -647,7 +648,7 @@ function updateNav() {
   next.disabled = false;
   if (S.busy) next.textContent = "Skip animation";
   else if (key === "compare" && !S.bet) { next.textContent = "Your call ↑"; next.disabled = true; }
-  else if (key === "recap") next.textContent = host.clientWidth <= 640 ? "Next day →" : "Next example →";
+  else if (key === "recap") next.textContent = host.clientWidth <= 640 ? "Next →" : "Next example →";
   else next.textContent = host.clientWidth <= 640 ? "Next →" : `Next: ${list[S.step + 1].title} →`;
 }
 
@@ -785,7 +786,7 @@ function renderIntro() {
   run.onclick = start;
   const card = h("div", { class: "card reveal" },
     h("p", { class: "card-label" }, "Forecast target"),
-    h("div", { class: "pair" }, field("Day", s.title), field("Horizon", s.horizon === 24 ? "24 hours" : "168 hours (one week)")),
+    h("div", { class: "pair" }, field(s.horizon === 24 ? "Day" : "Week", s.title), field("Horizon", s.horizon === 24 ? "24 hours" : "168 hours (one week)")),
     h("div", { class: "pair" }, field("Model", "TimesFM 2.5, zero-shot"), field("Benchmark", "EPİAŞ hourly demand plan")));
   $("stage").replaceChildren(
     h("div", { class: "head reveal" },
@@ -895,7 +896,7 @@ const RENDER = {
     const rows = [
       ["Hourly consumption", "The Turkish grid, every hour", "#1A1C2B"],
       ["EPİAŞ demand plan", "The official hourly plan: the benchmark", "var(--plan)"],
-      ["Meter data", "All 21 distribution companies", "var(--accent)"],
+      ["Profiling multipliers", "All 21 distribution companies", "var(--accent)"],
     ];
     const list = h("div", { class: "srcs" });
     const cells = h("div", { class: "cells", "aria-hidden": "true" }, Array.from({ length: 21 }, () => h("i")));
@@ -920,7 +921,7 @@ const RENDER = {
     }
     await wait(400);
     finish(stage,
-      result("", null, h("b", {}, "Three feeds, one format. "), "Consumption is what TimesFM forecasts, the plan is what it is scored against, and the meter data feeds the distributor dashboard."),
+      result("", null, h("b", {}, "Three feeds, one format. "), "Consumption is what TimesFM forecasts, the plan is what it is scored against, and the profiling multipliers feed the distributor dashboard."),
       why("pull"));
   },
 
@@ -961,9 +962,9 @@ const RENDER = {
     await wait(400);
     const wd = windowDays(s);
     const res = s.type === "after"
-      ? result("warn", "Eid", h("b", {}, "The holiday is inside the window. "), "To the model, four low days are simply the most recent demand.")
+      ? result("warn", "Eid", h("b", {}, "The holiday is inside the window. "), "To the model, the four low Eid days just before the origin are simply recent demand.")
       : s.type === "hol"
-        ? result("warn", "?", h("b", {}, "The forecast day is a holiday. "), "Nothing in the window says so: it ends on ordinary days.")
+        ? result("warn", "?", h("b", {}, "The forecast day is a holiday. "), s.eve != null ? "Only the eve's quiet afternoon hints at it; nothing says four holiday days follow." : "Nothing in the window says so: it ends on ordinary days.")
         : result("ok", "6×", h("b", {}, "Six full weeks. "), "Every weekday appears six times, so the weekly rhythm is plain to see.");
     finish(stage, res, why("context"),
       mechanics(
@@ -1000,7 +1001,7 @@ const RENDER = {
     const facts = h("div", { class: "facts" },
       h("div", { class: "fact" }, h("b", {}, "1,024 h"), "context, up to the origin"),
       h("div", { class: "fact" }, h("b", {}, `${s.horizon} h`), "forecast after it"),
-      h("div", { class: "fact" }, h("b", {}, "~1,800"), "scored hours per horizon"));
+      h("div", { class: "fact" }, h("b", {}, s.horizon === 24 ? "1,824" : "1,656"), "scored hours at this horizon"));
     await wait(400);
     draw(ctxPath, wait, 1);
     await wait(1200);
@@ -1065,7 +1066,7 @@ const RENDER = {
       h("button", { class: "btn bet-tf", type: "button", "data-k": "tf" }, "TimesFM"),
       h("button", { class: "btn bet-plan", type: "button", "data-k": "plan" }, "EPİAŞ plan"));
     const hint = h("p", { class: "try reveal" }, `Which forecast will be closer to actual demand over this ${span}?`);
-    card.append(hint, actions, illus("Illustrative curves: the forecast lines imitate how each method behaves; they are not model output. Metrics are from the April–June 2026 backtest."));
+    card.append(hint, actions, illus("Illustrative curves: the forecast lines imitate how each method behaves; they are not model output. Metrics are from the April–June 2026 backtest." + (s.horizon === 168 ? " The plan line joins seven successive day-ahead plans; only its first day would exist at a week-ahead origin." : "")));
     for (const b of actions.querySelectorAll("button")) b.onclick = () => placeBet(b.dataset.k);
     B = { stage, card, c, d, actions, hint, mask, q, actualPath };
     show(card);
@@ -1088,7 +1089,7 @@ const RENDER = {
     const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "24-hour MAPE · April–June 2026 backtest"), rows,
       h("p", { class: "small", style: "margin-top:10px" }, s.type === "after"
         ? "This example forecasts 168 hours ahead; the table is for the 24-hour horizon."
-        : "Highlighted: the row this example belongs to. About 1,800 scored hours per horizon."));
+        : "Highlighted: the row this example belongs to. 1,824 scored hours at 24 hours."));
     stage.append(card);
     await wait(500);
     for (const key of ["all", "excl", "hol"]) {
@@ -1110,7 +1111,7 @@ const RENDER = {
     await wait(300);
     const sample = [4, 11, 20].map((k) => [k, d.target[k], d.tf[k]]);
     finish(stage,
-      result("plan", "3.13%", h("b", {}, "Overall, the plan wins. "), "TimesFM leads on ordinary days, but its holiday errors are large enough to tip the total (3.47%)."),
+      result("plan", "3.13%", h("b", {}, "Overall, the plan is ahead. "), "TimesFM leads on ordinary hours, but its holiday errors push its total to 3.47%."),
       why("score"),
       mechanics(h("div", {}, h("h4", {}, "Three hours of the illustrative curves, worked through"),
         h("div", { class: "work" },
@@ -1125,8 +1126,8 @@ const RENDER = {
     stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "The same blind spot, twice"), panels,
       legend([["Actual", "var(--text)"], ["TimesFM", "var(--accent)"], ["Holiday", "var(--hol)", true]]), illus()));
     const cases = [
-      [SCENARIOS[2], -48, "On the holiday", "The window ends on ordinary days, so the holiday is forecast like any other day."],
-      [SCENARIOS[4], -168, "A week later, at 168 h", "Now the low days are in the window, so the week after is forecast low too."],
+      [SCENARIOS[2], -48, "On the holiday", "The window ends on the eve's half-day, so the holiday itself is forecast like an ordinary day."],
+      [SCENARIOS[4], -168, "A week later, at 168 h", "The low days are now in the context window. A context effect is a plausible explanation for the real June 1 underforecast, not a tested cause."],
     ];
     const paths = [];
     for (const [sc, x0, title, text] of cases) {
@@ -1155,8 +1156,8 @@ const RENDER = {
     await wait(600);
     finish(stage,
       h("div", { class: "card reveal" }, h("div", { class: "next" }, h("span", { class: "mark", "aria-hidden": "true" }, "→"),
-        h("span", {}, h("b", {}, "Next: calendar awareness, not a bigger univariate model."),
-          h("small", {}, "TimesFM sees only demand history, with no holiday calendar or weather. A larger model that still sees only history keeps the same blind spot.")))),
+        h("span", {}, h("b", {}, "Next experiment: calendar features."),
+          h("small", {}, "TimesFM sees only demand history, with no holiday calendar or weather. The errors around Eid fit that blind spot, but adding a calendar hasn't been tested yet.")))),
       why("holidays"));
   },
 
@@ -1166,14 +1167,14 @@ const RENDER = {
     const name = { tf: "TimesFM", plan: "EPİAŞ plan" };
     stage.append(h("div", { class: "head reveal" }, h("p", { class: "eyebrow" }, "Recap"), h("h3", { class: "t2" }, `${s.title}, ${s.horizon} hours ahead`)));
     const rows = [
-      ["Data", "Consumption, the EPİAŞ plan and meter data for 21 distribution companies, as Parquet"],
+      ["Data", "Consumption, the EPİAŞ plan and profiling multipliers for 21 distribution companies, as Parquet"],
       ["Context", s.type === "after" ? "1,024 h of demand history, Eid included" : "1,024 h of demand history; no calendar, no weather"],
       ["Forecast", `${s.horizon} h ahead from the origin, cached`],
       ["Your call", S.bet ? `${name[S.bet]}: ${S.bet === winner ? "right" : "wrong"} on this example` : "Skipped"],
       ["This example", `${name[winner]} closer. TimesFM ${fmtPct(d.mapeTf, 1)}, plan ${fmtPct(d.mapePlan, 1)} (illustrative)`],
-      ["Backtest", s.type === "excl" ? "Excluding public holidays: TimesFM 2.39%, plan 2.92%"
-        : s.type === "hol" ? "Public holidays only: TimesFM 12.67%, plan 4.89%"
-          : "At 168 h, the depressed demand lingers in the context window"],
+      ["Backtest", s.type === "excl" ? "Ordinary hours: TimesFM 2.57%, plan 3.05%"
+        : s.type === "hol" ? "Public holiday hours: TimesFM 11.79%, plan 3.91%"
+          : "At 168 h, all hours: TimesFM 6.04%, plan 3.01%; only the first day of that plan would exist at a week-ahead origin"],
     ];
     const list = h("ol", { class: "path" });
     stage.append(h("div", { class: "card reveal" }, list));
@@ -1185,10 +1186,11 @@ const RENDER = {
     const tile = (big, label) => h("div", { class: "tile" }, h("b", {}, big), h("span", {}, label));
     stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "April–June 2026 backtest · TimesFM vs EPİAŞ plan"),
       h("div", { class: "tiles" },
-        tile("2.39% vs 2.92%", "24-hour MAPE, excluding public holidays"),
-        tile("12.67% vs 4.89%", "24-hour MAPE, public holidays only"),
         tile("3.47% vs 3.13%", "24-hour MAPE, all reported hours"),
-        tile("~1,800", "scored hours per horizon"))));
+        tile("2.57% vs 3.05%", "24-hour MAPE, ordinary hours"),
+        tile("11.79% vs 3.91%", "24-hour MAPE, public holiday hours"),
+        tile("6.04% vs 3.01%", "168-hour MAPE; successive day-ahead plan")),
+      h("p", { class: "small", style: "margin-top:10px" }, "The 168-hour plan is a retrospective reference: only its first day would exist at a week-ahead origin.")));
     await wait(400);
     const others = GROUPS.map((g) => {
       const idx = SCENARIOS.map((x, i) => [x, i]).filter(([x]) => x.group === g.id).map(([, i]) => i);
@@ -1251,10 +1253,10 @@ function renderOutcome(animate) {
   card.insertBefore(errBox, actions.nextSibling);
   const right = S.bet === winner;
   const real = s.type === "excl"
-    ? result("", "2.39%", h("b", {}, "Across the backtest, too. "), "Excluding public holidays, TimesFM's 24-hour MAPE was 2.39% against the plan's 2.92%.")
+    ? result("", "2.57%", h("b", {}, "Across the backtest, too. "), "On ordinary hours, TimesFM's 24-hour MAPE was 2.57% vs plan 3.05%, though in June alone the plan led on ordinary hours as well (TimesFM 2.70% vs plan 2.41%).")
     : s.type === "hol"
-      ? result("plan", "4.89%", h("b", {}, "Across the backtest, too. "), "On public holidays, the plan's 24-hour MAPE was 4.89% against TimesFM's 12.67%.")
-      : result("warn", "168 h", h("b", {}, "No separate figure is reported for this case. "), "The backtest's explanation: at 168 hours the depressed demand lingers in TimesFM's context window after the holiday.");
+      ? result("plan", "3.91%", h("b", {}, "Across the backtest, too. "), "On public holiday hours, TimesFM's 24-hour MAPE was 11.79% vs plan 3.91%.")
+      : result("plan", "3.01%", h("b", {}, "Across the whole backtest: "), "at 168 hours TimesFM's MAPE was 6.04% vs plan 3.01%, though only the first day of that plan would exist at a week-ahead origin. A post-holiday context effect is a hypothesis, not a tested cause.");
   const out = right
     ? result("ok", "✓", h("b", {}, "You called it. "), `${name[winner]} was closer on this illustrative ${span}.`)
     : result("bad", "✕", h("b", {}, "Not this time. "), `${name[winner]} was closer on this illustrative ${span}.`);

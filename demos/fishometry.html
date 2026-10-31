@@ -347,7 +347,7 @@ root.append(template.content.cloneNode(true));
 
 /* ------------------------------------------------------------------ data */
 
-// Pixels per centimetre at the controlled set's fixed camera distance, in
+// Pixels per centimeter at the controlled set's fixed camera distance, in
 // this demo's 480-px-wide drawings. Illustrative, like every photo here.
 const K = 8;
 
@@ -355,7 +355,7 @@ const GROUPS = [
   { id: "controlled", label: "Controlled",
     blurb: "One species, one fixed camera distance. The setup itself turns out to be a ruler." },
   { id: "zoomed", label: "Zoomed",
-    blurb: "The same photos original, zoomed in and zoomed out: same fish, different pixel lengths." },
+    blurb: "Each photo three times: original, a center crop enlarged back to full size (zoomed in), and a downscaled copy (zoomed out). Same fish, different pixel lengths." },
   { id: "outdoor", label: "Outdoor",
     blurb: "Angling photos with the species from the catch record. No fixed setup at all." },
 ];
@@ -372,10 +372,10 @@ const SCENARIOS = [
   { group: "zoomed", chip: "Zoomed out", ref: "Photo D, zoomed out",
     scene: "tray", len: 25.6, zoom: 0.65, rot: 1, pred: 24.9 },
   { group: "outdoor", chip: "Shore catch", ref: "Shore photo",
-    scene: "shore", species: "Sea bass", len: 42.0, px: 250, rot: -8, base: 38.5, pred: 44.1,
+    scene: "shore", species: "Sea bass", len: 42.0, px: 250, rot: -8, base: 40.9, pred: 44.1,
     notes: ["fish lying on a flat rock", "sea and sky behind", "daylight, fish fully in frame"] },
   { group: "outdoor", chip: "Boat catch", ref: "Boat photo",
-    scene: "boat", species: "Bluefish", len: 31.0, px: 236, rot: 6, base: 36.0, pred: 33.4,
+    scene: "boat", species: "Mackerel", len: 31.0, px: 236, rot: 6, base: 36.8, pred: 33.4,
     notes: ["fish on a boat deck", "open water behind", "slight angle to the camera"] },
 ];
 
@@ -388,60 +388,65 @@ const LM = {
 };
 
 const META = {
-  photo:     { title: "One photo, nothing else", method: "Input",
-    lede: "The model gets a single photo. No ruler, no reference object, no camera calibration: whatever it learns about length has to come from the pixels." },
+  photo:     { title: "One photo, no calibration", method: "Input",
+    lede: "The model gets a single photo, without depth sensors or camera calibration; outdoors it also gets the species from the catch record. Everything else it learns about length has to come from the pixels." },
   landmarks: { title: "Find the landmarks", method: "YOLO11, trained for this study",
-    lede: "A detector trained for this study boxes the fish, its head, its tail and its eye. Their coordinates become the first features." },
+    lede: "A detector trained for this study boxes the fish, its head and its tail, plus its eye in controlled photos. Their coordinates become the first features." },
   depth:     { title: "Estimate relative depth", method: "Depth Anything V2",
     lede: "A monocular depth model estimates how near each part of the scene is, and the pipeline samples it at the head, body and tail." },
   outline:   { title: "Cut out the fish", method: "Segment Anything",
     lede: "Segment Anything isolates the fish outline from everything else in the frame." },
   model:     { title: "Train and select a model", method: "Seven model families · protected split",
-    lede: "Every model family runs with and without depth, on a split that was fixed before any of the steps above ran." },
+    lede: "Every model family except the mean baseline runs with and without depth, on a split fixed before preprocessing. The two embedding families run outdoors only." },
   result:    { title: "Test result", method: "Held-out test set", lede: "" },
   recap:     { title: "Recap", method: "What happened, and the numbers", lede: "" },
 };
 
 const RESULT_META = {
   controlled: { title: "Find the hidden ruler", method: "Held-out test set · then you zoom",
-    lede: "At one fixed camera distance, a straight line from pixels to centimetres does almost everything. Find out why, then break it." },
+    lede: "At one fixed camera distance, a straight line from pixels to centimeters does almost everything. Find out why, then break it." },
   zoomed:     { title: "Break the hidden ruler", method: "Zoom-derived test set · you zoom",
     lede: "A rule fitted at the fixed distance only knows pixels. Zoom the photo and watch what it says about a fish that hasn't changed." },
   outdoor:    { title: "Score on the test set", method: "Held-out test set · DINOv2 + ridge",
-    lede: "Outdoors there is no hidden ruler left. Compare what the species average guesses with what the photo adds." },
+    lede: "Outdoors there is no fixed setup left. Some photos show a tape or board, but the pipeline never reads it. Compare what the species average guesses with what the photo adds." },
 };
-const OUTLINE_LEDE_OUTDOOR = "Segment Anything isolates the fish outline. Outdoor photos also get vision-language scene annotations and the species named in the angler's catch record.";
+const OUTLINE_LEDE_OUTDOOR = "Segment Anything isolates the fish outline. Outdoor photos also get vision-language scene annotations, including a yes/no device-visible flag, and the species named in the angler's catch record.";
 
 // The decision behind each step: one number, one sentence, details on click.
 // Every figure is a dataset-level thesis result.
 const WHY = {
   photo: {
     controlled: { num: "302", text: "photos of one species, all taken at a fixed camera distance." },
-    zoomed: { num: "906", text: "photos: each photo original, zoomed in and zoomed out. Same fish, three pixel lengths." },
+    zoomed: { num: "906", text: "copies of 302 photos: each original, a center crop enlarged back to full size, and a whole-photo downscaled copy. No new fish or measurements." },
     outdoor: { num: "2,391", text: "angling photos of 13 species, from 7 to 127 cm long." },
-    more: ["One uncalibrated photo cannot uniquely recover physical scale: a small fish close to the camera fills the same pixels as a large one farther away.",
-      "So the real question is how much length information learned features recover within a known distribution of photos, and whether that survives changes in scale and scene."] },
-  landmarks: { num: "4", text: "parts detected by a YOLO11 model trained for this study: fish, head, tail and eye.",
+    more: ["One uncalibrated photo cannot uniquely recover physical scale: a small fish close to the camera fills the same pixels as a large one farther away."] },
+  landmarks: {
+    controlled: { num: "4", text: "parts detected by a YOLO11 model trained for this study: fish, head, tail and eye." },
+    zoomed: { num: "4", text: "parts detected by a YOLO11 model trained for this study: fish, head, tail and eye." },
+    outdoor: { num: "3", text: "parts detected by the outdoor YOLO11 model: fish, head and tail. It has no eye class." },
     more: ["Their box coordinates are the inputs of the simplest models. On the controlled photos, linear regression on coordinates was the best model of all.",
-      "Nine outdoor test images failed preprocessing; they are excluded from the outdoor result rather than guessed."] },
+      "Nine outdoor test images failed landmark detection; they are excluded from the outdoor result rather than guessed."] },
   depth: { num: "60%", text: "lower boosted-tree error on the zoom-derived photos when relative depth is added.",
     more: ["Depth Anything V2 returns relative depth, not metric depth: it orders the scene from near to far, with no unit attached.",
-      "So depth cannot turn pixels into centimetres on its own. It is one more input, and every model family is run with and without it."] },
-  outline: { num: "13", text: "species in the outdoor photos, from 7 to 127 cm long.",
-    more: ["Segment Anything isolates the fish outline from the rest of the photo.",
-      "Outdoor photos add vision-language scene annotations and the species named in the angler's catch record. The species-mean baseline receives the species identity too, so the comparison is like for like."] },
-  model: { num: "70/15/15", text: "split, fixed before any preprocessing. Models are selected on validation MAE; the test set is used once.",
-    more: ["Seven model families, from a species-average baseline and linear regression to gradient-boosted trees, a ResNet-18, and EfficientNet-B3 or DINOv2 embeddings with ridge regression, each run with and without depth.",
+      "So depth cannot turn pixels into centimeters on its own. It is one more input, and every model family except the mean baseline is run with and without it."] },
+  outline: {
+    controlled: { num: "1", text: "species in the controlled photos, from 9.3 to 26.1 cm long." },
+    zoomed: { num: "1", text: "species: copies of the controlled fish, from 9.3 to 26.1 cm long." },
+    outdoor: { num: "13", text: "species in the outdoor photos, from 7 to 127 cm long." },
+    more: ["Segment Anything isolates the fish outline from the rest of the photo."],
+  },
+  model: { num: "70/15/15", text: "split, fixed before any preprocessing. Everything is chosen on validation MAE, and the test set is used once.",
+    more: ["Seven model families: mean baseline, linear regression, XGBoost, a tabular neural network, ResNet-18 plus measurements, EfficientNet-B3 ridge, and multi-view DINOv2 ridge. Every family except the baseline runs with and without depth; the two embedding families run outdoors only.",
       "Zoomed versions stay in their source photo's split, so no zoomed copy of a training photo can reach the test set."] },
   result: {
-    controlled: { num: "2.01 cm", text: "for the same linear model on the zoom-derived photos, up from 0.12 cm here. The fixed distance was doing the measuring.",
+    controlled: { num: "2.01 cm", text: "for the same linear configuration retrained on zoom-derived photos, up from 0.12 cm here. Varying apparent size takes the fixed-distance ruler away.",
       more: ["In controlled photos the fixed geometry acts as a hidden ruler: at one camera distance, pixel length and real length move together.",
-        "The zoom-derived dataset exists to break exactly that: 906 photos, each one original, zoomed in and zoomed out."] },
+        "The zoom-derived dataset exists to break exactly that: 302 photos, each original, center-cropped and enlarged, and downscaled as a whole."] },
     zoomed: { num: "0.71 cm", text: "mean absolute error for boosted trees with relative depth, the best model on the zoom-derived test set.",
-      more: ["The same linear model that reached 0.12 cm on controlled photos rises to 2.01 cm here. Relative depth cuts the boosted-tree error by 60%.",
+      more: ["Linear regression on coordinates, retrained on zoom-derived photos, reaches 2.01 cm (0.12 cm on controlled photos). Relative depth cuts the boosted-tree error by 60%.",
         "Zoomed versions stay in their source photo's split, so no model is tested on a zoomed copy of a photo it trained on."] },
     outdoor: { num: "36.9%", text: "lower error than the 8.76 cm species-mean baseline: DINOv2 + ridge reaches 5.53 cm MAE (14.0% MAPE).",
-      more: ["Measured on 348 processed test images. Both models receive the species identity; nine test images that failed preprocessing are excluded.",
+      more: ["Measured on 348 processed test images. Both models receive the species identity; nine test images that failed landmark detection are excluded.",
         "Outdoors, the whole photograph helps most. DINOv2 was chosen on validation MAE, like every model."] },
   },
 };
@@ -696,7 +701,7 @@ function advance() {
 
 /* ------------------------------------------------------------- drawing */
 
-// Every photo is a 480 × 300 drawing; the fish lies centred at (240, 152),
+// Every photo is a 480 × 300 drawing; the fish lies centered at (240, 152),
 // lower in outdoor scenes so it rests on the rock or deck.
 const W = 480, HGT = 300, CX = 240, CY = 152;
 const cyOf = (s) => ({ shore: 200, boat: 205 })[s.scene] || CY;
@@ -706,7 +711,7 @@ const nid = (p) => `${p}${++uid}`;
 const FISH_C = {
   tray: ["#6F8F82", "#D5E1DA", "#5A7569"],
   "Sea bass": ["#6E7C88", "#E4E9ED", "#56636E"],
-  Bluefish: ["#3F7383", "#D5E3E1", "#305C69"],
+  Mackerel: ["#3F7383", "#D5E3E1", "#305C69"],
 };
 
 // Fish outline in its own frame: nose at (0, 0), tail tip at (L, 0).
@@ -778,8 +783,8 @@ function fishG(s, paint) {
     ]);
 }
 
-// Background of each scene, drawn in the unzoomed frame. Tray scenes extend
-// well past the frame so zooming out reveals more table.
+// Background in the original frame. The reduced zoom-derived copy scales
+// the whole frame; it never reveals additional table around the scene.
 function sceneBg(s) {
   if (s.scene === "tray") {
     const grain = Array.from({ length: 14 }, (_, i) => svg("path", { d: `M-480 ${-280 + i * 62} C0 ${-300 + i * 62} 480 ${-250 + i * 62} 960 ${-275 + i * 62}`, fill: "none", stroke: "#B8A58A", "stroke-width": 2, opacity: 0.6 }));
@@ -854,14 +859,24 @@ function depthLayer(s) {
 // (detector boxes, depth probes) go into `top`.
 function photo(s, { zoom = s.zoom || 1, label } = {}) {
   const clip = nid("clip");
+  const clipRect = svg("rect", { width: W, height: HGT });
   const zg = svg("g", {}, sceneBg(s), fishG(s));
-  setZoom(zg, zoom);
   const top = svg("g", { "clip-path": `url(#${clip})` }, zg);
   const el = svg("svg", { viewBox: `0 0 ${W} ${HGT}`, role: "img", "aria-label": label || `Illustrative photo: ${s.ref}` },
-    svg("defs", {}, svg("clipPath", { id: clip }, svg("rect", { width: W, height: HGT }))), top);
-  return { el, zg, top };
+    svg("defs", {}, svg("clipPath", { id: clip }, clipRect)), top);
+  const updateZoom = (z) => {
+    setZoom(zg, z);
+    // Reduced copies shrink the complete photo, not just the fish.
+    const scale = s.group === "zoomed" && z < 1 ? z : 1;
+    clipRect.setAttribute("x", W * (1 - scale) / 2);
+    clipRect.setAttribute("y", HGT * (1 - scale) / 2);
+    clipRect.setAttribute("width", W * scale);
+    clipRect.setAttribute("height", HGT * scale);
+  };
+  updateZoom(zoom);
+  return { el, zg, top, updateZoom };
 }
-// Zoom about the frame centre, as a CSS transform so it can animate.
+// Zoom about the frame center, as a CSS transform so it can animate.
 function setZoom(g, z) {
   g.style.transformBox = "view-box";
   g.style.transformOrigin = `${W / 2}px ${HGT / 2}px`;
@@ -871,9 +886,12 @@ const frame = (el, ...extra) => h("div", { class: "photo" }, el, extra);
 // Photos shrink to fit narrow screens; labels drawn on them grow to stay legible.
 const labelScale = () => (host.clientWidth <= 640 ? 1.5 : 1);
 
+// Parts the detector boxes: the outdoor detector has no eye class.
+const partsOf = (s) => (s.group === "outdoor" ? ["fish", "head", "tail"] : ["fish", "head", "tail", "eye"]);
+
 // Detector boxes with labelled tags; tags for head, eye and tail share a row
 // under the fish so they never cover each other.
-function landmarkBoxes(g) {
+function landmarkBoxes(g, parts) {
   const b = g.boxes;
   const k = labelScale();
   const tagW = (t) => (t.length * 8.6 + 12) * k;
@@ -887,12 +905,12 @@ function landmarkBoxes(g) {
     head: [headX, below],
     eye: [clampX(headX + tagW("Head") + 4, tagW("Eye")), below],
   };
-  const eyeEnd = tags.eye[0] + tagW("Eye") + 4;
-  tags.tail = [clampX(Math.max(eyeEnd, b.tail.x + b.tail.w - tagW("Tail")), tagW("Tail")), below];
-  return ["fish", "head", "tail", "eye"].map((k) => {
-    const r = b[k];
-    const [name, c] = LM[k];
-    const [tx, ty] = tags[k];
+  const afterHead = parts.includes("eye") ? tags.eye[0] + tagW("Eye") + 4 : headX + tagW("Head") + 4;
+  tags.tail = [clampX(Math.max(afterHead, b.tail.x + b.tail.w - tagW("Tail")), tagW("Tail")), below];
+  return parts.map((part) => {
+    const r = b[part];
+    const [name, c] = LM[part];
+    const [tx, ty] = tags[part];
     return svg("g", { class: "box", style: `--c:${c}` },
       svg("rect", { x: r.x.toFixed(1), y: r.y.toFixed(1), width: r.w.toFixed(1), height: r.h.toFixed(1), rx: 3 }),
       svg("rect", { class: "tag", x: tx.toFixed(1), y: ty, width: tagW(name), height: tagH, rx: 4 }),
@@ -957,7 +975,7 @@ function renderShoot() {
       h("p", { class: "eyebrow" }, "Interactive walkthrough · ", g.label),
       h("h3", { class: "t1" }, "Measure a fish from one photo"),
       h("p", { class: "lede" }, zoomed
-        ? "Zoom-derived photos are copies of one photo, zoomed in or out. Make the copy, then follow what each model extracts from it."
+        ? "Each source photo stays original, is center-cropped and enlarged, or is downscaled as a whole. The downscaled copy keeps the same framing and has fewer pixels."
         : "Take the photo below, then follow what each model extracts from it and how the length is estimated.")),
     h("div", { class: "card reveal" }, frame(p.el),
       h("div", { class: "cap-row" }, caption, h("span", {}, "Drawn scene ", illus())), btn),
@@ -973,8 +991,11 @@ async function playShoot(tk, { p, btn, caption }) {
   p.zg.style.opacity = "1";
   await wait(900);
   if (s.group === "zoomed") {
-    setZoom(p.zg, s.zoom);
-    caption.textContent = `${s.zoom}× copy, ${zoomWord(s.zoom)}`;
+    if (s.zoom < 1) p.zg.style.transition = "opacity 0.6s";
+    p.updateZoom(s.zoom);
+    caption.textContent = s.zoom < 1
+      ? `${s.zoom}× whole-photo copy, same framing, fewer pixels`
+      : `${s.zoom}× copy, ${zoomWord(s.zoom)}`;
     await wait(1400);
   }
   S.ready = true;
@@ -1057,11 +1078,13 @@ const px = (v) => `${Math.round(v)} px`;
 
 const WINNER = { controlled: "linear", zoomed: "trees", outdoor: "dino" };
 const FAMILIES = [
-  { id: "base", name: "Species-average baseline", sub: "predicts the species' mean length" },
-  { id: "linear", name: "Linear regression", sub: "on landmark coordinates" },
-  { id: "trees", name: "Gradient-boosted trees", sub: "XGBoost on coordinates" },
-  { id: "resnet", name: "ResNet-18", sub: "an image network" },
-  { id: "dino", name: "EfficientNet-B3 or DINOv2 embeddings + ridge", sub: "whole-image features, ridge regression" },
+  { id: "base", name: "Mean baseline", sub: "predicts the training mean; per species outdoors" },
+  { id: "linear", name: "Linear regression", sub: "on landmark measurements" },
+  { id: "trees", name: "Gradient-boosted trees", sub: "XGBoost on the same measurements" },
+  { id: "mlp", name: "Tabular neural network", sub: "small MLP on the same measurements" },
+  { id: "resnet", name: "ResNet-18 + measurements", sub: "isolated fish and numerical inputs" },
+  { id: "efficientnet", name: "EfficientNet-B3 embeddings + ridge", sub: "whole-photo features and measurements", outdoorOnly: true },
+  { id: "dino", name: "Multi-view DINOv2 embeddings + ridge", sub: "photo at several scales, isolated fish, and measurements", outdoorOnly: true },
 ];
 const WIN_TEXT = {
   controlled: "linear regression on coordinates",
@@ -1081,8 +1104,7 @@ const RENDER = {
     const items = [
       [true, s.group === "zoomed" ? `This photo, ${zoomWord(s.zoom)}` : "This photo"],
       s.group === "outdoor" ? [true, `Species: ${s.species}, from the catch record`] : null,
-      [false, "No ruler"],
-      [false, "No reference object"],
+      [false, "No depth sensor"],
       [false, "No camera calibration"],
     ].filter(Boolean);
     for (const [ok, text] of items) {
@@ -1095,7 +1117,7 @@ const RENDER = {
       ? result("", null, "The fish spans ", h("b", {}, px(g.span)), ` here and ${px(geom(s, 1).span)} in the original. Same fish, different pixels.`)
       : s.group === "outdoor"
         ? result("", null, "The species is known. Its length, the camera's distance and its lens are not.")
-        : result("", null, "The fish spans ", h("b", {}, px(g.span)), " in this photo. Nothing in the frame has a known size.");
+        : result("", null, "The fish spans ", h("b", {}, px(g.span)), " in this photo. The board's corner markers are never read; only the fixed camera distance ties pixels to centimeters.");
     finish(stage, res, why("photo"),
       mechanics(h("div", {}, h("h4", {}, "Why one photo is ambiguous"), ambiguity(),
         h("p", { class: "small" }, "A small fish close to the lens and a large one farther away cover the same angle, so they fill the same pixels."))));
@@ -1105,23 +1127,24 @@ const RENDER = {
     stage.append(head("landmarks"));
     const p = photo(s);
     const g = geom(s);
+    const parts = partsOf(s);
     stage.append(h("div", { class: "card reveal" }, label("YOLO11 detections", illus("drawn photo")), frame(p.el),
-      h("div", { class: "legend" }, Object.values(LM).map(([n, c]) => h("span", { style: `--c:${c}` }, n)))));
+      h("div", { class: "legend" }, parts.map((k) => LM[k]).map(([n, c]) => h("span", { style: `--c:${c}` }, n)))));
     await wait(700);
-    for (const box of landmarkBoxes(g)) {
+    for (const box of landmarkBoxes(g, parts)) {
       p.top.append(box);
       await wait(650);
     }
     await wait(400);
-    const rows = ["fish", "head", "tail", "eye"].map((k) => {
+    const rows = parts.map((k) => {
       const b = g.boxes[k];
       return h("tr", {}, h("td", {}, LM[k][0]), [b.x + b.w / 2, b.y + b.h / 2, b.w, b.h].map((v) => h("td", { class: "n" }, Math.round(v))));
     });
     finish(stage,
-      result("", null, "Four boxes, 16 numbers. The fish box is ", h("b", {}, `${Math.round(g.boxes.fish.w)} × ${Math.round(g.boxes.fish.h)} px`), " in this photo."),
+      result("", null, `${parts.length === 4 ? "Four" : "Three"} boxes, ${parts.length * 4} numbers. The fish box is `, h("b", {}, `${Math.round(g.boxes.fish.w)} × ${Math.round(g.boxes.fish.h)} px`), " in this photo."),
       why("landmarks"),
       mechanics(h("div", {}, h("h4", {}, "The coordinates, in pixels of this 480 × 300 drawing"),
-        h("table", { class: "coords" }, h("tr", {}, ["Box", "Centre x", "Centre y", "Width", "Height"].map((t) => h("th", {}, t))), rows))));
+        h("table", { class: "coords" }, h("tr", {}, ["Box", "Center x", "Center y", "Width", "Height"].map((t) => h("th", {}, t))), rows))));
   },
 
   async depth(stage, s, wait) {
@@ -1215,15 +1238,15 @@ const RENDER = {
       await wait(350);
     }
     const fams = h("div", { class: "fams" });
-    const famCard = h("div", { class: "card reveal" }, label("Model families, each with and without depth"), fams,
-      h("p", { class: "small note" }, "Seven families in the experiment matrix; listed as the write-up names them."));
+    const famCard = h("div", { class: "card reveal" }, label("Model families; depth pairs except the baseline"), fams,
+      h("p", { class: "small note" }, "Seven families; the two embedding families run on outdoor photos only."));
     stage.append(famCard);
     show(famCard);
     await wait(500);
     const rows = {};
-    for (const f of FAMILIES) {
+    for (const f of FAMILIES.filter((f) => !f.outdoorOnly || s.group === "outdoor")) {
       rows[f.id] = h("div", { class: "fam reveal" }, h("span", {}, f.name, h("small", {}, f.sub)),
-        h("span", { class: "dep" }, h("span", {}, "− depth"), h("span", { "data-d": "+" }, "+ depth")));
+        f.id === "base" ? null : h("span", { class: "dep" }, h("span", {}, "− depth"), h("span", { "data-d": "+" }, "+ depth")));
       fams.append(rows[f.id]);
       await wait(300);
     }
@@ -1258,7 +1281,7 @@ function rulerPlot() {
   predLab.setAttribute("fill", "var(--bad)");
   const truthLab = t(0, 0, "", "start", "lab");
   truthLab.setAttribute("fill", "var(--text)");
-  const el = svg("svg", { class: "plot", viewBox: "0 0 480 250", role: "img", "aria-label": "Training photos, the fitted pixels-to-centimetres line, and this fish" },
+  const el = svg("svg", { class: "plot", viewBox: "0 0 480 250", role: "img", "aria-label": "Training photos, the fitted pixels-to-centimeters line, and this fish" },
     grid,
     svg("line", { class: "ax", x1: PLOT.x0, x2: PLOT.x1, y1: PLOT.y0, y2: PLOT.y0 }),
     svg("line", { class: "ax", x1: PLOT.x0, x2: PLOT.x0, y1: PLOT.y0, y2: PLOT.y1 }),
@@ -1293,7 +1316,7 @@ function rulerCard(s) {
   const update = () => {
     const z = S.zoom;
     const g = geom(s, z);
-    setZoom(p.zg, z);
+    p.updateZoom(z);
     const [a, b] = [g.place([0, 0]), g.place([g.L, 0])];
     const lift = -0.75 * g.H * z;
     span.setAttribute("x1", a[0]); span.setAttribute("x2", b[0]);
@@ -1379,16 +1402,16 @@ function lesson(s) {
   Z.live(S.zoom, said);
   if (s.group === "controlled") {
     return [first,
-      result("", null, h("b", {}, "The hidden ruler was the setup. "), "At one camera distance, pixels and centimetres move together, so a straight line is enough. The Zoomed dataset breaks that on purpose."),
+      result("", null, h("b", {}, "The hidden ruler was the setup. "), "At one camera distance, pixels and centimeters move together, so a straight line is enough. The Zoomed dataset breaks that on purpose."),
       why("result")];
   }
   const errs = h("div", { class: "card reveal" }, label("Test-set MAE, from the thesis"),
     bars([
       { label: "Linear regression", sub: "controlled photos", v: 0.12, text: "0.12 cm", c: "#9AA0B4" },
-      { label: "Same linear model", sub: "zoom-derived photos", v: 2.01, text: "2.01 cm", c: "var(--bad)" },
+      { label: "Linear regression, retrained", sub: "zoom-derived photos", v: 2.01, text: "2.01 cm", c: "var(--bad)" },
       { label: "Boosted trees + relative depth", sub: "zoom-derived photos", v: 0.71, text: "0.71 cm", c: "var(--accent)" },
     ]),
-    h("p", { class: "small note" }, "Relative depth cuts the boosted-tree error by 60%."));
+    h("p", { class: "small note" }, "Relative depth cuts the boosted-tree error by 60%. The rule above is an illustrative frozen fit; thesis numbers come from models trained on each dataset."));
   return [first, errs,
     result("ok", cm(s.pred), "Boosted trees with depth on this photo, measured at ", h("b", {}, cm(s.len)), ". ", illus("illustrative values")),
     why("result")];
@@ -1465,7 +1488,7 @@ RENDER.recap = async function (stage, s, wait) {
   const d = (t) => fishDepth(s, t).toFixed(2);
   const rows = [
     ["Photo", s.group === "outdoor" ? `Angling photo, species ${s.species} from the catch record` : s.group === "zoomed" ? `${s.zoom}× copy: ${px(g.span)}, ${px(geom(s, 1).span)} in the original` : `Fixed distance; the fish spans ${px(g.span)}`],
-    ["Landmarks", "Fish, head, tail and eye boxed by YOLO11"],
+    ["Landmarks", s.group === "outdoor" ? "Fish, head and tail boxed by YOLO11" : "Fish, head, tail and eye boxed by YOLO11"],
     ["Depth", `Head ${d(0.12)} · body ${d(0.45)} · tail ${d(0.88)}, relative`],
     ["Outline", s.group === "outdoor" ? `Segment Anything mask, ${s.notes.length} scene notes, species` : "Segment Anything mask"],
     ["Model", `Selected on validation: ${WIN_TEXT[s.group]}`],

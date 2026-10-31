@@ -2,7 +2,7 @@
 title = "MdsAI — Human-Reviewed Support Intelligence"
 description = "Four years of municipal helpdesk history turned into retrieved evidence, cited LLM answer drafts, and routing suggestions that a support expert approves before anything reaches a customer."
 date = 2026-10-15
-weight = 2
+weight = 3
 
 [extra]
 short_title = "MdsAI"
@@ -10,7 +10,7 @@ monogram = "AI"
 card_description = "Support history turned into human-reviewed answer drafts for a desk serving 60+ municipalities: median first reply from 15.5 h to 2.4 h."
 kind = "project"
 status = "Deployed · Active R&D"
-role = "Technical lead, AI R&D"
+role = "Lead Engineer, AI R&D"
 showcase = true
 stack = ["Python", "Polars", "EmbeddingGemma", "EmbeddingGemma 2", "Sentence Transformers", "UMAP + HDBSCAN", "BERTopic", "LightGBM / XGBoost", "scikit-learn", "Hybrid retrieval", "Gemma 4 12B (QLoRA)", "vLLM (FP8)"]
 screenshot = "images/projects/mdsai-demo.png"

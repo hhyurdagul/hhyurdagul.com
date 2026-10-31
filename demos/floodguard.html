@@ -1,8 +1,8 @@
-<teus-demo><p>The interactive Teus walkthrough needs JavaScript.</p></teus-demo>
-<template id="teus-demo">
+<floodguard-demo><p>The interactive FloodGuard walkthrough needs JavaScript.</p></floodguard-demo>
+<template id="floodguard-demo">
 <style>
 
-/* Teus is always light: white surfaces, one cyan accent, and a few fixed
+/* FloodGuard is always light: white surfaces, one cyan accent, and a few fixed
    series colours. The demo lives in a shadow root, so these rules never touch
    the page and the page's prose rules never touch the demo. */
 :host {
@@ -327,8 +327,8 @@ details[open] > summary::after { transform: rotate(180deg); }
 (() => {
 "use strict";
 
-const host = document.querySelector("teus-demo");
-const template = document.getElementById("teus-demo");
+const host = document.querySelector("floodguard-demo");
+const template = document.getElementById("floodguard-demo");
 if (!host || !template || !host.attachShadow) return;
 const root = host.attachShadow({ mode: "open" });
 root.append(template.content.cloneNode(true));
@@ -336,16 +336,16 @@ root.append(template.content.cloneNode(true));
 /* ------------------------------------------------------------------ data */
 
 // Every window is 240 hourly readings: 168 h of history ending at the forecast
-// origin, then the 72 h the forecast covers. The origin is 16:00 the day before
-// the event, so the run's 24-hour value lands on the event day's 16:00.
+// origin (23:00 the day before the event), then the 72 h the forecast covers.
+// The event day is leads 1–24, the window of the published 24-hour run.
 const N = 240;
 const O = 167;       // forecast origin: the last observed hour
-const E = 175;       // event day, 00:00
-const H = 24;        // headline horizon
+const E = 168;       // event day, 00:00 = lead 1
+const H = 24;        // displayed horizon
 
 const GROUPS = [
   { id: "flood", label: "Flood event",
-    blurb: "A selected event from the project's figures, replayed as a 24-hour-ahead forecast." },
+    blurb: "A selected event from the project's figures, replayed as one 24-hour forecast issued the night before." },
   { id: "ordinary", label: "Ordinary flow",
     blurb: "Most hours look like this. Every model scores well here, which is the problem." },
 ];
@@ -358,7 +358,7 @@ const SCENARIOS = [
     blurb: "D22A114, July 2023: the river rose from about 5 to 72 m³/s in four hours.",
     thr: 15, base: 1.25, tau: 14, bias: 0.25, ridgeFrac: 0.55,
     peak: ["72 m³/s", "at the peak, up from about 5 m³/s four hours earlier."],
-    outcome: ["ok", "72 m³/s", "observed at the peak, and seq2seq matched it closely a full day ahead. Seasonal-naive repeated yesterday and missed it."],
+    outcome: ["ok", "72 m³/s", "observed at the peak, and seq2seq matched it closely in its 24-hour forecast window. Seasonal-naive repeated yesterday and missed it."],
     recapModels: "Seq2seq matched the sharp peak closely",
     day: [1.0, 1.1, 4.0, 6.2, 6.5, 6.0, 5.3, 5.0, 5.0, 4.6, 4.3, 4.3, 4.3, 7.2, 21.2, 64.5, 72.3, 69.5, 66.0, 61.0, 52.0, 44.3, 39.0, 34.5],
     s2s: [1.0, 1.0, 1.2, 4.0, 6.4, 6.2, 5.3, 4.6, 4.4, 4.5, 4.2, 4.3, 4.2, 4.6, 8.6, 27.3, 72.6, 69.0, 65.5, 57.0, 51.5, 42.8, 39.0, 32.0],
@@ -370,8 +370,8 @@ const SCENARIOS = [
     blurb: "D08A084, April 2021: a small, flashy basin that went from near zero to about 20 m³/s.",
     thr: 3, base: 0.09, tau: 5, bias: 0.12, ridgeFrac: 0.2,
     peak: ["≈20 m³/s", "at the peak, in a small and flashy basin."],
-    outcome: ["warn", "≈5 vs ≈20", "m³/s, forecast against observed: seq2seq caught the timing, not the magnitude."],
-    recapModels: "Right timing; about 5 m³/s against a peak near 20",
+    outcome: ["warn", "≈5 vs ≈20", "m³/s, forecast against observed: the rise starts on time, but seq2seq peaks an hour late and misses the magnitude."],
+    recapModels: "Rise on time; peak an hour late, about 5 m³/s against 20",
     day: [0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.1, 0.5, 0.45, 0.45, 0.6, 1.1, 1.1, 3.5, 20.4, 19.7, 13.8, 7.8, 7.8, 2.9, 2.2, 1.8],
     s2s: [0.1, 0.18, 0.3, 0.32, 0.22, 0.2, 0.15, 0.13, 0.17, 0.2, 0.8, 0.72, 0.65, 0.8, 1.4, 1.4, 3.2, 5.1, 4.8, 4.5, 3.8, 4.2, 2.2, 1.9],
     bumps: [[61, 0.6, 2, 4]],
@@ -390,11 +390,11 @@ const SCENARIOS = [
   {
     group: "ordinary", chip: "Rain, no flood", station: "D22A114", when: "a rainy day",
     date: null,
-    blurb: "D22A114 after a summer shower: the river rises, but stays below the flood threshold.",
+    blurb: "D22A114 after a summer shower: the river rises, but stays below the high-flow threshold.",
     thr: 15, base: 2.1, bias: 0.2, ridgeFrac: 0.75,
     peak: null,
-    outcome: ["", null, "Seasonal-naive misses the shower's rise. Ridge and seq2seq take rainfall as input and see it coming."],
-    recapModels: "Naive missed the rise; the rainfall-driven models caught it",
+    outcome: ["", null, "Seasonal-naive misses the shower's rise; a model with rainfall as input can anticipate it (lines illustrative)."],
+    recapModels: "Rainfall can warn of a rise that seasonal-naive misses (illustrative)",
     bumps: [[70, 1.2, 3, 8], [E + 12, 8.5, 3, 7]],
     rain: [[67, 2, 1], [E + 8, 4, 0], [E + 9, 8, 0], [E + 10, 5, 0], [E + 11, 2, 0]],
   },
@@ -406,22 +406,22 @@ const MODELS = [
   { id: "ridge", name: "Ridge", short: "Ridge", c: "var(--ridge)",
     note: "a linear baseline on discharge and rainfall" },
   { id: "s2s", name: "Seq2seq LSTM + attention", short: "Seq2seq", c: "var(--s2s)",
-    note: "the neural model behind the headline result" },
+    note: "the older event-run neural model, traced from the published figures" },
 ];
 
 const META = {
   gauges: { title: "Read the gauges", method: "Hourly discharge + basin-weighted rainfall",
     lede: "Each station reports river discharge every hour. Rain gauges across the basin are combined into one basin-weighted rainfall series beside it." },
-  floods: { title: "Find the floods", method: "Discharge-quantile threshold",
-    lede: "A flood hour is any hour above the station's discharge-quantile threshold. Those are the hours a warning is for, and there are very few of them." },
-  origin: { title: "Set the forecast origin", method: "168 h history + 72 h rainfall forecast",
-    lede: "Rewind a day. The model may only use what was known at the forecast origin: the past week at the gauges, and the rainfall forecast for the next three days." },
+  floods: { title: "Find the high-flow hours", method: "Discharge-quantile threshold",
+    lede: "A high-flow hour is any hour above the station's top-1% discharge threshold: a statistical cut, not an official flood level. There are very few of them." },
+  origin: { title: "Set the forecast origin", method: "168 h history + 72 h future rainfall",
+    lede: "Rewind a day. The model gets the past week at the gauges and rainfall for the next three days. In these backtests that rainfall is what was later observed, not an issued forecast." },
   models: { title: "Run three models", method: "Seasonal-naive · Ridge · seq2seq LSTM",
-    lede: "Each line shows forecasts made 24 hours ahead: every point was predicted a full day before it happened." },
-  score: { title: "Score the flood hours", method: "Thresholded MAPE",
+    lede: "Each line represents one forecast issued at the origin, covering leads 1–24. The event-day seq2seq line is traced from a published figure; the other model lines are illustrative." },
+  score: { title: "Score the high-flow hours", method: "Thresholded MAPE",
     lede: "Which model looks best depends on which hours you score. Move the threshold and watch the leaderboard." },
   serve: { title: "Report and serve", method: "Run report · checkpoint checks · FastAPI",
-    lede: "Every run leaves the same inspectable report, whether the model was strong or weak. Only checkpoints that pass the checks are served." },
+    lede: "Every completed, persisted run leaves the same inspectable report, whether the model was strong or weak. Only checkpoints that pass the checks are served." },
   recap: { title: "Recap", method: "What happened, and the numbers", lede: "" },
 };
 const ORDER = ["gauges", "floods", "origin", "models", "score", "serve", "recap"];
@@ -432,27 +432,27 @@ const WHY = {
   gauges: { num: "8", text: "stations, each with hourly discharge and basin-weighted rainfall.",
     more: ["Flashy basins go from baseflow to peak within hours, so discharge history alone gives little warning. Rainfall has to be an input.",
       "The series on this page are illustrative, shaped after the published event figures; the project works on the stations' own hourly records."] },
-  floods: { num: "3", text: "traps, all because floods are a small fraction of each station's hourly record.",
+  floods: { num: "3", text: "traps that hide floods in an hourly record.",
     more: ["A model that repeats normal conditions scores well on the full series and still misses every flood.",
       "Flashy basins go from baseflow to peak within hours, so discharge history alone gives little warning.",
-      "Ordinary MAPE explodes near zero flow. Teus reports thresholded MAPE, scored only on hours above a station's discharge-quantile threshold."] },
-  origin: { num: "72 h", text: "of rainfall forecasts from meteorological institutions go in as input, the same input a live system would have.",
+      "Ordinary MAPE explodes near zero flow. FloodGuard reports thresholded MAPE, scored only on hours above a station's discharge-quantile threshold."] },
+  origin: { num: "72 h", text: "of future rainfall go in as input. In the backtests it is observed rainfall, not an archived weather forecast, so results show discharge skill when rainfall is known, not live warning accuracy.",
     more: ["The project's run report for a Ridge baseline uses 168 hours of history and a 72-hour horizon, the window this walkthrough uses.",
-      "Experiments cover 1–72-hour horizons. The headline result is at 24 hours."] },
-  models: { num: "1–72 h", text: "horizons across eight stations, from Ridge baselines to a seq2seq LSTM with attention.",
+      "Older event runs used 24- and 72-hour forecast windows; the newer eight-station campaign scores leads of 1–12 hours."] },
+  models: { num: "2", text: "campaigns: older event runs with Ridge baselines and a seq2seq LSTM with attention, and a newer eight-station campaign that selects a model per station.",
     more: ["Classical and neural models are compared on discharge and basin-weighted rainfall.",
-      "Selected events show both sides of the model: at D22A114 it matched a sharp peak closely; at D08A084, a small and flashy basin, it caught the timing but not the magnitude."] },
-  score: { num: "11% vs 38%", text: "thresholded MAPE on flood peaks 24 hours ahead: seq2seq against seasonal-naive, across all eight stations in expanding-window backtests.",
-    more: ["Ordinary MAPE divides by the observed flow, so it explodes near zero. Thresholded MAPE is scored only on hours above the station's discharge-quantile threshold.",
-      "Peak-event windows are scored separately from ordinary flow, with expanding-window backtests.",
-      "The scores in the card above are computed live on the illustrative series. The 11% and 38% are the project's measured results."] },
-  serve: { num: "5", text: "artifacts from every run: predictions, metrics, plots, the fitted model and a manifest, in one inspectable report.",
-    more: ["A run report for a Ridge baseline covers 168 hours of history, a 72-hour horizon and three event backtests. Every run produces one, so weak baselines stay as visible as strong models.",
+      "Selected events show both sides of the model: at D22A114 it matched a sharp peak closely; at D08A084, a small and flashy basin, the rise starts on time but the peak is an hour late and too low."] },
+  score: { num: "<10%", text: "peak error in older seq2seq flood-event runs outside small, flashy basins. Hourly high-flow MAPE is a stricter test: no newer candidate yet passes the gate of at least 24 high-flow hours and MAPE under 10%.",
+    more: ["Ordinary MAPE divides by the observed flow, so it explodes near zero. Thresholded MAPE is scored only on hours above the station's discharge-quantile threshold (top 1%).",
+      "The best station is D13A074: 27.6% for the selected GRU against 44.3% for persistence, pooled over 1–12-hour leads with observed future rainfall. That is the newer campaign, not the seq2seq model shown here.",
+      "The scores in the card above are computed live on the illustrative series."] },
+  serve: { num: "5", text: "artifacts from every completed, persisted run: predictions, metrics, plots, the fitted model and a manifest, in one inspectable report.",
+    more: ["A run report for a Ridge baseline covers 168 hours of history, a 72-hour horizon and three event backtests. Every completed, persisted run produces one, so weak baselines stay as visible as strong models.",
       "Checkpoints that pass loading and input-contract checks are served through a FastAPI forecast service.",
-      "Checkpoint serving works. An operational warning system still needs domain review and authorized use."] },
+      "The older seq2seq models run in FloodGuard's TATUS, İTEUS and Kocaeli İSU warning systems, with numerical weather forecasts as rainfall input. The newer per-station campaign decides whether candidates replace them; none passes its promotion gate yet."] },
 };
 
-const ILLUS = "Illustrative series shaped after the published event figures.";
+const ILLUS = "This walkthrough uses traced and synthetic curves. It does not run a model, and its ranking is not a measured comparison.";
 
 /* --------------------------------------------------------------- helpers */
 
@@ -524,9 +524,10 @@ const pulse = (d, height, up, down) => (d < -up ? 0 : d < 0 ? height * (1 + d / 
 const RIDGE_KERNEL = [0, 0.15, 0.4, 0.75, 1, 0.8, 0.55, 0.35, 0.2, 0.1];
 const CACHE = new Map();
 
-// Synthetic hourly window around the published event shape. Seasonal-naive is
-// computed from it exactly; Ridge is a fixed linear response to the rainfall
-// forecast; seq2seq follows the traced line on the event day.
+// Synthetic hourly window around the published event shape. Seasonal-naive
+// repeats only pre-origin observations; Ridge is an illustrative rainfall
+// response scaled to the scenario peak, not a fitted or evaluated forecast.
+// Seq2seq follows the traced line on the event day and is synthetic elsewhere.
 function series(s) {
   if (CACHE.has(s)) return CACHE.get(s);
   const r = rng(seedOf(s.station + s.chip));
@@ -534,12 +535,12 @@ function series(s) {
   const n1 = ar(0.9, 0.05);
   const n2 = ar(0.75, 0.06);
   const baseAt = (i) => s.base * (1.08 - 0.12 * i / N) * (1 + n1[i]);
-  const q = [];
-  for (let i = 0; i < N; i++) {
+  const syntheticAt = (i) => {
     let v = baseAt(i);
     for (const [c, height, up, down] of s.bumps) v += pulse(i - c, height, up, down);
-    q.push(v);
-  }
+    return v;
+  };
+  const q = Array.from({ length: N }, (_, i) => syntheticAt(i));
   if (s.day) {
     for (let k = 0; k < 24; k++) q[E + k] = s.day[k];
     const last = s.day[23];
@@ -549,23 +550,26 @@ function series(s) {
   for (const [c, peak, w] of s.rain) {
     for (let d = -w; d <= w; d++) if (c + d >= 0 && c + d < N) rain[c + d] += peak * (1 - Math.abs(d) / (w + 1));
   }
-  // The rainfall forecast is a smoothed copy of the showers; it misses the drizzle.
+  // Future rainfall as fed to the models: a smoothed copy of the showers.
   const fc = rain.map((v, i) => 0.9 * (0.25 * (rain[i - 1] ?? v) + 0.5 * v + 0.25 * (rain[i + 1] ?? v)));
   for (let i = 0; i < N; i++) if (r() < 0.05) rain[i] += 0.1 + r() * 0.5;
 
-  const naive = q.map((_, i) => (i >= 24 ? q[i - 24] : null));
-  const s2s = q.map((v, i) => {
+  // At every future lead, repeat the last observed day, never future discharge.
+  const seasonalAt = (i) => q[i > O ? O - 23 + (i - O - 1) % 24 : Math.max(0, i - 24)];
+  const naive = Array.from({ length: N }, (_, i) => i >= 24 ? seasonalAt(i) : null);
+  const drawnAt = (k) => s.day && k >= E + 24 ? baseAt(k) + (s.s2s[23] - baseAt(k)) * Math.exp(-(k - E - 23) / s.tau) : syntheticAt(k);
+  const s2s = Array.from({ length: N }, (_, i) => {
     if (s.day && i >= E && i < E + 24) return s.s2s[i - E];
-    const prev = q[i - 1] ?? v;
+    const v = drawnAt(i), prev = drawnAt(Math.max(0, i - 1));
     return Math.max(0.01, (0.7 * v + 0.3 * prev) * (1 + n2[i]) + s.bias);
   });
-  const resp = q.map((_, i) => RIDGE_KERNEL.reduce((a, w, k) => a + w * (fc[i - k] ?? 0), 0));
-  const basePart = (i) => (i >= 24 ? 0.5 * q[i - 24] + 0.5 * baseAt(i) : q[i]);
+  const resp = Array.from({ length: N }, (_, i) => RIDGE_KERNEL.reduce((a, w, k) => a + w * (fc[i - k] ?? 0), 0));
+  const basePart = (i) => (i >= 24 ? 0.5 * seasonalAt(i) + 0.5 * baseAt(i) : q[i]);
   let at = E;
   for (let i = E; i < E + 24; i++) if (resp[i] > resp[at]) at = i;
-  const target = s.ridgeFrac * Math.max(...q.slice(E, E + 24));
+  const target = s.ridgeFrac * Math.max(...(s.day ?? Array.from({ length: 24 }, (_, k) => syntheticAt(E + k))));
   const g = resp[at] > 0 ? Math.max(0, (target - basePart(at)) / resp[at]) : 0;
-  const ridge = q.map((_, i) => Math.max(0.01, basePart(i) + g * resp[i]));
+  const ridge = Array.from({ length: N }, (_, i) => Math.max(0.01, basePart(i) + g * resp[i]));
 
   const out = { q, rain, fc, naive, ridge, s2s };
   CACHE.set(s, out);
@@ -655,7 +659,7 @@ function plot(o) {
 
   // Reveal a group left to right through a growing clip rectangle.
   const wipe = (g, from, to, ms) => {
-    const id = `teus-clip-${++clipN}`;
+    const id = `floodguard-clip-${++clipN}`;
     const rect = svg("rect", { class: "wipe", x: x(from) - 3, y: 0, width: x(to) - x(from) + 6, height: ht, style: `--t:${ms}ms` });
     defs.append(svg("clipPath", { id }, rect));
     g.setAttribute("clip-path", `url(#${id})`);
@@ -918,8 +922,8 @@ function renderIntro() {
   $("stage").replaceChildren(
     h("div", { class: "head reveal" },
       h("p", { class: "eyebrow" }, "Interactive walkthrough · ", g.label),
-      h("h3", { class: "t1" }, "Forecast a river 24 hours ahead"),
-      h("p", { class: "lede" }, `Ten days of hourly readings at station ${s.station} are coming in. Replay the event, then step through how Teus forecasts it and how the forecast is scored.`)),
+      h("h3", { class: "t1" }, "Forecast a river up to 24 hours ahead"),
+      h("p", { class: "lede" }, `Ten days of hourly readings at station ${s.station} are coming in. Replay the event, then step through how FloodGuard forecasts it and how the forecast is scored.`)),
     h("div", { class: "card reveal" },
       h("div", { class: "from" }, h("span", {}, "Station ", h("span", { class: "code" }, s.station)), h("span", {}, s.date ? s.when : "An ordinary week")),
       h("div", { class: "gauges" }, tBox, qBox, rBox),
@@ -1064,7 +1068,7 @@ const RENDER = {
       why("gauges"),
       mechanics(
         h("div", {}, h("h4", {}, "1 · Discharge is a flow rate"),
-          h("p", { class: "small" }, "Cubic metres of water passing the station each second, read every hour.")),
+          h("p", { class: "small" }, "Cubic meters of water passing the station each second, read every hour.")),
         h("div", {}, h("h4", {}, `2 · Rain gauges become one basin rainfall series (${stamp(s, r)}, gauges and weights illustrative)`),
           h("p", { class: "formula" }, `${wA.toFixed(2)} × ${a.toFixed(1)} + ${wB.toFixed(2)} × ${b.toFixed(1)} + ${wC.toFixed(2)} × ${c.toFixed(1)} = ${top.toFixed(1)} mm/h`),
           h("p", { class: "small" }, "Each gauge counts in proportion to the part of the basin it stands for, so one gauge in a corner can't dominate."))));
@@ -1072,17 +1076,17 @@ const RENDER = {
 
   async floods(stage, s, wait) {
     stage.append(head("floods"));
-    const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, `Hours above the flood threshold at ${s.station}`));
+    const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, `Hours above the high-flow threshold at ${s.station}`));
     stage.append(card);
-    const { p, d } = windowChart(card, s, true, `Discharge with the flood threshold at ${s.thr} m³/s`);
+    const { p, d } = windowChart(card, s, true, `Discharge with the high-flow threshold at ${s.thr} m³/s`);
     p.bars(d.rain, "rain");
     p.line(d.q, "q");
     const n = floodHours(s);
     const fill = h("i", { style: "--c:var(--bad)" });
     card.append(p.el,
-      legend([["Discharge", "var(--obs)"], ["Flood threshold (level illustrative)", "var(--bad)"], ["Flood hours", "color-mix(in srgb, var(--bad) 25%, white)", true]]),
+      legend([["Discharge", "var(--obs)"], ["High-flow threshold (level illustrative)", "var(--bad)"], ["High-flow hours", "color-mix(in srgb, var(--bad) 25%, white)", true]]),
       h("div", { class: "bars" }, h("div", { class: "bar-row" },
-        h("span", { class: "label", style: "--c:var(--bad)" }, "Flood hours"), h("span", { class: "bar" }, fill), h("span", { class: "pct" }, `${n} / ${N}`))),
+        h("span", { class: "label", style: "--c:var(--bad)" }, "High-flow hours"), h("span", { class: "bar" }, fill), h("span", { class: "pct" }, `${n} / ${N}`))),
       illus());
     await wait(600);
     const thr = p.hline(s.thr, "thr fade hidden");
@@ -1116,7 +1120,7 @@ const RENDER = {
     stage.append(head("origin"));
     const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, `Forecast origin: ${stamp(s, O)}`));
     stage.append(card);
-    const { p, d } = windowChart(card, s, wait.instant, "The forecast origin, the 168-hour history and the 72-hour rainfall forecast");
+    const { p, d } = windowChart(card, s, wait.instant, "The forecast origin, the 168-hour history and 72 hours of future rainfall");
     p.shade(0, O, "hist");
     const rain = p.bars(d.rain, "rain", 0, O);
     const q = p.line(d.q, "q", 0, O);
@@ -1143,7 +1147,7 @@ const RENDER = {
     setH(H);
     for (const el of [tgt, tLab]) el.classList.add("fade", "hidden");
     card.append(p.el,
-      legend([["Discharge, known up to the origin", "var(--obs)"], ["Observed rainfall", "var(--rain)", true], ["Rainfall forecast", "color-mix(in srgb, var(--rain-fc) 55%, white)", true]]),
+      legend([["Discharge, known up to the origin", "var(--obs)"], ["Observed rainfall", "var(--rain)", true], ["Future rainfall input (observed, in backtests)", "color-mix(in srgb, var(--rain-fc) 55%, white)", true]]),
       h("div", { style: "margin-top:14px" }, range, readout),
       illus());
     await wait(500);
@@ -1157,26 +1161,17 @@ const RENDER = {
     tgt.classList.remove("hidden");
     tLab.classList.remove("hidden");
     await wait(700);
-    const fcBg = "background:color-mix(in srgb, var(--rain-fc) 22%, white)";
-    const run = (k) => h("div", { class: "fold" }, h("span", {}, `${pad2(hourOf(O - 3 + k))}:00`),
-      h("div", { class: "fold-bar", style: "background:none" },
-        h("span", { style: `width:${k * 3}%` }),
-        h("span", { class: "tr", style: "width:46%" }),
-        h("span", { style: `width:9.4%;${fcBg}` }),
-        h("span", { class: "te", style: "width:1.6%" }),
-        h("span", { style: `width:19%;${fcBg}` })));
     finish(stage,
-      result("", "168 + 72 h", "in: the past week of discharge and rainfall, plus the rainfall forecast. Out: one discharge value for each of the next 72 hours."),
+      result("", "168 + 72 h", "in: the past week of discharge and rainfall, plus rainfall for the next 72 hours (observed, in the backtests). Out: one discharge value for each of the next 72 hours."),
       why("origin"),
       mechanics(
-        h("div", {}, h("h4", {}, "From one run to a 24-hours-ahead line"),
-          h("div", { class: "folds" }, [0, 1, 2, 3].map(run)),
-          h("p", { class: "small", style: "margin-top:8px" }, "Run the model every hour and keep each run's 24th value (orange). Joined up, those values make the 24-hours-ahead line in the next step: every point was forecast a full day before it happened."))));
+        h("div", {}, h("h4", {}, "One run, every hour forecast"),
+          h("p", { class: "small" }, "In the real seq2seq runs, at origin t the model reads t − 168 to t and forecasts every hour from t + 1 to t + 72 in one run; the 24-hour runs stop at t + 24. No discharge after the origin is an input. Here, the event day covers leads 1–24; its 16:00 observed peak is at lead 17 h. The walkthrough draws illustrative lines rather than running those models."))));
   },
 
   async models(stage, s, wait) {
     stage.append(head("models"));
-    const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, `${dayLabel(s, E)} · each point forecast 24 hours earlier`));
+    const card = h("div", { class: "card reveal" }, h("p", { class: "card-label" }, `${dayLabel(s, E)} · one forecast issued ${stamp(s, O)}, 1–24 hours ahead`));
     stage.append(card);
     const { p, d, lines } = dayChart(card, s, wait.instant);
     const q = p.line(d.q, "q", E, E + 23, 1400);
@@ -1194,8 +1189,8 @@ const RENDER = {
       }));
     card.append(p.el, toggles, note,
       h("p", { class: "illus" }, s.day
-        ? "Observed and seq2seq lines traced from the published event figure; the seasonal-naive line is computed from the illustrative series, and Ridge is drawn as a simple linear response to rainfall. Not measured output."
-        : "All lines illustrative: seasonal-naive is computed from the series; Ridge and seq2seq are drawn to show typical behaviour, not measured output."));
+        ? "Observed and seq2seq lines traced from the published event figure; seasonal-naive repeats the last observed day of the illustrative series. Ridge is a synthetic rainfall response scaled to the observed event peak. The baselines are not measured model output."
+        : "All lines illustrative: seasonal-naive repeats the last observed day; Ridge and seq2seq are drawn to illustrate possible behavior, not measured model output."));
     await wait(500);
     q.reveal();
     await wait(1500);
@@ -1213,14 +1208,14 @@ const RENDER = {
       mechanics(
         h("div", {}, h("h4", {}, "Seq2seq LSTM with attention"),
           h("div", { class: "flow" },
-            h("span", { class: "pill" }, "168 h discharge + rainfall"), h("span", { class: "pill" }, "72 h rainfall forecast"),
+            h("span", { class: "pill" }, "168 h discharge + rainfall"), h("span", { class: "pill" }, "72 h future rainfall"),
             h("span", { class: "arrow" }, "→"), h("span", { class: "pill on" }, "Encoder"),
             h("span", { class: "arrow" }, "→"), h("span", { class: "pill on" }, "Attention"),
             h("span", { class: "arrow" }, "→"), h("span", { class: "pill on" }, "Decoder"),
             h("span", { class: "arrow" }, "→"), h("span", { class: "pill" }, "72 hourly values")),
-          h("p", { class: "small", style: "margin-top:8px" }, "The encoder LSTM summarises the input hours. Attention lets each forecast hour weigh the input hours it depends on, such as a burst of rain, before the decoder LSTM writes the forecast.")),
+          h("p", { class: "small", style: "margin-top:8px" }, "The encoder LSTM summarizes the input hours. Attention lets each forecast hour weigh the input hours it depends on, such as a burst of rain, before the decoder LSTM writes the forecast.")),
         h("div", {}, h("h4", {}, "The baselines"),
-          h("p", { class: "small" }, "Seasonal-naive copies the value from one season earlier; this demo uses a 24-hour season. Ridge is a regularised linear regression, the classical end of the comparison."))));
+          h("p", { class: "small" }, "Seasonal-naive repeats the last observed day across the horizon; this demo uses a 24-hour season. Ridge is a regularized linear regression, represented here by a synthetic rainfall response. In the real campaign persistence is the stronger baseline; see the station table below."))));
   },
 
   async score(stage, s) {
@@ -1242,7 +1237,7 @@ const RENDER = {
     const readout = h("p", { class: "small" });
     const presets = h("div", { class: "opts mode", role: "group", "aria-label": "Presets" },
       h("button", { class: "opt", type: "button", "data-t": "0" }, "All hours: MAPE"),
-      h("button", { class: "opt", type: "button", "data-t": String(s.thr) }, `Flood hours: thresholded MAPE`));
+      h("button", { class: "opt", type: "button", "data-t": String(s.thr) }, `High-flow hours: thresholded MAPE`));
     const rows = MODELS.map((m) => {
       const fill = h("i", { style: `--c:${m.c}` });
       const rank = h("span", { class: "rank" });
@@ -1274,7 +1269,7 @@ const RENDER = {
     stage.append(h("div", { class: "card reveal" },
       h("p", { class: "card-label" }, "Run report · seq2seq"),
       grid,
-      h("p", { class: "small", style: "margin-top:12px" }, "Every run writes one, baselines included. The project's Ridge report covers 168 h of history, a 72 h horizon and three event backtests.")));
+      h("p", { class: "small", style: "margin-top:12px" }, "Every completed, persisted run writes one, baselines included. The project's Ridge report covers 168 h of history, a 72 h horizon and three event backtests.")));
     await wait(500);
     for (const [name, what] of files) {
       grid.append(h("div", { class: "file reveal" }, name, h("small", {}, what)));
@@ -1310,7 +1305,7 @@ const RENDER = {
     show(card);
     await wait(700);
     finish(stage,
-      result("", "✓", "Weak baselines stay as visible as strong models: every run gets the same report, and only checked checkpoints are served."),
+      result("", "✓", "Weak baselines stay as visible as strong models: every completed, persisted run gets the same report, and only checked checkpoints are served."),
       why("serve"),
       mechanics(h("div", {}, h("h4", {}, "Why check before serving"),
         h("p", { class: "small" }, "A checkpoint that fails to load, or expects different inputs from the ones the service sends, stays a candidate. Only one that passes both checks answers forecast requests."))));
@@ -1322,10 +1317,10 @@ const RENDER = {
     const nDay = floodHours(s, E, E + 24);
     const rows = [
       ["Gauges", `${N} hourly readings of discharge and basin-weighted rainfall`],
-      ["Floods", n ? `${n} hours above the flood threshold` : "No hour above the flood threshold"],
-      ["Origin", `${stamp(s, O)}: 168 h of history, 72 h of rainfall forecast`],
+      ["High flow", n ? `${n} hours above the high-flow threshold` : "No hour above the high-flow threshold"],
+      ["Origin", `${stamp(s, O)}: 168 h of history, 72 h of future rainfall`],
       ["Models", s.recapModels],
-      ["Score", nDay ? `Flood hours: seq2seq ${pct(mape(s, "s2s", s.thr))}, seasonal-naive ${pct(mape(s, "naive", s.thr))} (illustrative)` : "Nothing above the threshold to score"],
+      ["Score", nDay ? `High-flow hours: seq2seq ${pct(mape(s, "s2s", s.thr))}, seasonal-naive ${pct(mape(s, "naive", s.thr))} (illustrative; persistence is stronger in the real station campaign)` : "Nothing above the threshold to score"],
       ["Serve", "Report written; checkpoint checks passed"],
     ];
     const list = h("ol", { class: "path" });
@@ -1338,18 +1333,18 @@ const RENDER = {
     const tile = (big, label) => h("div", { class: "tile" }, h("b", {}, big), h("span", {}, label));
     stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "Across the project"),
       h("div", { class: "tiles" },
-        tile("11% vs 38%", "thresholded MAPE on flood peaks at 24 h: seq2seq vs seasonal-naive"),
-        tile("8 stations", "in expanding-window backtests"),
-        tile("1–72 h", "forecast horizons in the experiments"),
-        tile("₺4.5M", "TÜBİTAK 1832 R&D project"))));
+        tile("<10%", "older seq2seq peak error on flood events, outside small, flashy basins"),
+        tile("27.6% vs 44.3%", "best station, D13A074: GRU vs persistence, 1–12 h leads"),
+        tile("8 stations", "in conditional backtests with observed rainfall"),
+        tile("TÜBİTAK 1832", "R&D project"))));
     await wait(400);
     const lesson = {
-      "Sharp peak": "Selected events show both sides: this sharp peak was matched closely, while at D08A084, a small and flashy basin, the timing was right but the magnitude was not.",
-      "Flashy basin": "Small, flashy basins are the hard case: the timing was right here, the magnitude was not.",
+      "Sharp peak": "Selected events show both sides: this sharp peak was matched closely, while at D08A084, a small and flashy basin, the rise started on time but the peak was an hour late and too low.",
+      "Flashy basin": "Small, flashy basins are the hard case: the rise starts on time here, but the peak is an hour late and too low.",
     }[s.chip] || "Weeks like this are most of the record. Scored on their own, they would hide the floods.";
     stage.append(h("div", { class: "card limit reveal" }, h("p", { class: "card-label" }, "The honest limit"),
       h("p", {}, lesson),
-      h("p", {}, "Checkpoint serving works. An operational warning system still needs domain review and authorized use.")));
+      h("p", {}, "The older seq2seq models run in three FloodGuard warning systems on forecast rainfall. No newer per-station candidate passes the replacement gate yet. These backtests use observed rainfall, so live warning accuracy isn't measured here.")));
     await wait(400);
     const others = SCENARIOS.map((x, i) => [x, i]).filter(([, i]) => i !== S.sc).map(([x, i]) => {
       const b = h("button", { class: "pathcard", type: "button" }, h("b", {}, `${x.chip} · ${x.station}`), h("span", {}, x.blurb));
@@ -1367,7 +1362,7 @@ function dayChart(card, s, instant, minTop = 0) {
   const peak = Math.max(...[d.q, d.naive, d.ridge, d.s2s].flatMap((a) => a.slice(E, E + 24)));
   const p = plot({ w: widthOf(card), s, from: E, to: E + 23, ticks: "hour", instant,
     ymax: niceMax(Math.max(peak, minTop, s.thr <= peak * 1.3 ? s.thr : 0)), rainMax: Math.max(4, ...d.rain.slice(E, E + 24)),
-    label: `Observed discharge and three 24-hours-ahead forecasts on ${dayLabel(s, E)}` });
+    label: `Observed discharge and three forecasts issued at the origin, on ${dayLabel(s, E)}` });
   p.bars(d.rain, "rain", E, E + 23).reveal();
   const lines = {};
   for (const m of MODELS) lines[m.id] = p.line(d[m.id], m.id, E, E + 23, 1500);
@@ -1434,8 +1429,8 @@ function revealScore(scroll) {
     const [mF, vF] = best(s.thr);
     const nearZero = Math.min(...series(s).q.slice(E, E + 24)) < 0.5;
     out = mA !== mF
-      ? result("warn", "Flipped", `On all hours ${mA.short} ranks first (${pct(vA)}); on flood hours ${mF.short} does (${pct(vF)}).${nearZero ? " Near-zero flow blew up the ordinary MAPE." : ""}`)
-      : result("warn", `${pct(mape(s, "naive", 0))} → ${pct(mape(s, "naive", s.thr))}`, `Seasonal-naive's error, all hours against flood hours: the quiet hours made its miss look smaller. ${mF.short} leads either way here, at ${pct(vF)} on the flood hours.`);
+      ? result("warn", "Flipped", `On all hours ${mA.short} ranks first (${pct(vA)}); on high-flow hours ${mF.short} does (${pct(vF)}).${nearZero ? " Near-zero flow blew up the ordinary MAPE." : ""}`)
+      : result("warn", `${pct(mape(s, "naive", 0))} → ${pct(mape(s, "naive", s.thr))}`, `Seasonal-naive's error, all hours against high-flow hours: the quiet hours made its miss look smaller. ${mF.short} leads either way here, at ${pct(vF)} on the high-flow hours.`);
   }
   const fold = (k) => h("div", { class: "fold" }, h("span", {}, `Fold ${k + 1}`),
     h("div", { class: "fold-bar" }, h("span", { class: "tr", style: `width:${40 + k * 20}%` }), h("span", { class: "te", style: "width:12%" })));

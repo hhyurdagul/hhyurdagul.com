@@ -22,6 +22,7 @@
     {% if page.extra.stack %}<div class="row"><dt>Stack</dt><dd>{{ page.extra.stack | join(sep=", ") }}</dd></div>{% endif %}
     {% if page.date %}<div class="row"><dt>Written up</dt><dd><time datetime="{{ page.date | date(format='%Y-%m-%d') }}">{{ page.date | date(format="%b %Y") }}</time>{% if page.updated %}, updated <time datetime="{{ page.updated | date(format='%Y-%m-%d') }}">{{ page.updated | date(format="%b %Y") }}</time>{% endif %}</dd></div>{% endif %}
     {% if page.extra.repo_url %}<div class="row"><dt>Source</dt><dd><a href="{{ page.extra.repo_url }}">{{ page.extra.repo_url | replace(from="https://", to="") }}</a></dd></div>{% endif %}
+    {% if page.extra.product_url %}<div class="row"><dt>Product</dt><dd><a href="{{ page.extra.product_url }}">{{ page.extra.product_url | replace(from="https://", to="") }}</a></dd></div>{% endif %}
     {% if page.extra.demo_url %}<div class="row"><dt>Demo</dt><dd><a href="{{ page.extra.demo_url }}">{{ page.extra.demo_url | replace(from="https://", to="") }}</a></dd></div>{% endif %}
   </dl>
 </footer>

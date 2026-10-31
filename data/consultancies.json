@@ -47,9 +47,11 @@
         "dates": "Sep 2024 - Dec 2025",
         "url": "https://ikas.com/",
         "project_url": "/projects/ikas/",
-        "description": "Built call-center planning APIs that turn call-volume and handling-time forecasts into Erlang-based staffing requirements, keeping service level above 80/20 on 95% of days, alongside demand and revenue forecasting services. Delivered Tkinter MLStudio apps, Streamlit tools, and FastAPI inference endpoints returning agent requirements, service-level estimates, and queue/utilisation measures.",
+        "description": "Owned a call-center planning system end to end: CatBoost call-volume and handling-time forecasts (AHT error 29–49% below a last-week baseline on two held-out weeks) feeding Erlang C staffing calculations for an 85/15 target, alongside demand and revenue forecasting services. Built and deployed Tkinter model-building apps, Streamlit tools, and FastAPI inference endpoints returning agent requirements, service-level estimates, and queue/utilization measures; all are in production.",
         "tools": [
           "Python",
+          "CatBoost",
+          "TensorFlow",
           "Tkinter",
           "Streamlit",
           "Polars",

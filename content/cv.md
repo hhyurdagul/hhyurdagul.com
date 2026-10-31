@@ -24,6 +24,8 @@ I'm a machine learning engineer and technical lead. I build systems that use lan
 
 - I lead a team of five AI engineers, plan our R&D work and mentor engineers. I also write technical work packages for national and European R&D proposals.
 - I built a support-ticket workflow that retrieves similar solved cases and drafts replies for experts to review. Tickets that need a different team are categorized and routed.
+- I lead the AI side of FloodGuard, Via-Su's flood early-warning platform (TÜBİTAK 1832), which runs in three warning systems including the Ministry of Agriculture and Forestry's TATUS: river-discharge models, evaluation across eight gauging stations, and FastAPI serving.
+- I built and deployed an electricity demand forecasting app end to end, from an EPİAŞ Transparency Platform data pipeline to zero-shot TimesFM point forecasts the energy team uses to allocate resources. Over 1,824 backtest hours TimesFM beat naive baselines (3.47% vs 5.72% MAPE) but not the national demand plan (3.13%).
 - I evaluate retrieval methods against real support questions. In one comparison, character n-gram search outperformed dense embeddings, so we used the simpler method.
 - I fine-tune open language models with LoRA and QLoRA on Turkish support data and serve them on company GPUs with vLLM.
 - I use Polars and embedding-based clustering to help support experts turn past tickets into a usable knowledge base. I also work with them to simplify routing categories and evaluate classification models.
@@ -71,6 +73,6 @@ I start with the decision a model needs to support: what the target means, what 
 
 #### MSc in Computer Engineering <span class="when">Aug 2023 – Nov 2026 (expected)</span>
 
-My thesis focuses on estimating object size from images without depth information or reference points.
+My thesis estimates fish length from a single photo and the recorded species, without measured depth or camera calibration. On 348 held-out angler photos, the best pipeline reaches 5.53 cm MAE, 36.9% below a species-mean baseline.
 
 #### BSc in Computer Engineering (English-medium) <span class="when">Sep 2016 – Aug 2021</span>

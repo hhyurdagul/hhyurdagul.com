@@ -385,42 +385,42 @@ const GROUPS = [
     blurb: "A regular weekday: a morning ramp, a lunch dip and a smaller afternoon peak." },
   { id: "peak", label: "Peak",
     blurb: "The busiest kind of day: calls pile up after a weekend or a holiday break." },
-  { id: "eve", label: "Holiday eve",
-    blurb: "A half-day public holiday from 13:00: the afternoon empties, and small queues behave differently." },
+  { id: "holiday", label: "Public holiday",
+    blurb: "A weekday public holiday: the date-level flag is on, but hours are still forecast." },
 ];
 
 // Illustrative volumes for 09:00 through 17:00. The client's data and models
 // are not published; these only have a plausible shape.
 const SCENARIOS = [
-  { group: "ordinary", chip: "Tuesday", date: "2025-03-11", day: "Tue 11 Mar 2025", weekday: "Tuesday",
+  { group: "ordinary", chip: "Tuesday", date: "2025-04-15", day: "Tue 15 Apr 2025", weekday: "Tuesday",
     holiday: null,
     calls: [96, 148, 162, 141, 118, 139, 131, 112, 84],
     aht: [262, 251, 246, 249, 255, 248, 252, 258, 266] },
-  { group: "ordinary", chip: "Friday", date: "2025-03-14", day: "Fri 14 Mar 2025", weekday: "Friday",
+  { group: "ordinary", chip: "Friday", date: "2025-04-18", day: "Fri 18 Apr 2025", weekday: "Friday",
     holiday: null,
     calls: [88, 136, 150, 132, 104, 121, 113, 94, 68],
     aht: [258, 249, 244, 247, 253, 250, 255, 261, 270] },
-  { group: "peak", chip: "Monday", date: "2025-03-10", day: "Mon 10 Mar 2025", weekday: "Monday",
+  { group: "peak", chip: "Monday", date: "2025-04-14", day: "Mon 14 Apr 2025", weekday: "Monday",
     holiday: null,
     calls: [142, 214, 226, 198, 163, 181, 170, 146, 109],
     aht: [276, 268, 262, 264, 270, 263, 266, 272, 280] },
-  { group: "peak", chip: "After Bayram", date: "2025-04-02", day: "Wed 2 Apr 2025", weekday: "Wednesday",
-    holiday: { feature: "Ramazan Bayramı ended the day before", note: "First workday after Ramazan Bayramı (30 Mar – 1 Apr)." },
+  { group: "peak", chip: "After Bayram", date: "2025-06-10", day: "Tue 10 Jun 2025", weekday: "Tuesday",
+    holiday: { flag: 0, feature: "0 · no after-holiday feature", note: "First weekday after Kurban Bayramı (6–9 June). The public-holiday flag is 0; the pipeline has no after-holiday feature." },
     calls: [168, 246, 259, 231, 192, 207, 194, 163, 121],
     aht: [284, 275, 270, 272, 277, 271, 274, 279, 286] },
-  { group: "eve", chip: "Republic Day eve", date: "2025-10-28", day: "Tue 28 Oct 2025", weekday: "Tuesday",
-    holiday: { feature: "Republic Day eve · half day from 13:00", note: "28 October: a half-day public holiday from 13:00.", from: 13 },
-    calls: [101, 152, 166, 138, 62, 48, 41, 33, 24],
-    aht: [260, 250, 246, 248, 241, 237, 235, 233, 236] },
-  { group: "eve", chip: "Kurban Bayramı eve", date: "2025-06-05", day: "Thu 5 Jun 2025", weekday: "Thursday",
-    holiday: { feature: "Kurban Bayramı eve · half day from 13:00", note: "Arife, the eve of Kurban Bayramı: a half-day public holiday from 13:00.", from: 13 },
-    calls: [118, 171, 180, 152, 70, 54, 45, 36, 27],
-    aht: [266, 256, 251, 253, 244, 240, 238, 236, 240] },
+  { group: "holiday", chip: "1 May", date: "2025-05-01", day: "Thu 1 May 2025", weekday: "Thursday",
+    holiday: { flag: 1, feature: "1 · Labor and Solidarity Day", note: "A weekday public holiday. The flag marks the whole date; the hours are still forecast." },
+    calls: [52, 74, 81, 70, 58, 63, 57, 48, 36],
+    aht: [258, 250, 247, 249, 252, 248, 251, 255, 262] },
+  { group: "holiday", chip: "23 April", date: "2025-04-23", day: "Wed 23 Apr 2025", weekday: "Wednesday",
+    holiday: { flag: 1, feature: "1 · National Sovereignty and Children's Day", note: "A weekday public holiday. The flag marks the whole date; the hours are still forecast." },
+    calls: [61, 86, 94, 82, 67, 73, 66, 55, 41],
+    aht: [266, 256, 251, 253, 254, 250, 248, 252, 260] },
 ];
 
 const META = {
   forecast: { title: "Two forecasts", method: "A dated model pair + calendar features",
-    lede: "One model predicts calls per hour, the other the average handling time in seconds. Both see the same hourly calendar, Turkish holidays included." },
+    lede: "One model predicts arrived (offered) calls per hour, the other average handling time of answered calls, in seconds. Both see the same hourly calendar and date-level Turkish public-holiday flag." },
   join:     { title: "Join on timestamp", method: "Inner join on the hour",
     lede: "The two forecasts become one table, keyed by timestamp. Only hours present in both go on to the staffing calculation." },
   load:     { title: "Workload in erlangs", method: "Calls × handling time / 3,600",
@@ -438,9 +438,9 @@ const META = {
 // Every figure here comes from the case study; the volumes above do not.
 const WHY = {
   forecast: { num: "2 models", text: "in a dated pair: one for calls per hour, one for handling time. Call volume alone doesn't say how many agents a queue needs.",
-    more: ["Each model bundle carries its configuration and, where needed, scalers and recent values for lagged features. A request names one model set, and both members come from it.",
-      "The pipeline builds hourly calendar features, Turkish holidays included, and supports ordinary and seasonal lookbacks.",
-      "Longer recursive forecasts inherit uncertainty from earlier predictions."] },
+    more: ["Both dated call-count bundles use calendar features only. Both AHT bundles add five seasonal lags, spaced nine forecast rows apart, and feed their predictions back recursively.",
+      "Both see hour, weekday, day, month, season, year and a date-level public-holiday flag. The locked holidays 0.83 rules exclude half-day eves; there is no after-holiday feature. These curves are constructed examples, not measured holiday effects.",
+      "AHT MAE was 49.1% below copying last week in April (50.2 s vs 98.6 s) and 29.5% below in August. Call-count MAE fell 4.4% and 41.2%, respectively. Each held-out week has 45 hours forecast in one run from its dated origin, without feeding back test actuals."] },
   join: { num: "09:00–17:00", text: "on weekdays is the implemented schedule. Rows meet on their timestamp, so a call count is never paired with another hour's handling time.",
     more: ["Only hours present in both forecasts go into the staffing calculation.",
       "This is not a 24/7 forecast. A period with no forecast rows returns an empty list, not an error."] },
@@ -448,15 +448,15 @@ const WHY = {
     more: ["One erlang is one agent kept busy for the full hour.",
       "Calls don't arrive evenly. Staffed at exactly the workload, every random burst becomes a queue that never drains; the next step works out how much headroom a waiting-time target needs."] },
   erlang: { num: "85% in 15 s", text: "is the API's default target. Both values are configurable: they are calculation settings, not a measured service level.",
-    more: ["A separate waiting-time parameter, 30 seconds by default, feeds an abandonment estimate. It doesn't set the staffing target or impose a hard maximum on waiting.",
+    more: ["A separate threshold, 30 seconds by default, gives the modeled share waiting longer than that. The API labels it abandonment; it is not a patience model and does not set the staffing target or a hard maximum wait.",
       "The calculation library also includes Erlang B for blocked calls and extended Erlang B for immediate retries. Agent sizing uses Erlang C, rather than treating blocked calls and queued calls as the same problem.",
       "The API also returns telephone lines and queue measures for each hour; this demo computes agents, service level, utilization and speed of answer only."] },
-  table: { num: "95% of days", text: "kept service level above 80/20, that is 80% of calls answered within 20 seconds.",
+  table: { num: "1 row / hour", text: "keeps the forecast and its staffing calculation auditable together.",
     more: ["Each row keeps the forecast call count and handling time next to the required agents, telephone lines, modeled service level, utilization, queue measures and average speed of answer.",
       "The service levels in this table are modeled for illustrative volumes; they are not observations."] },
   api: { num: "3", text: "call-center endpoints: list the model sets, size supplied scenarios, or forecast and staff a date range. The queueing math lives in one place, not in each interface.",
-    more: ["A separate FastAPI service serves weekly revenue forecasts and product-demand forecasts for three product lines, one endpoint each. Each takes start_date and end_date in ISO format and returns aligned date, predict and real arrays; real is null where actuals aren't available yet.",
-      "Those recurrent models forecast recursively; outputs are transformed back to the original scale and clipped to non-negative values. The service has a typed response contract and a Docker packaging path.",
+    more: ["A separate FastAPI service serves weekly revenue forecasts and product-demand forecasts for three product lines, one endpoint each. Each takes start_date and end_date in ISO format and returns date, predict and real arrays of equal length. Actuals are placed by position, not joined by date; real is padded with trailing nulls after the last available actual.",
+      "The models are TensorFlow SimpleRNNs, run recursively; outputs are transformed back to the original scale and clipped to non-negative values. The service has a typed response contract and a Docker packaging path.",
       "Tkinter and Streamlit interfaces were delivered alongside the APIs. The engagement ran from September 2024 to the end of 2025."] },
 };
 
@@ -854,7 +854,7 @@ function finish(stage, ...parts) {
 /* ---------------------------------------------------------------- charts */
 
 // Hourly columns. `inner` draws a second, narrower series inside each column
-// (workload inside agents); `shade` greys the hours from a half-day holiday on.
+// (workload inside agents).
 function columns(W, values, o = {}) {
   const H = o.height || 150;
   const top = 18;
@@ -867,11 +867,6 @@ function columns(W, values, o = {}) {
   const el = svg("svg", { class: "chart", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": o.aria || "" });
   const cols = [];
   const fades = [];
-  if (o.shade != null) {
-    const x0 = o.shade * slot;
-    el.append(svg("rect", { x: x0, y: 0, width: W - x0, height: H - bottom + 2, rx: 6, fill: "var(--warn-soft)" }));
-    el.append(label(W - 6, 11, "half-day holiday", { "text-anchor": "end", fill: "var(--warn)" }));
-  }
   el.append(svg("line", { class: "grid", x1: 0, x2: W, y1: top + ph + 0.5, y2: top + ph + 0.5 }));
   values.forEach((v, i) => {
     const cx = slot * i + slot / 2;
@@ -909,10 +904,6 @@ function lineChart(W, values, o = {}) {
   const pts = values.map((v, i) => [slot * i + slot / 2, y(v)]);
   const len = pts.slice(1).reduce((acc, p, i) => acc + Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]), 0);
   const el = svg("svg", { class: "chart", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": o.aria || "" });
-  if (o.shade != null) {
-    const x0 = o.shade * slot;
-    el.append(svg("rect", { x: x0, y: 0, width: W - x0, height: H - bottom + 2, rx: 6, fill: "var(--warn-soft)" }));
-  }
   el.append(svg("line", { class: "grid", x1: 0, x2: W, y1: top + ph + 0.5, y2: top + ph + 0.5 }));
   const path = svg("path", { class: "line draw", d: `M${pts.map((p) => p.map((c) => c.toFixed(1)).join(" ")).join(" L")}`, stroke: o.color, style: `--len:${Math.ceil(len)}` });
   el.append(path);
@@ -981,17 +972,15 @@ const RENDER = {
         h("div", {}, h("p", { class: "chart-k", style: "--c:var(--c-aht)" }, "Average handling time (s)", h("span", { class: "small" }, "zoomed axis")), boxes[1])),
       illus());
     stage.append(card);
-    const shade = s.holiday?.from ? HOURS.indexOf(s.holiday.from) : null;
-    const calls = columns(boxes[0].clientWidth, s.calls, { color: "var(--c-calls)", highlight: p, shade, aria: `Forecast calls per hour, 09:00 to 17:00, peaking at ${s.calls[p]} at ${hh(p)}` });
-    const aht = lineChart(boxes[1].clientWidth, s.aht, { color: "var(--c-aht)", shade, aria: `Forecast average handling time, ${Math.min(...s.aht)} to ${Math.max(...s.aht)} seconds` });
+    const calls = columns(boxes[0].clientWidth, s.calls, { color: "var(--c-calls)", highlight: p, aria: `Forecast calls per hour, 09:00 to 17:00, peaking at ${s.calls[p]} at ${hh(p)}` });
+    const aht = lineChart(boxes[1].clientWidth, s.aht, { color: "var(--c-aht)", aria: `Forecast average handling time, ${Math.min(...s.aht)} to ${Math.max(...s.aht)} seconds` });
     boxes[0].append(calls.el);
     boxes[1].append(aht.el);
     const feats = h("div", { class: "feats" },
       h("span", { class: "feat" }, "Hour of day"),
       h("span", { class: "feat" }, `Weekday: ${s.weekday}`),
-      h("span", { class: `feat${s.holiday ? " flag" : ""}` }, s.holiday ? `Turkish holidays: ${s.holiday.feature}` : "Turkish holidays: none that day"),
-      h("span", { class: "feat" }, "Ordinary lookback"),
-      h("span", { class: "feat" }, "Seasonal lookback"));
+      h("span", { class: `feat${s.holiday?.flag ? " flag" : ""}` }, `Public-holiday flag: ${s.holiday ? s.holiday.feature : "0 · none that day"}`),
+      h("span", { class: "feat" }, "Day, month, season and year"));
     await wait(600);
     later(calls.cols);
     await wait(500);
@@ -999,20 +988,19 @@ const RENDER = {
     await wait(900);
     later([...calls.fades, ...aht.fades]);
     await wait(600);
-    stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "Hourly calendar features, shared by both models"), feats));
+    stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "Hourly calendar features, shared by both models"), feats,
+      h("p", { class: "small note" }, "Only AHT adds seasonal lags and feeds its own predictions back. The call-count model uses calendar features only.")));
     await wait(700);
-    const noon = HOURS.indexOf(12);
     finish(stage,
-      shade != null
-        ? result("warn", String(s.calls[shade]), `calls at ${hh(shade)}, down from ${s.calls[noon]} at ${hh(noon)}: the half-day holiday pulls the afternoon down.`)
-        : result("", String(s.calls[p]), `calls at ${hh(p)}, the peak hour, at ${s.aht[p]} s each.`),
+      result("", String(s.calls[p]), `calls at ${hh(p)}, the peak hour, at ${s.aht[p]} s each.`),
       why("forecast"),
       mechanics(
         h("div", {}, h("h4", {}, "One dated model set, two bundles"),
           h("div", { class: "bundles" },
-            ["Calls per hour", "Average handling time"].map((t) => h("div", { class: "bundle" }, h("b", {}, t),
-              h("ul", {}, h("li", {}, "the model and its configuration"), h("li", {}, "scalers, where needed"), h("li", {}, "recent values for lagged features")))))),
-        h("p", { class: "small" }, "If either member of the pair is missing, the service answers not found instead of forecasting half a day.")));
+            ["Calls per hour", "Average handling time"].map((t, i) => h("div", { class: "bundle" }, h("b", {}, t),
+              h("ul", {}, h("li", {}, "the model and its configuration"), h("li", {}, "scalers"),
+                i === 1 ? h("li", {}, "saved history for five seasonal lags") : h("li", {}, "no lag inputs")))))),
+        h("p", { class: "small" }, "Both members come from the same dated model set; the service never forecasts calls without handling time, or the reverse.")));
   },
 
   async join(stage, s, wait) {
@@ -1066,9 +1054,8 @@ const RENDER = {
         h("span", {}, h("b", {}, a.toFixed(2)), h("small", {}, "erlangs"))),
       h("p", { class: "card-label", style: "margin:20px 0 6px" }, "Every hour, in erlangs"), box, illus());
     stage.append(card);
-    const shade = s.holiday?.from ? HOURS.indexOf(s.holiday.from) : null;
     const loads = HOURS.map((_, i) => erlangs(s.calls[i], s.aht[i]));
-    const chart = columns(box.clientWidth, loads, { color: "var(--c-load)", highlight: p, shade, fmt: (v) => v.toFixed(1), aria: `Workload per hour in erlangs, peaking at ${a.toFixed(1)} at ${hh(p)}` });
+    const chart = columns(box.clientWidth, loads, { color: "var(--c-load)", highlight: p, fmt: (v) => v.toFixed(1), aria: `Workload per hour in erlangs, peaking at ${a.toFixed(1)} at ${hh(p)}` });
     box.append(chart.el);
     await wait(600);
     later(chart.cols);
@@ -1175,7 +1162,7 @@ const RENDER = {
     await wait(500);
     finish(stage, T.sum, why("table"),
       mechanics(h("div", {}, h("h4", {}, "What else each API row carries"),
-        h("p", { class: "small" }, "The service also returns telephone lines, queue measures and an abandonment estimate for every hour. That estimate uses a separate waiting-time parameter, 30 seconds by default. None of these are computed in this demo."))));
+        h("p", { class: "small" }, "The service also returns telephone lines, queue measures and a long-wait share labeled abandonment: the modeled probability of waiting longer than a separate threshold, 30 seconds by default. It is not a patience model. None of these are computed in this demo."))));
   },
 
   async api(stage, s, wait) {
@@ -1201,7 +1188,7 @@ const RENDER = {
         h("div", { class: "codebox" }, h("div", { class: "path" }, "Request"), A.req),
         h("div", { class: "codebox" }, h("div", { class: "path" }, "Response", A.badge), A.res)),
       A.note,
-      illus("Field names and values are illustrative: the case study describes the contract, not the exact schema.")));
+      illus("Real API field names; illustrative values and abbreviated responses. No request reaches the client's service. Model ID 1 is the April 14 set; later starts reuse its saved AHT lag history without forecasting skipped hours.")));
     renderVariant();
     await wait(700);
     const p = peakIndex(s);
@@ -1212,9 +1199,9 @@ const RENDER = {
       mechanics(h("div", {}, h("h4", {}, `POST /erlang with ${hh(p)} from this day, no model needed`),
         h("div", { class: "codes" },
           h("div", { class: "codebox" }, h("div", { class: "path" }, "Request"),
-            h("pre", {}, `{\n  "calls": [${s.calls[p]}],\n  "aht": [${s.aht[p]}],\n  "service_level": ${S.target.sl},\n  "service_time": ${S.target.t}\n}`)),
+            h("pre", {}, `[{\n  "calls_per_hour": ${s.calls[p]},\n  "aht_sec": ${s.aht[p]},\n  "sla": ${S.target.sl},\n  "service_time_sec": ${S.target.t},\n  "max_waiting_time_sec": 30\n}]`)),
           h("div", { class: "codebox" }, h("div", { class: "path" }, "Response", h("span", { class: "badge ok" }, "OK")),
-            h("pre", {}, `[{\n  "agents": ${m.n},\n  "service_level": ${m.sl.toFixed(3)},\n  "utilization": ${m.util.toFixed(2)},\n  "asa": ${m.asa.toFixed(1)},\n`, h("span", { class: "cm" }, "  // + lines, queue measures,\n  //   abandonment estimate"), "\n}]")))),
+            h("pre", {}, `[{\n  "# Agents": ${m.n},\n  "SLA %": ${m.sl.toFixed(2)},\n  "Utilisation %": ${m.util.toFixed(2)},\n  "ASA (secs)": ${m.asa.toFixed(1)},\n`, h("span", { class: "cm" }, "  // + trunks, queue measures,\n  //   \"Abandoned %\" (modeled long-wait share)"), "\n}]")))),
         h("p", { class: "small" }, "Supplied inputs go straight to the queueing calculation, so a scenario can be compared without a forecast.")));
   },
 
@@ -1244,17 +1231,17 @@ const RENDER = {
     stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "From the case study"),
       h("div", { class: "tiles" },
         tile("85% in 15 s", "default target; a setting, not a result"),
-        tile("30 s", "default waiting-time parameter for the abandonment estimate"),
+        tile("30 s", "default threshold for the modeled long-wait share"),
         tile("3", "call-center endpoints, plus a demand and revenue service"),
-        tile("95% of days", "with service level above 80/20"))));
+        tile("29–49%", "lower handling-time MAE than last week, two test weeks"))));
     await wait(400);
     stage.append(h("div", { class: "card reveal" }, h("p", { class: "card-label" }, "What the estimate is not"),
       h("ul", { class: "limits" },
         h("li", {}, "A shift roster. It is a capacity estimate: no breaks, leave or skill-based routing."),
         h("li", {}, "Exact. Erlang C assumes a stable queue, independent arrivals and a simplified handling-time distribution; real peaks and callers can differ."),
-        h("li", {}, "Observed. Waiting and abandonment outputs are model estimates, not outcomes."),
-        h("li", {}, "Around the clock. The schedule is weekdays 09:00 through 17:00, and longer recursive forecasts inherit uncertainty from earlier predictions."),
-        h("li", {}, "A claim of accuracy or savings. The case study reports neither."))));
+        h("li", {}, "Observed. Waiting outputs are modeled; the field labeled abandonment is a long-wait probability, not observed caller behavior."),
+        h("li", {}, "Around the clock. The schedule is weekdays 09:00 through 17:00 inclusive. Later starts reuse origin-time AHT lags without forecasting skipped hours; longer recursive forecasts inherit uncertainty."),
+        h("li", {}, "A claim of savings or observed service levels. The case study reports forecast error on two test weeks, nothing more."))));
     await wait(400);
     const others = GROUPS.map((g) => {
       const idx = SCENARIOS.map((x, i) => [x, i]).filter(([x]) => x.group === g.id).map(([, i]) => i);
@@ -1424,7 +1411,7 @@ function drawPlan(before) {
   T.slTh.textContent = `in ${S.target.t} s`;
   const chart = columns(T.chart.clientWidth || 300, rows.map((r) => r.n), {
     color: "var(--accent)", outline: true, inner: rows.map((r) => r.m.a), innerColor: "var(--c-load)", highlight: peak.i,
-    max: Math.max(...rows.map((r) => r.n)) * 1.08, height: 160, shade: s.holiday?.from ? HOURS.indexOf(s.holiday.from) : null,
+    max: Math.max(...rows.map((r) => r.n)) * 1.08, height: 160,
     aria: `Agents required per hour, peaking at ${peak.n} at ${hh(peak.i)}, against the workload in erlangs`,
   });
   T.chart.replaceChildren(chart.el);
@@ -1444,21 +1431,19 @@ function drawPlan(before) {
 
 const VARIANTS = [
   { id: "valid", label: "Valid" },
-  { id: "unknown", label: "Unknown model", set: { model_id: '"no-such-set"' }, tone: "bad", status: "Rejected", short: "unknown model ID",
+  { id: "unknown", label: "Unknown model", set: { model_id: "999" }, tone: "bad", status: "Rejected", short: "unknown model ID",
     why: "The model-backed route rejects unknown model IDs." },
-  { id: "reversed", label: "Reversed dates", set: (s) => ({ start: `"${s.date}T17:00"`, end: `"${s.date}T09:00"` }), tone: "bad", status: "Rejected", short: "the range ends before it starts",
+  { id: "reversed", label: "Reversed dates", set: (s) => ({ start_date: `"${s.date}T17:00"`, end_date: `"${s.date}T09:00"` }), tone: "bad", status: "Rejected", short: "the range ends before it starts",
     why: "The model-backed route rejects reversed date ranges." },
-  { id: "empty", label: "Empty range", set: (s) => ({ end: `"${s.date}T09:00"` }), tone: "bad", status: "Rejected", short: "the range is empty",
+  { id: "empty", label: "Empty range", set: (s) => ({ end_date: `"${s.date}T09:00"` }), tone: "bad", status: "Rejected", short: "the range is empty",
     why: "The model-backed route rejects empty date ranges." },
-  { id: "early", label: "Too early", set: { start: '"2020-01-06T09:00"' }, tone: "bad", status: "Rejected", short: "starts before the model's supported start",
+  { id: "early", label: "Too early", set: { start_date: '"2020-01-06T09:00"' }, tone: "bad", status: "Rejected", short: "starts before the model's supported start",
     why: "Requests that start before the model's supported start are rejected." },
-  { id: "share", label: "Service level 1.2", set: { service_level: "1.2" }, tone: "bad", status: "Rejected", short: "service level outside 0–1",
+  { id: "share", label: "Service level 1.2", set: { sla: "1.2" }, tone: "bad", status: "Rejected", short: "service level outside 0–1",
     why: "Pydantic parses the request types and constrains the service-level fraction to 0–1." },
-  { id: "zero", label: "0 s threshold", set: { service_time: "0" }, tone: "bad", status: "Rejected", short: "time thresholds must be positive",
-    why: "Pydantic requires positive service and abandonment time thresholds." },
-  { id: "half", label: "Half a model pair", set: { model_id: '"incomplete-set"' }, tone: "warn", status: "Not found", short: "a member of the model pair is missing",
-    why: "If one member of the model pair is missing, the service returns a not-found response." },
-  { id: "weekend", label: "Weekend only", set: { start: '"2025-03-15T09:00"', end: '"2025-03-16T17:00"' }, empty: true,
+  { id: "zero", label: "0 s threshold", set: { service_time_sec: "0" }, tone: "bad", status: "Rejected", short: "time thresholds must be positive",
+    why: "Pydantic requires positive service-time and long-wait thresholds." },
+  { id: "weekend", label: "Weekend only", set: { start_date: '"2025-04-19T09:00"', end_date: '"2025-04-20T17:00"' }, empty: true,
     why: "A valid request whose period has no forecast rows returns an empty data list, not an error." },
 ];
 
@@ -1468,8 +1453,8 @@ function renderVariant() {
   for (const [k, b] of [...A.chips.children].entries()) b.setAttribute("aria-pressed", String(VARIANTS[k].id === v.id));
   const set = typeof v.set === "function" ? v.set(s) : v.set || {};
   const req = {
-    model_id: '"example-set"', start: `"${s.date}T09:00"`, end: `"${s.date}T17:00"`,
-    service_level: String(S.target.sl), service_time: String(S.target.t), abandon_time: "30", ...set,
+    model_id: "1", start_date: `"${s.date}T09:00"`, end_date: `"${s.date}T17:00"`,
+    sla: String(S.target.sl), service_time_sec: String(S.target.t), max_waiting_time_sec: "30", ...set,
   };
   const keys = Object.keys(req);
   A.req.replaceChildren("{\n", ...keys.flatMap((k, i) => [`  "${k}": `, k in set ? h("mark", {}, req[k]) : req[k], i < keys.length - 1 ? ",\n" : "\n"]), "}");
@@ -1478,10 +1463,10 @@ function renderVariant() {
   if (v.tone) {
     A.res.replaceChildren(h("span", { class: "cm" }, `// ${v.status}: ${v.short}.\n// No forecast is run.`));
   } else if (v.empty) {
-    A.res.replaceChildren(`{\n  "model": { "id": "example-set", … },\n  "data": `, h("mark", {}, "[]"), "\n}");
+    A.res.replaceChildren(`{\n  "model": { "id": 1, … },\n  "data": `, h("mark", {}, "[]"), "\n}");
   } else {
     const r = plan(s, S.target)[0];
-    A.res.replaceChildren(`{\n  "model": { "id": "example-set", … },\n  "data": [\n    { "timestamp": "${s.date}T${hh(0)}",\n      "calls": ${r.calls}, "aht": ${r.aht},\n      "agents": ${r.n},\n      "service_level": ${r.m.sl.toFixed(3)},\n      "utilization": ${r.m.util.toFixed(2)},\n      "asa": ${r.m.asa.toFixed(1)}, … },\n`,
+    A.res.replaceChildren(`{\n  "model": { "id": 1, … },\n  "data": [\n    { "Tarih": "${s.date}T${hh(0)}",\n      "calls_per_hour": ${r.calls}, "aht_sec": ${r.aht},\n      "# Agents": ${r.n},\n      "SLA %": ${r.m.sl.toFixed(2)},\n      "Utilisation %": ${r.m.util.toFixed(2)},\n      "ASA (secs)": ${r.m.asa.toFixed(1)}, … },\n`,
       h("span", { class: "cm" }, `    // … ${HOURS.length - 1} more hours`), "\n  ]\n}");
   }
   A.note.textContent = v.why || "Model metadata, then one row per hour: the forecast and its staffing side by side.";
